@@ -1,0 +1,1142 @@
+{
+  "interpreter": {
+    "goal": "Представить вычисление объектами, которые можно вкладывать друг в друга.",
+    "input": "База: число 1. Расширение: сумма 1 и 2; выражения допускают вложенные суммы.",
+    "invariant": "Каждый узел предоставляет evaluate; Sum вычисляет дочерние узлы через тот же контракт.",
+    "roles": [
+      {
+        "name": "Expression",
+        "purpose": "Контракт evaluate без знания вида узла."
+      },
+      {
+        "name": "Literal",
+        "purpose": "Лист, возвращающий число."
+      },
+      {
+        "name": "Sum",
+        "purpose": "Узел, складывающий результаты двух выражений."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "evaluate((1, 2))",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "evaluate(1) + evaluate(2)",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "3",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "Sum.evaluate()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "left.evaluate() + right.evaluate()",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "3",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовая операция",
+        "before": {
+          "path": "examples/interpreter/python/without_pattern.py",
+          "selectors": [
+            "evaluate"
+          ]
+        },
+        "after": {
+          "path": "examples/interpreter/python/expression.py",
+          "selectors": [
+            "Literal.evaluate"
+          ]
+        },
+        "explanation": "Литерал хранит число в узле; для одного числа обычная функция проще."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/interpreter/python/without_pattern_extended.py",
+          "selectors": [
+            "evaluate"
+          ]
+        },
+        "after": {
+          "path": "examples/interpreter/python/expression.py",
+          "selectors": [
+            "Sum.evaluate"
+          ]
+        },
+        "explanation": "Обе версии вычисляют вложенное дерево. Прямая функция распознаёт int и пару; Sum вызывает evaluate дочерних выражений через общий контракт."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Сумма двух значений",
+        "before": "evaluate возвращает число; расширенный evaluate рекурсивно вычисляет два элемента пары и складывает их.",
+        "after": "Literal(1).evaluate возвращает 1. Sum(Literal(1), Literal(2)).evaluate вызывает оба дочерних evaluate и складывает 1 + 2.",
+        "verdict": "Объекты заменяют числа и пары, добавляя классы и вызовы. Парсера здесь нет: дерево создаёт Python-код. Для фиксированного выражения обычная арифметика проще."
+      },
+      {
+        "change": "Вложенная сумма",
+        "before": "Передать вложенную пару, например ((1, 2), 3); evaluate не меняется.",
+        "after": "Передать вложенный Sum; Sum.evaluate не меняется.",
+        "verdict": "Обе версии хранят дерево как данные и вычисляют его рекурсивно; различается представление узлов."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Вложенные выражения",
+        "why": "Операция узла рекурсивно вычисляет дочерние выражения."
+      },
+      {
+        "case": "Повторное вычисление сохранённого дерева",
+        "why": "Структура и операция представлены вместе, поэтому дерево можно вычислить снова."
+      }
+    ],
+    "decision": {
+      "use": "Вычисления нужно хранить и комбинировать как дерево узлов.",
+      "skip": "Достаточно вычислить фиксированное выражение напрямую."
+    },
+    "trace": {
+      "input": "База: число 1. Расширение: сумма 1 и 2; выражения допускают вложенные суммы.",
+      "before": "evaluate возвращает число; расширенный evaluate рекурсивно вычисляет два элемента пары и складывает их.",
+      "after": "Literal(1).evaluate возвращает 1. Sum(Literal(1), Literal(2)).evaluate вызывает оба дочерних evaluate и складывает 1 + 2.",
+      "result": "База: 1. Расширение: 3."
+    },
+    "terms": [
+      {
+        "term": "Выражение",
+        "definition": "Узел с операцией вычисления evaluate."
+      },
+      {
+        "term": "Лист",
+        "definition": "Узел без дочерних выражений."
+      },
+      {
+        "term": "Составной узел",
+        "definition": "Узел, вычисляющий дочерние выражения."
+      }
+    ],
+    "designNotes": [
+      "Expression задаёт вычисление узла, Literal хранит число, Sum хранит два выражения. Связанные узлы одной маленькой грамматики удобно держать вместе; рекурсия следует структуре дерева.",
+      "Объекты заменяют числа и пары, добавляя классы и вызовы. Парсера здесь нет: дерево создаёт Python-код. Для фиксированного выражения обычная арифметика проще."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/interpreter/python/without_pattern.py",
+        "role": "Прямая реализация"
+      },
+      {
+        "path": "examples/interpreter/python/without_pattern_extended.py",
+        "role": "Прямая реализация"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      3
+    ],
+    "fileAliases": {
+      "sum_expression.py": "expression.py",
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  },
+  "factory-method": {
+    "goal": "Заменять создаваемый Product, сохраняя Creator.operation.",
+    "input": "База: продукт A. Расширение: продукт B; operation возвращает маркер продукта.",
+    "invariant": "Обе версии возвращают тот же маркер; общий метод Creator вызывает переопределяемое создание.",
+    "roles": [
+      {
+        "name": "Product",
+        "purpose": "Объект с operation; A и B — условные реализации."
+      },
+      {
+        "name": "Creator",
+        "purpose": "Использует продукт, создание делегирует create."
+      },
+      {
+        "name": "CreatorA / CreatorB",
+        "purpose": "Переопределяют только create."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "operation()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "ProductA().operation()",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "A",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "CreatorA.operation()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "CreatorA.create() → ProductA",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "ProductA.operation() → A",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовая операция",
+        "before": {
+          "path": "examples/factory-method/python/without_pattern.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/factory-method/python/creator.py",
+          "selectors": [
+            "Creator.operation"
+          ]
+        },
+        "explanation": "Прямое создание заменено вызовом create. Общий operation не знает конкретного продукта."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/factory-method/python/without_pattern_extended.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/factory-method/python/creator.py",
+          "selectors": [
+            "CreatorB"
+          ]
+        },
+        "explanation": "До: новая ветка match. После: новый подкласс создателя; его выбор остаётся у вызывающего кода."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Другой продукт",
+        "before": "operation создаёт ProductA; расширенная функция выбирает ProductA или ProductB по Kind и вызывает operation продукта.",
+        "after": "CreatorA.operation наследует общий процесс: self.create создаёт ProductA, затем вызывается ProductA.operation. CreatorB подменяет только создание.",
+        "verdict": "Появляется иерархия создателей. Для одного выбора конструктора хватит функции; фабричный метод оправдан, когда общий процесс базового класса уже должен работать с разными продуктами."
+      },
+      {
+        "change": "Единственный вызов конструктора",
+        "before": "Прямая функция короче.",
+        "after": "Иерархия добавляет классы.",
+        "verdict": "Польза возникает внутри существующего общего процесса."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Подмена продукта внутри общего процесса",
+        "why": "Подкласс меняет create, сохраняя Creator.operation."
+      },
+      {
+        "case": "Расширение существующего базового класса",
+        "why": "Переопределяемый метод становится явной точкой выбора создаваемого объекта."
+      }
+    ],
+    "decision": {
+      "use": "В существующем базовом процессе подклассы должны создавать разные продукты.",
+      "skip": "Нужен только выбор конструктора: функция создания проще."
+    },
+    "trace": {
+      "input": "База: продукт A. Расширение: продукт B; operation возвращает маркер продукта.",
+      "before": "operation создаёт ProductA; расширенная функция выбирает ProductA или ProductB по Kind и вызывает operation продукта.",
+      "after": "CreatorA.operation наследует общий процесс: self.create создаёт ProductA, затем вызывается ProductA.operation. CreatorB подменяет только создание.",
+      "result": "База: A. Расширение: B."
+    },
+    "terms": [
+      {
+        "term": "Продукт",
+        "definition": "Создаваемый объект с общей операцией."
+      },
+      {
+        "term": "Фабричный метод",
+        "definition": "Переопределяемая операция создания продукта."
+      },
+      {
+        "term": "Создатель",
+        "definition": "Объект, который получает продукт через фабричный метод."
+      }
+    ],
+    "designNotes": [
+      "Creator владеет использованием продукта, create — точкой подмены его создания. Продукты и создатели разделены по обязанности; варианты A/B каждой роли можно держать вместе.",
+      "Появляется иерархия создателей. Для одного выбора конструктора хватит функции; фабричный метод оправдан, когда общий процесс базового класса уже должен работать с разными продуктами."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/factory-method/python/product.py",
+        "role": "Общая структура значения"
+      },
+      {
+        "path": "examples/factory-method/python/without_pattern.py",
+        "role": "Прямая реализация"
+      },
+      {
+        "path": "examples/factory-method/python/without_pattern_extended.py",
+        "role": "Прямая реализация"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      3
+    ],
+    "fileAliases": {
+      "creator_b.py": "creator.py",
+      "product_b.py": "product.py",
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  },
+  "abstract-factory": {
+    "goal": "Передавать создание двух связанных продуктов одной зависимостью.",
+    "input": "Пара маркеров A1/A2; расширение выбирает B1/B2 одной фабрикой.",
+    "invariant": "Клиент вызывает first и second одной фабрики; обе версии возвращают одинаковую пару.",
+    "roles": [
+      {
+        "name": "Product",
+        "purpose": "Содержит условный маркер."
+      },
+      {
+        "name": "Factory",
+        "purpose": "Контракт создания пары продуктов."
+      },
+      {
+        "name": "FactoryA / FactoryB",
+        "purpose": "Создают пары A1/A2 и B1/B2."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "operation()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "Product(A1), Product(A2)",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "(A1, A2)",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "operation(FactoryA)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "first(), second()",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "(A1, A2)",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовая операция",
+        "before": {
+          "path": "examples/abstract-factory/python/without_pattern.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/abstract-factory/python/client.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "explanation": "До: клиент знает, как создать пару. После: вызывает две операции переданной фабрики."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/abstract-factory/python/without_pattern_extended.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/abstract-factory/python/factory.py",
+          "selectors": [
+            "FactoryB"
+          ]
+        },
+        "explanation": "Новая фабрика меняет пару целиком. Простой match тоже может централизовать согласованное создание."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Другой набор продуктов",
+        "before": "operation создаёт два Product; расширение выбирает согласованную пару по Kind.",
+        "after": "operation(factory) вызывает first и second одной фабрики, затем operation обоих продуктов. FactoryA даёт A1/A2, FactoryB — B1/B2.",
+        "verdict": "Один Product с маркерами показывает единицу подстановки, а не проверку совместимости типов. Простая функция тоже может вернуть согласованную пару. Новый вид продукта изменит контракт всех фабрик."
+      },
+      {
+        "change": "Третья операция создания",
+        "before": "Дополнить функцию создания.",
+        "after": "Расширить Factory и каждую фабрику.",
+        "verdict": "Новый вид продукта затрагивает все семейства."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Подмена семейства целиком",
+        "why": "Одна зависимость меняет результаты нескольких операций создания."
+      },
+      {
+        "case": "Несколько клиентов одного семейства",
+        "why": "Одна фабрика передаётся разным клиентам с общим контрактом."
+      }
+    ],
+    "decision": {
+      "use": "Клиенты подменяют связанные операции создания как единое семейство.",
+      "skip": "Меняются только данные одного класса: функция с параметром компактнее."
+    },
+    "trace": {
+      "input": "Пара маркеров A1/A2; расширение выбирает B1/B2 одной фабрикой.",
+      "before": "operation создаёт два Product; расширение выбирает согласованную пару по Kind.",
+      "after": "operation(factory) вызывает first и second одной фабрики, затем operation обоих продуктов. FactoryA даёт A1/A2, FactoryB — B1/B2.",
+      "result": "База: ('A1', 'A2'). Расширение: ('B1', 'B2')."
+    },
+    "terms": [
+      {
+        "term": "Семейство",
+        "definition": "Набор продуктов, создаваемых совместно."
+      },
+      {
+        "term": "Фабрика",
+        "definition": "Объект с операциями создания продуктов."
+      },
+      {
+        "term": "Клиент",
+        "definition": "Код, использующий фабрику через её контракт."
+      }
+    ],
+    "designNotes": [
+      "Клиент зависит от операций создания пары, а фабрика выбирает семейство целиком. Короткие фабрики находятся вместе; Product хранит только нейтральный маркер.",
+      "Один Product с маркерами показывает единицу подстановки, а не проверку совместимости типов. Простая функция тоже может вернуть согласованную пару. Новый вид продукта изменит контракт всех фабрик."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/abstract-factory/python/product.py",
+        "role": "Общая структура значения"
+      },
+      {
+        "path": "examples/abstract-factory/python/without_pattern.py",
+        "role": "Прямая реализация"
+      },
+      {
+        "path": "examples/abstract-factory/python/without_pattern_extended.py",
+        "role": "Прямая реализация"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      3
+    ],
+    "fileAliases": {
+      "factory_b.py": "factory.py",
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  },
+  "builder": {
+    "goal": "Накопить части и получить отдельный неизменяемый Product.",
+    "input": "Сначала часть A; в расширении перед build добавляется B.",
+    "invariant": "build копирует части в tuple; дальнейшие шаги не изменяют уже построенный продукт.",
+    "roles": [
+      {
+        "name": "Product",
+        "purpose": "Готовый неизменяемый набор частей."
+      },
+      {
+        "name": "Builder",
+        "purpose": "Хранит изменяемые части до build."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "operation()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "Product((A,))",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "(A,)",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "Builder.add(A)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "build() → tuple(parts)",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "(A,)",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовая операция",
+        "before": {
+          "path": "examples/builder/python/without_pattern.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/builder/python/with_pattern.py",
+          "selectors": [
+            "@usage"
+          ]
+        },
+        "explanation": "Прямое создание получает все части сразу; Builder хранит их между отдельными шагами."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/builder/python/without_pattern_extended.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/builder/python/with_pattern_extended.py",
+          "selectors": [
+            "@usage"
+          ]
+        },
+        "explanation": "Расширение добавляет один add перед build. Класс Builder не меняется; для готовых частей прямое создание короче."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Следующая часть",
+        "before": "operation передаёт готовый tuple (A,) или (A, B) в Product.",
+        "after": "Builder.add сохраняет A, затем при расширении B. build копирует текущий список в tuple и создаёт Product.",
+        "verdict": "Нужно управлять временем жизни Builder и явно вызвать build. Если все части уже известны, прямой конструктор короче. Повторный build здесь создаёт новый снимок и не очищает Builder."
+      },
+      {
+        "change": "Изменить уже построенный результат",
+        "before": "Создать другое значение.",
+        "after": "Добавить шаг и вызвать build заново.",
+        "verdict": "Ранее построенное значение остаётся прежним."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Данные поступают отдельными шагами",
+        "why": "Builder хранит части до момента получения Product."
+      },
+      {
+        "case": "Несколько снимков сборки",
+        "why": "Повторный build выдаёт новое значение, не меняя прежний продукт."
+      }
+    ],
+    "decision": {
+      "use": "Данные поступают поэтапно, а готовый результат отделён от промежуточного состояния.",
+      "skip": "Все аргументы готовы: прямое создание проще."
+    },
+    "trace": {
+      "input": "Сначала часть A; в расширении перед build добавляется B.",
+      "before": "operation передаёт готовый tuple (A,) или (A, B) в Product.",
+      "after": "Builder.add сохраняет A, затем при расширении B. build копирует текущий список в tuple и создаёт Product.",
+      "result": "База: ('A',). Расширение: ('A', 'B')."
+    },
+    "terms": [
+      {
+        "term": "Строитель",
+        "definition": "Объект, накапливающий части до завершения."
+      },
+      {
+        "term": "Промежуточное состояние",
+        "definition": "Накопленные части до build."
+      },
+      {
+        "term": "Снимок",
+        "definition": "Отдельное значение, сохраняющее состояние на момент build."
+      }
+    ],
+    "designNotes": [
+      "Builder хранит незавершённое изменяемое состояние, Product — готовый неизменяемый результат. Эта граница позволяет продолжать сборку, не меняя ранее выданный продукт.",
+      "Нужно управлять временем жизни Builder и явно вызвать build. Если все части уже известны, прямой конструктор короче. Повторный build здесь создаёт новый снимок и не очищает Builder."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/builder/python/product.py",
+        "role": "Общая структура значения"
+      },
+      {
+        "path": "examples/builder/python/without_pattern.py",
+        "role": "Прямая реализация"
+      },
+      {
+        "path": "examples/builder/python/without_pattern_extended.py",
+        "role": "Прямая реализация"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      3
+    ],
+    "fileAliases": {
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  },
+  "prototype": {
+    "goal": "Создать независимую копию текущего состояния объекта.",
+    "input": "Исходный объект с parts=[A]; создать копию, в расширении добавить B только копии.",
+    "invariant": "Клон сохраняет текущие части, но его изменяемый список независим от исходного.",
+    "roles": [
+      {
+        "name": "Value",
+        "purpose": "Обычное значение с изменяемыми частями."
+      },
+      {
+        "name": "Prototype",
+        "purpose": "Предоставляет clone с глубокой копией."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "operation(original)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "Value(копия original.parts)",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "[A]",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "original.clone()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "deepcopy(original)",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "[A]",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовая операция",
+        "before": {
+          "path": "examples/prototype/python/without_pattern.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/prototype/python/prototype.py",
+          "selectors": [
+            "Prototype.clone"
+          ]
+        },
+        "explanation": "Обе версии копируют текущее состояние входного объекта. Функция копирует известный список parts; clone инкапсулирует политику копирования в объекте."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/prototype/python/without_pattern_extended.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/prototype/python/with_pattern_extended.py",
+          "selectors": [
+            "@usage"
+          ]
+        },
+        "explanation": "Обе версии добавляют B только независимой копии. Различается место знания о копировании: внешняя функция или метод clone."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Изменить копию",
+        "before": "Скопировать parts исходного Value и добавить B копии.",
+        "after": "Вызвать original.clone и добавить B клону.",
+        "verdict": "Для списка строк достаточно копии списка; deepcopy выбран как политика clone этого примера. Ресурсы и произвольные графы требуют отдельной политики. Обычная функция копирования здесь столь же корректна."
+      },
+      {
+        "change": "Исходный объект настроен во время работы",
+        "before": "Передать текущий original в operation: функция копирует его parts.",
+        "after": "Вызвать clone у текущего original: метод копирует объект.",
+        "verdict": "Обе версии копируют актуальное состояние. Различается владелец политики копирования: внешняя функция или сам объект."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Копия настроенного состояния",
+        "why": "clone использует текущие значения образца без повторения его настройки."
+      },
+      {
+        "case": "Независимое изменение копии",
+        "why": "После копирования изменяемая часть клона отделена от оригинала."
+      }
+    ],
+    "decision": {
+      "use": "Новые объекты повторяют текущее состояние уже настроенных объектов.",
+      "skip": "Исходные аргументы просты и доступны: прямое создание понятнее."
+    },
+    "trace": {
+      "input": "Исходный объект с parts=[A]; создать копию, в расширении добавить B только копии.",
+      "before": "operation(original) копирует текущий список parts в новый Value; расширение добавляет B новому списку.",
+      "after": "original.clone вызывает deepcopy и возвращает независимый Prototype с теми же parts. Добавление B меняет только клон.",
+      "result": "База: ['A']. Расширение: ['A', 'B']; исходный список остаётся ['A']."
+    },
+    "terms": [
+      {
+        "term": "Прототип",
+        "definition": "Объект, текущее состояние которого служит образцом."
+      },
+      {
+        "term": "Клон",
+        "definition": "Новый объект, созданный копированием образца."
+      },
+      {
+        "term": "Глубокая копия",
+        "definition": "Копирование вложенных изменяемых объектов, здесь списка."
+      }
+    ],
+    "designNotes": [
+      "clone переносит правило копирования к самому объекту; вызывающий код не перечисляет поля. Value задаёт общие данные, Prototype добавляет операцию копирования, не меняя их смысл.",
+      "Для списка строк достаточно копии списка; deepcopy выбран как политика clone этого примера. Ресурсы и произвольные графы требуют отдельной политики. Обычная функция копирования здесь столь же корректна."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/prototype/python/value.py",
+        "role": "Общая структура значения"
+      },
+      {
+        "path": "examples/prototype/python/without_pattern.py",
+        "role": "Прямая реализация"
+      },
+      {
+        "path": "examples/prototype/python/without_pattern_extended.py",
+        "role": "Прямая реализация"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      3
+    ],
+    "fileAliases": {
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  },
+  "singleton": {
+    "goal": "Сравнить явное разделение экземпляра и принудительную единственность.",
+    "input": "Новый процесс; сначала один вызов operation, в расширении два получения общего экземпляра.",
+    "invariant": "Обе версии дают 1, затем 2 при повторном использовании; Singleton также возвращает один объект при каждом конструировании.",
+    "roles": [
+      {
+        "name": "Instance",
+        "purpose": "Обычный экземпляр со своим состоянием."
+      },
+      {
+        "name": "Singleton",
+        "purpose": "Возвращает сохранённый экземпляр вместо нового."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "shared = Instance()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "shared.operation()",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "1",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "Singleton.__new__()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "общий Instance → operation()",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "1",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовая операция",
+        "before": {
+          "path": "examples/singleton/python/without_pattern.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/singleton/python/singleton.py",
+          "selectors": [
+            "Singleton.__new__"
+          ]
+        },
+        "explanation": "До: вызывающий код создаёт и передаёт общий экземпляр явно. После: конструктор возвращает сохранённый объект."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/singleton/python/without_pattern_extended.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/singleton/python/with_pattern_extended.py",
+          "selectors": [
+            "@usage"
+          ]
+        },
+        "explanation": "Оба варианта сохраняют состояние между вызовами. Singleton скрывает разделение и запрещает независимые экземпляры; обычный объект уже решает задачу."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Повторное использование",
+        "before": "operation создаёт Instance и явно использует его один или два раза: значения 1 и затем 2.",
+        "after": "Первый Singleton() создаёт и сохраняет экземпляр. Второй возвращает тот же объект; пустой __init__ не сбрасывает value. operation даёт 1, затем 2.",
+        "verdict": "Общее состояние скрывает зависимость между вызовами и усложняет изоляцию тестов. Пример однопоточный; @final запрещает наследование лишь для проверки типов. Явная передача одного Instance обычно проще."
+      },
+      {
+        "change": "Независимые состояния",
+        "before": "Создать два Instance.",
+        "after": "Глобальный экземпляр мешает изоляции.",
+        "verdict": "Передача обычной зависимости сохраняет контроль владения."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Единственный экземпляр в заданной области",
+        "why": "Получение объекта централизовано; граница примера — один однопоточный процесс."
+      },
+      {
+        "case": "Повторные получения общего состояния",
+        "why": "Разные вызовы конструктора наблюдают изменения одного экземпляра."
+      }
+    ],
+    "decision": {
+      "use": "Принудительная единственность в одном процессе действительно является требованием.",
+      "skip": "Достаточно создать одну зависимость и передавать её явно."
+    },
+    "trace": {
+      "input": "Новый процесс; сначала один вызов operation, в расширении два получения общего экземпляра.",
+      "before": "operation создаёт Instance и явно использует его один или два раза: значения 1 и затем 2.",
+      "after": "Первый Singleton() создаёт и сохраняет экземпляр. Второй возвращает тот же объект; пустой __init__ не сбрасывает value. operation даёт 1, затем 2.",
+      "result": "База: 1. Расширение: (1, 2). Каждый вариант запускается в новом процессе."
+    },
+    "terms": [
+      {
+        "term": "Единственность",
+        "definition": "Все получения объекта ведут к одному экземпляру."
+      },
+      {
+        "term": "Область жизни",
+        "definition": "Граница существования экземпляра; здесь один процесс."
+      },
+      {
+        "term": "Общее состояние",
+        "definition": "Изменения видны всем, кто использует этот экземпляр."
+      }
+    ],
+    "designNotes": [
+      "Instance описывает обычное состояние и операцию; Singleton меняет только получение экземпляра. Разделение позволяет сравнить явное совместное использование с принудительной единственностью.",
+      "Общее состояние скрывает зависимость между вызовами и усложняет изоляцию тестов. Пример однопоточный; @final запрещает наследование лишь для проверки типов. Явная передача одного Instance обычно проще."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/singleton/python/instance.py",
+        "role": "Общая структура значения"
+      },
+      {
+        "path": "examples/singleton/python/without_pattern.py",
+        "role": "Прямая реализация"
+      },
+      {
+        "path": "examples/singleton/python/without_pattern_extended.py",
+        "role": "Прямая реализация"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      3
+    ],
+    "fileAliases": {
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  }
+}

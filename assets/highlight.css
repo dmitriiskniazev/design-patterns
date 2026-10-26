@@ -1,0 +1,24 @@
+/* Verdandi / Verdandi Alter, be5invis/vsc-theme-verdandi v2.0.1 (MIT).
+
+Copyright 2017-2021 Renzhi Li (a.k.a Belleve Invis)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+Strings, comments and punctuation use a stronger gray from the original palette
+for readable small text; keywords remain bold and strings italic. */
+:root{--syntax-text:#51575e;--syntax-keyword:#212529;--syntax-string:#51575e;--syntax-number:#212529;--syntax-comment:#51575e;--syntax-name:#212529;--syntax-error:#b92626}
+:root[data-theme=dark]{--syntax-text:#949ca3;--syntax-keyword:#d8dce0;--syntax-string:#949ca3;--syntax-number:#d8dce0;--syntax-comment:#949ca3;--syntax-name:#b5bbc0;--syntax-error:#fc8181}
+.source-code{color:var(--syntax-text);background:transparent}
+.source-code :is(.k,.kc,.kd,.kn,.kp,.kr,.kt,.ow,.o){color:var(--syntax-keyword);font-weight:700}
+.source-code :is(.s,.sa,.sb,.sc,.dl,.sd,.s1,.s2,.se,.sh,.si,.sr,.ss,.sx){color:var(--syntax-string);font-style:italic}
+.source-code :is(.m,.mb,.mf,.mh,.mi,.mo,.il){color:var(--syntax-number)}
+.source-code :is(.c,.ch,.cm,.cp,.cpf,.c1,.cs){color:var(--syntax-comment)}
+.source-code :is(.nf,.fm,.nc,.nd,.nb,.bp){color:var(--syntax-name)}
+.source-code .err{text-decoration:underline wavy var(--syntax-error)}
+
+@media print { :root, :root[data-theme=dark] { --syntax-text:#51575e; --syntax-keyword:#212529; --syntax-string:#51575e; --syntax-number:#212529; --syntax-comment:#51575e; --syntax-name:#212529; --syntax-error:#b92626; } }

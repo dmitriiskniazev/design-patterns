@@ -1,0 +1,777 @@
+{
+  "strategy": {
+    "goal": "Переданная функция заменяет встроенный выбор операции.",
+    "input": "Число 2; в базе increment, в расширении double.",
+    "invariant": "При одинаковом входе варианты без паттерна и с паттерном дают одинаковый результат. База: 3. Расширение: 4.",
+    "roles": [
+      {
+        "name": "Context",
+        "purpose": "Вызывает переданную операцию."
+      },
+      {
+        "name": "increment / double",
+        "purpose": "Вычисляют x+1 или x*2."
+      },
+      {
+        "name": "Callable",
+        "purpose": "Контракт функции int → int."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "call(2)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "2 + 1",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "3",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "Context.call(2)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "increment(2)",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "3",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовый вызов",
+        "before": {
+          "path": "examples/strategy/python/without_pattern.py",
+          "selectors": [
+            "call"
+          ]
+        },
+        "after": {
+          "path": "examples/strategy/python/context.py",
+          "selectors": [
+            "Context.call"
+          ]
+        },
+        "explanation": "Переданная функция заменяет встроенный выбор операции."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/strategy/python/without_pattern_extended.py",
+          "selectors": [
+            "call"
+          ]
+        },
+        "after": {
+          "path": "examples/strategy/python/strategy.py",
+          "selectors": [
+            "double"
+          ]
+        },
+        "explanation": "Добавить операцию x * 2, сохранив Context без изменений. Если выбор идёт по имени из конфигурации, список имён и подключение всё равно меняются."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Добавить операцию x * 2, сохранив Context без изменений.",
+        "before": "call(2) вычисляет 2 + 1; расширенная call(2, Choice.B) выбирает 2 * 2.",
+        "after": "Context(increment).call(2) вызывает increment(2). При сборке Context(double) тот же call вызывает double(2).",
+        "verdict": "Появляются объект Context и косвенный вызов. Для одной операции достаточно функции; если выбор приходит строкой, сопоставление строки и функции всё равно нужно."
+      },
+      {
+        "change": "Оставить только базовую операцию.",
+        "before": "Меньше участников и переходов по файлам.",
+        "after": "Явные роли и дополнительный контракт.",
+        "verdict": "Для одного неизменного выражения обычная функция короче."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Выбор вычисления при сборке",
+        "why": "Вызывающий код передаёт одну из функций общего контракта."
+      },
+      {
+        "case": "Подмена вычисления в проверке",
+        "why": "Тест передаёт функцию с известным результатом в прежний Context."
+      }
+    ],
+    "decision": {
+      "use": "Нужно передавать разные операции через один контракт.",
+      "skip": "Для одного неизменного выражения обычная функция короче."
+    },
+    "trace": {
+      "input": "Число 2; в базе increment, в расширении double.",
+      "before": "call(2) вычисляет 2 + 1; расширенная call(2, Choice.B) выбирает 2 * 2.",
+      "after": "Context(increment).call(2) вызывает increment(2). При сборке Context(double) тот же call вызывает double(2).",
+      "result": "База: 3. Расширение: 4."
+    },
+    "terms": [
+      {
+        "term": "Context",
+        "definition": "Вызывает переданную операцию."
+      },
+      {
+        "term": "increment / double",
+        "definition": "Вычисляют x+1 или x*2."
+      },
+      {
+        "term": "Callable",
+        "definition": "Контракт функции int → int."
+      }
+    ],
+    "designNotes": [
+      "Context владеет местом вызова, а функции — вычислением. Поэтому новую операцию передают снаружи, не добавляя ветку в Context. Обе короткие функции удобно держать вместе в strategy.py.",
+      "Появляются объект Context и косвенный вызов. Для одной операции достаточно функции; если выбор приходит строкой, сопоставление строки и функции всё равно нужно."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/strategy/python/without_pattern.py",
+        "role": "Вариант без паттерна: without_pattern.py"
+      },
+      {
+        "path": "examples/strategy/python/without_pattern_extended.py",
+        "role": "Вариант без паттерна: without_pattern_extended.py"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "fileAliases": {
+      "double_strategy.py": "strategy.py",
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  },
+  "adapter": {
+    "goal": "Согласовать разные имена методов через один Target.operation.",
+    "input": "Число 2; Adaptee.specific_operation добавляет 1, SecondAdaptee.different_operation удваивает.",
+    "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+    "roles": [
+      {
+        "name": "Adaptee",
+        "purpose": "Имеет неподходящий клиенту метод specific_operation."
+      },
+      {
+        "name": "Adapter",
+        "purpose": "Переводит operation в specific_operation."
+      },
+      {
+        "name": "Target",
+        "purpose": "Контракт, который вызывает клиент."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "operation(2)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "Adaptee.specific_operation(2)",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "3",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "call(Adapter, 2)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "Adapter.operation → specific_operation",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "3",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовая операция",
+        "before": {
+          "path": "examples/adapter/python/without_pattern.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/adapter/python/adapter.py",
+          "selectors": [
+            "Adapter.operation"
+          ]
+        },
+        "explanation": "До вызывается конкретный метод. После клиент вызывает единый operation через адаптер."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/adapter/python/without_pattern_extended.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/adapter/python/adapter.py",
+          "selectors": [
+            "SecondAdapter.operation"
+          ]
+        },
+        "explanation": "Второй несовместимый метод получает отдельный адаптер вместо новой ветки общего helper."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Подключить SecondAdaptee с другим именем метода.",
+        "before": "operation(2) вызывает specific_operation. Расширение выбирает конкретный несовместимый метод по Choice.",
+        "after": "call(Adapter(Adaptee()), 2) вызывает Target.operation, а Adapter переводит его в specific_operation(2). SecondAdapter переводит в different_operation(2).",
+        "verdict": "Добавляется слой вызовов и сборка адаптера. Новый метод Target потребует доработки адаптеров. Если исходный интерфейс уже подходит, перевод не нужен."
+      },
+      {
+        "change": "Изменить общий контракт операции",
+        "before": "Исправить прямые вызовы.",
+        "after": "Исправить контракт, реализации и вызовы.",
+        "verdict": "Паттерн не изолирует изменение самого контракта."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Несовпадающие имена методов",
+        "why": "Адаптер переводит клиентский вызов в существующий метод объекта."
+      },
+      {
+        "case": "Один клиент для разных интерфейсов",
+        "why": "Для каждого исходного интерфейса выбирается адаптер общего Target."
+      }
+    ],
+    "decision": {
+      "use": "Несовместимые интерфейсы должны обслуживать одного клиента.",
+      "skip": "Исходный интерфейс уже подходит клиенту."
+    },
+    "trace": {
+      "input": "Число 2; Adaptee.specific_operation добавляет 1, SecondAdaptee.different_operation удваивает.",
+      "before": "operation(2) вызывает specific_operation. Расширение выбирает конкретный несовместимый метод по Choice.",
+      "after": "call(Adapter(Adaptee()), 2) вызывает Target.operation, а Adapter переводит его в specific_operation(2). SecondAdapter переводит в different_operation(2).",
+      "result": "База: 3. Расширение: 4 в обеих версиях."
+    },
+    "terms": [
+      {
+        "term": "Контракт",
+        "definition": "Требования к именам методов, аргументам и результату."
+      },
+      {
+        "term": "Клиент",
+        "definition": "Код, который вызывает операцию."
+      },
+      {
+        "term": "Делегирование",
+        "definition": "Передача вызова другому объекту."
+      },
+      {
+        "term": "Адаптер",
+        "definition": "Объект, переводящий вызов между интерфейсами."
+      }
+    ],
+    "designNotes": [
+      "Adaptee сохраняет исходный интерфейс, Adapter переводит его в интерфейс клиента. Target, клиент и короткие адаптеры удобно читать рядом; исходные объекты отделены, поскольку адаптер не должен их переписывать.",
+      "Добавляется слой вызовов и сборка адаптера. Новый метод Target потребует доработки адаптеров. Если исходный интерфейс уже подходит, перевод не нужен."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/adapter/python/without_pattern.py",
+        "role": "Прямое решение и его зависимости"
+      },
+      {
+        "path": "examples/adapter/python/adaptee.py",
+        "role": "Прямое решение и его зависимости"
+      },
+      {
+        "path": "examples/adapter/python/without_pattern_extended.py",
+        "role": "Прямое решение и его зависимости"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "fileAliases": {
+      "second_adaptee.py": "adaptee.py",
+      "second_adapter.py": "adapter.py",
+      "target.py": "adapter.py",
+      "adaptee_choice.py": "without_pattern_extended.py",
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  },
+  "state": {
+    "goal": "Одинаковый call делегируется текущему состоянию.",
+    "input": "Контекст в A; расширение начинает с C. Один вызов call.",
+    "invariant": "При одинаковом входе варианты без паттерна и с паттерном дают одинаковый результат. База: 1 и состояние B. Расширение: 3 и состояние A.",
+    "roles": [
+      {
+        "name": "Context",
+        "purpose": "Хранит текущий State и делегирует call."
+      },
+      {
+        "name": "A / B",
+        "purpose": "Возвращают 1/2 и меняют состояние."
+      },
+      {
+        "name": "C",
+        "purpose": "Возвращает 3 и переводит в A."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "Context.call()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "ветка A: state = B",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "1",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "Context.call()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "A.call(context): state = B",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "1",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовый вызов",
+        "before": {
+          "path": "examples/state/python/without_pattern.py",
+          "selectors": [
+            "Context.call"
+          ]
+        },
+        "after": {
+          "path": "examples/state/python/context.py",
+          "selectors": [
+            "Context.call"
+          ]
+        },
+        "explanation": "Одинаковый call делегируется текущему состоянию."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/state/python/without_pattern_extended.py",
+          "selectors": [
+            "Context.call"
+          ]
+        },
+        "after": {
+          "path": "examples/state/python/states.py",
+          "selectors": [
+            "C.call"
+          ]
+        },
+        "explanation": "Добавить состояние C: call возвращает 3 и переводит контекст в A. Новый входящий переход в C потребует изменить состояние-источник; пример начинает сразу с C."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Добавить состояние C: call возвращает 3 и переводит контекст в A.",
+        "before": "Context.call выбирает ветку по State.A, записывает State.B и возвращает 1; ветка C записывает A и возвращает 3.",
+        "after": "Context.call передаёт себя текущему состоянию. A.call записывает B; C.call записывает A. Возвращаются 1 и 3 соответственно.",
+        "verdict": "Классы заменяют простой match. Добавление C не меняет Context, но новый переход из B в C потребует изменить B; пример выбирает C при сборке."
+      },
+      {
+        "change": "Оставить только базовую операцию.",
+        "before": "Меньше участников и переходов по файлам.",
+        "after": "Явные роли и дополнительный контракт.",
+        "verdict": "Для двух коротких переходов общий match проще."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Повторные вызовы одного объекта",
+        "why": "Текущий State определяет результат и следующее состояние."
+      },
+      {
+        "case": "Разные начальные состояния",
+        "why": "Один Context запускает один контракт с различными точками входа."
+      }
+    ],
+    "decision": {
+      "use": "Поведение call и следующий переход зависят от текущего состояния.",
+      "skip": "Для двух коротких переходов общий match проще."
+    },
+    "trace": {
+      "input": "Контекст в A; расширение начинает с C. Один вызов call.",
+      "before": "Context.call выбирает ветку по State.A, записывает State.B и возвращает 1; ветка C записывает A и возвращает 3.",
+      "after": "Context.call передаёт себя текущему состоянию. A.call записывает B; C.call записывает A. Возвращаются 1 и 3 соответственно.",
+      "result": "База: 1 и состояние B. Расширение: 3 и состояние A."
+    },
+    "terms": [
+      {
+        "term": "Context",
+        "definition": "Хранит текущий State и делегирует call."
+      },
+      {
+        "term": "A / B",
+        "definition": "Возвращают 1/2 и меняют состояние."
+      },
+      {
+        "term": "C",
+        "definition": "Возвращает 3 и переводит в A."
+      }
+    ],
+    "designNotes": [
+      "Context хранит текущее состояние, а состояние объединяет результат и переход. Контракт и короткие состояния можно держать вместе: отдельный файл для каждого перехода не нужен.",
+      "Классы заменяют простой match. Добавление C не меняет Context, но новый переход из B в C потребует изменить B; пример выбирает C при сборке."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/state/python/without_pattern.py",
+        "role": "Вариант без паттерна: without_pattern.py"
+      },
+      {
+        "path": "examples/state/python/without_pattern_extended.py",
+        "role": "Вариант без паттерна: without_pattern_extended.py"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "fileAliases": {
+      "state_c.py": "states.py",
+      "state_contract.py": "states.py",
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  },
+  "observer": {
+    "goal": "Издатель вызывает зарегистрированные функции через общий контракт.",
+    "input": "Значение 2; одна подписка increment, затем две — increment и double.",
+    "invariant": "При одинаковом входе варианты без паттерна и с паттерном дают одинаковый результат. База: [3]. Расширение: [3, 4].",
+    "roles": [
+      {
+        "name": "Publisher",
+        "purpose": "Хранит callback и вызывает их при notify."
+      },
+      {
+        "name": "Callback",
+        "purpose": "Контракт функции int → int."
+      },
+      {
+        "name": "increment / double",
+        "purpose": "Независимые реакции на одно значение."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "notify(2)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "increment(2)",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "[3]",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "Publisher.notify(2)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "callback(2) для подписок",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "[3]",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовый вызов",
+        "before": {
+          "path": "examples/observer/python/without_pattern.py",
+          "selectors": [
+            "notify"
+          ]
+        },
+        "after": {
+          "path": "examples/observer/python/publisher.py",
+          "selectors": [
+            "Publisher.notify"
+          ]
+        },
+        "explanation": "Издатель вызывает зарегистрированные функции через общий контракт."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/observer/python/without_pattern_extended.py",
+          "selectors": [
+            "notify"
+          ]
+        },
+        "after": {
+          "path": "examples/observer/python/with_pattern_extended.py",
+          "selectors": [
+            "@usage"
+          ]
+        },
+        "explanation": "Подписать второй callback, не изменяя Publisher. Уведомления синхронные; исключение callback прервёт вызов, изоляции ошибок нет."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Подписать второй callback, не изменяя Publisher.",
+        "before": "notify(2) явно вызывает increment и возвращает [3]; расширение явно вызывает обе функции и возвращает [3, 4].",
+        "after": "Publisher.notify(2) обходит зарегистрированные callbacks. Одна подписка даёт [3], добавленная double — [3, 4].",
+        "verdict": "Список подписок и порядок требуют контроля. Вызовы синхронны: исключение одной реакции прерывает рассылку. Для одного постоянного получателя прямой вызов проще."
+      },
+      {
+        "change": "Оставить только базовую операцию.",
+        "before": "Меньше участников и переходов по файлам.",
+        "after": "Явные роли и дополнительный контракт.",
+        "verdict": "Для одного постоянного получателя прямой вызов проще."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Изменяемый набор реакций",
+        "why": "Новая подписка добавляет получателя без изменения издателя."
+      },
+      {
+        "case": "Несколько независимых получателей",
+        "why": "Один вход передаётся всем подписанным функциям через общий контракт."
+      }
+    ],
+    "decision": {
+      "use": "Набор реакций меняется независимо от издателя.",
+      "skip": "Для одного постоянного получателя прямой вызов проще."
+    },
+    "trace": {
+      "input": "Значение 2; одна подписка increment, затем две — increment и double.",
+      "before": "notify(2) явно вызывает increment и возвращает [3]; расширение явно вызывает обе функции и возвращает [3, 4].",
+      "after": "Publisher.notify(2) обходит зарегистрированные callbacks. Одна подписка даёт [3], добавленная double — [3, 4].",
+      "result": "База: [3]. Расширение: [3, 4]."
+    },
+    "terms": [
+      {
+        "term": "Publisher",
+        "definition": "Хранит callback и вызывает их при notify."
+      },
+      {
+        "term": "Callback",
+        "definition": "Контракт функции int → int."
+      },
+      {
+        "term": "increment / double",
+        "definition": "Независимые реакции на одно значение."
+      }
+    ],
+    "designNotes": [
+      "Publisher владеет подписками и рассылкой, callbacks — независимыми реакциями. Реакции можно хранить вместе; издатель не должен выбирать их по имени.",
+      "Список подписок и порядок требуют контроля. Вызовы синхронны: исключение одной реакции прерывает рассылку. Для одного постоянного получателя прямой вызов проще."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/observer/python/callbacks.py",
+        "role": "Вариант без паттерна: callbacks.py"
+      },
+      {
+        "path": "examples/observer/python/without_pattern.py",
+        "role": "Вариант без паттерна: without_pattern.py"
+      },
+      {
+        "path": "examples/observer/python/without_pattern_extended.py",
+        "role": "Вариант без паттерна: without_pattern_extended.py"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "fileAliases": {
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  }
+}

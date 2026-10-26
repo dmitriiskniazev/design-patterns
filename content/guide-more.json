@@ -1,0 +1,583 @@
+{
+  "command": {
+    "goal": "Команда связывает получателя, выполнение и отмену.",
+    "input": "Receiver со значением 2; выполнение Increment или Double. Один экземпляр команды допускает повторное выполнение.",
+    "invariant": "При одинаковом входе варианты без паттерна и с паттерном дают одинаковый результат. База: 3. Расширение: 4. Undo возвращает 2.",
+    "roles": [
+      {
+        "name": "Receiver",
+        "purpose": "Хранит целое value."
+      },
+      {
+        "name": "Increment / Double",
+        "purpose": "Изменяют value и помнят значение для undo."
+      },
+      {
+        "name": "Invoker",
+        "purpose": "Выполняет команды и отменяет последнюю."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "Invoker.run()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "history.append(2); value += 1",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "3",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "Invoker.run(Increment)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "Increment.execute(): value += 1",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "3",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовый вызов",
+        "before": {
+          "path": "examples/command/python/without_pattern.py",
+          "selectors": [
+            "Invoker.run"
+          ]
+        },
+        "after": {
+          "path": "examples/command/python/invoker.py",
+          "selectors": [
+            "Invoker.run"
+          ]
+        },
+        "explanation": "Команда связывает получателя, выполнение и отмену."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/command/python/without_pattern_extended.py",
+          "selectors": [
+            "Invoker.run"
+          ]
+        },
+        "after": {
+          "path": "examples/command/python/command.py",
+          "selectors": [
+            "Double.execute"
+          ]
+        },
+        "explanation": "Добавить команду умножения на 2 с отменой, не меняя Invoker. Команда хранит стек прежних значений и поддерживает повторное выполнение; undo требует непустую историю и обратный порядок."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Добавить команду умножения на 2 с отменой, не меняя Invoker.",
+        "before": "Invoker сохраняет 2 в истории чисел, затем выполняет выбранное изменение. undo достаёт прежнее число.",
+        "after": "Invoker.run вызывает execute команды и сохраняет команду. Increment даёт 3, Double — 4; undo команды восстанавливает 2.",
+        "verdict": "Каждая команда хранит историю своих выполнений, поэтому один экземпляр можно использовать повторно. Invoker хранит общий порядок команд; undo требует непустую историю и обратный порядок. Для одного числа стек значений проще."
+      },
+      {
+        "change": "Оставить только базовую операцию.",
+        "before": "Меньше участников и переходов по файлам.",
+        "after": "Явные роли и дополнительный контракт.",
+        "verdict": "Для одного целого стек прежних значений проще."
+      }
+    ],
+    "applications": [
+      {
+        "case": "История выполненных действий",
+        "why": "Invoker хранит объекты команд, не перечисляя их виды."
+      },
+      {
+        "case": "Отложенное выполнение",
+        "why": "Команда связывает получателя с действием до момента execute; очередь в примере не реализуется."
+      }
+    ],
+    "decision": {
+      "use": "Действия нужно передавать, хранить и отменять через единый контракт.",
+      "skip": "Для одного целого стек прежних значений проще."
+    },
+    "trace": {
+      "input": "Receiver со значением 2; выполнение Increment или Double. Один экземпляр команды допускает повторное выполнение.",
+      "before": "Invoker сохраняет 2 в истории чисел, затем выполняет выбранное изменение. undo достаёт прежнее число.",
+      "after": "Invoker.run вызывает execute команды и сохраняет команду. Increment даёт 3, Double — 4; undo команды восстанавливает 2.",
+      "result": "База: 3. Расширение: 4. Undo возвращает 2."
+    },
+    "terms": [
+      {
+        "term": "Receiver",
+        "definition": "Хранит целое value."
+      },
+      {
+        "term": "Increment / Double",
+        "definition": "Изменяют value и помнят значение для undo."
+      },
+      {
+        "term": "Invoker",
+        "definition": "Выполняет команды и отменяет последнюю."
+      }
+    ],
+    "designNotes": [
+      "Команда объединяет получателя, действие и данные отмены. Invoker знает только execute/undo. Короткие команды принадлежат одному модулю; история отделена, поскольку не зависит от конкретного действия.",
+      "Каждая команда хранит историю своих выполнений, поэтому один экземпляр можно использовать повторно. Invoker хранит общий порядок команд; undo требует непустую историю и обратный порядок. Для одного числа стек значений проще."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/command/python/receiver.py",
+        "role": "Вариант без паттерна: receiver.py"
+      },
+      {
+        "path": "examples/command/python/without_pattern.py",
+        "role": "Вариант без паттерна: without_pattern.py"
+      },
+      {
+        "path": "examples/command/python/without_pattern_extended.py",
+        "role": "Вариант без паттерна: without_pattern_extended.py"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      3
+    ],
+    "fileAliases": {
+      "double_command.py": "command.py",
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  },
+  "composite": {
+    "goal": "Вызывать одну операцию у элемента и составного компонента.",
+    "input": "Дерево из 1 и вложенного 2. В расширении результат вложенной части удваивается.",
+    "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+    "roles": [
+      {
+        "name": "Component",
+        "purpose": "Общий контракт operation."
+      },
+      {
+        "name": "Leaf",
+        "purpose": "Возвращает одно значение."
+      },
+      {
+        "name": "Composite",
+        "purpose": "Суммирует результаты дочерних компонентов."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "operation([1, [2]])",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "рекурсия int/list",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "1 + 2 → 3",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "Composite.operation()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "Leaf.operation; Composite.operation",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "1 + 2 → 3",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовая операция",
+        "before": {
+          "path": "examples/composite/python/without_pattern.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/composite/python/component.py",
+          "selectors": [
+            "Composite.operation"
+          ]
+        },
+        "explanation": "Рекурсия есть в обоих подходах. После обход вызывает один контракт вместо проверки типов."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/composite/python/without_pattern_extended.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/composite/python/component.py",
+          "selectors": [
+            "RepeatedComponent"
+          ]
+        },
+        "explanation": "RepeatedComponent удваивает результат вложенного компонента; Composite остаётся прежним."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Добавить компонент, удваивающий результат вложенного компонента.",
+        "before": "operation([1, [2]]) рекурсивно различает int/list и суммирует листья. Расширение распознаёт одноэлементный tuple как удвоение.",
+        "after": "Composite.operation вызывает operation каждого ребёнка. Leaf возвращает значение, вложенный Composite суммирует. RepeatedComponent удваивает результат своего ребёнка.",
+        "verdict": "Появляются объекты вместо int/list. Новый вид компонента локален, но новая операция общего контракта затронет все виды. RepeatedComponent здесь также использует механику декоратора."
+      },
+      {
+        "change": "Изменить общий контракт операции",
+        "before": "Исправить прямые вызовы.",
+        "after": "Исправить контракт, реализации и вызовы.",
+        "verdict": "Паттерн не изолирует изменение самого контракта."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Дерево неодинаковой глубины",
+        "why": "Клиент одинаково вызывает лист и вложенный составной компонент."
+      },
+      {
+        "case": "Новый вид дочернего узла",
+        "why": "Узел реализует общий operation, поэтому родитель не перечисляет его тип."
+      }
+    ],
+    "decision": {
+      "use": "Одиночные и составные компоненты нужны через один интерфейс.",
+      "skip": "Операции над фиксированным набором типов меняются чаще самих типов."
+    },
+    "trace": {
+      "input": "Дерево из 1 и вложенного 2. В расширении результат вложенной части удваивается.",
+      "before": "operation([1, [2]]) рекурсивно различает int/list и суммирует листья. Расширение распознаёт одноэлементный tuple как удвоение.",
+      "after": "Composite.operation вызывает operation каждого ребёнка. Leaf возвращает значение, вложенный Composite суммирует. RepeatedComponent удваивает результат своего ребёнка.",
+      "result": "База: 3. Расширение: 5 в обеих версиях."
+    },
+    "terms": [
+      {
+        "term": "Контракт",
+        "definition": "Требования к именам методов, аргументам и результату."
+      },
+      {
+        "term": "Клиент",
+        "definition": "Код, который вызывает операцию."
+      },
+      {
+        "term": "Делегирование",
+        "definition": "Передача вызова другому объекту."
+      },
+      {
+        "term": "Композиция",
+        "definition": "Составной объект из дочерних объектов."
+      }
+    ],
+    "designNotes": [
+      "Component объединяет лист и составной узел одним вызовом. Каждый узел владеет своей обработкой, поэтому Composite не перечисляет виды детей. Короткие виды узлов удобно держать вместе.",
+      "Появляются объекты вместо int/list. Новый вид компонента локален, но новая операция общего контракта затронет все виды. RepeatedComponent здесь также использует механику декоратора."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/composite/python/without_pattern.py",
+        "role": "Прямое решение и его зависимости"
+      },
+      {
+        "path": "examples/composite/python/without_pattern_extended.py",
+        "role": "Прямое решение и его зависимости"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      3
+    ],
+    "fileAliases": {
+      "repeated_component.py": "component.py",
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  },
+  "decorator": {
+    "goal": "Добавлять обработки и менять их порядок через вложение компонентов.",
+    "input": "Value(1); прибавление 1. В расширении также удвоение и оба порядка обёрток.",
+    "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+    "roles": [
+      {
+        "name": "Component",
+        "purpose": "Сохраняет operation у исходного значения и обёрток."
+      },
+      {
+        "name": "IncrementDecorator",
+        "purpose": "Добавляет 1 к результату вложенного компонента."
+      },
+      {
+        "name": "DoubleDecorator",
+        "purpose": "Удваивает результат вложенного компонента."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "operation(1)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "1 + 1",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "2",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "IncrementDecorator.operation()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "Value.operation() → 1",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "+1 → 2",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовая операция",
+        "before": {
+          "path": "examples/decorator/python/without_pattern.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/decorator/python/decorators.py",
+          "selectors": [
+            "IncrementDecorator.operation"
+          ]
+        },
+        "explanation": "Обёртка сохраняет интерфейс и изменяет результат вложенной операции."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/decorator/python/without_pattern_extended.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/decorator/python/decorators.py",
+          "selectors": [
+            "DoubleDecorator.operation"
+          ]
+        },
+        "explanation": "Обе версии поддерживают два порядка. После порядок меняет сборка, сами обработки стабильны."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Добавить удвоение и поддержать оба порядка обработок.",
+        "before": "operation(1) даёт 2; расширение явно вычисляет (1 + 1) * 2 или 1 * 2 + 1.",
+        "after": "IncrementDecorator вызывает inner.operation и добавляет 1. Внешний DoubleDecorator удваивает результат: 4. При обратном вложении получается 3.",
+        "verdict": "Вложенность добавляет объекты и усложняет трассировку. Конвейер функций тоже подходит; фиксированное выражение короче. Объектный вариант допускает повторение и произвольную глубину обёрток."
+      },
+      {
+        "change": "Изменить общий контракт операции",
+        "before": "Исправить прямые вызовы.",
+        "after": "Исправить контракт, реализации и вызовы.",
+        "verdict": "Паттерн не изолирует изменение самого контракта."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Перестановка обработок",
+        "why": "Порядок определяется вложением объектов общего интерфейса."
+      },
+      {
+        "case": "Повторение одной обработки",
+        "why": "Один вид обёртки можно вложить несколько раз без добавления нового класса для комбинации."
+      }
+    ],
+    "decision": {
+      "use": "Обработки комбинируются, повторяются и меняют порядок.",
+      "skip": "Один фиксированный порядок проще записать функцией."
+    },
+    "trace": {
+      "input": "Value(1); прибавление 1. В расширении также удвоение и оба порядка обёрток.",
+      "before": "operation(1) даёт 2; расширение явно вычисляет (1 + 1) * 2 или 1 * 2 + 1.",
+      "after": "IncrementDecorator вызывает inner.operation и добавляет 1. Внешний DoubleDecorator удваивает результат: 4. При обратном вложении получается 3.",
+      "result": "База: 2. Расширение: 4 3 в обеих версиях."
+    },
+    "terms": [
+      {
+        "term": "Контракт",
+        "definition": "Требования к именам методов, аргументам и результату."
+      },
+      {
+        "term": "Клиент",
+        "definition": "Код, который вызывает операцию."
+      },
+      {
+        "term": "Делегирование",
+        "definition": "Передача вызова другому объекту."
+      },
+      {
+        "term": "Декоратор",
+        "definition": "Объект с тем же контрактом, добавляющий работу вокруг вложенной операции."
+      }
+    ],
+    "designNotes": [
+      "Каждая обёртка сохраняет Component.operation и добавляет одну обработку. Порядок принадлежит сборке объектов, а не внутреннему выбору декоратора. Короткие обёртки можно держать в одном модуле.",
+      "Вложенность добавляет объекты и усложняет трассировку. Конвейер функций тоже подходит; фиксированное выражение короче. Объектный вариант допускает повторение и произвольную глубину обёрток."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/decorator/python/without_pattern.py",
+        "role": "Прямое решение и его зависимости"
+      },
+      {
+        "path": "examples/decorator/python/without_pattern_extended.py",
+        "role": "Прямое решение и его зависимости"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      3
+    ],
+    "fileAliases": {
+      "double_decorator.py": "decorators.py",
+      "operation_order.py": "without_pattern_extended.py",
+      "increment_decorator.py": "decorators.py",
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  }
+}

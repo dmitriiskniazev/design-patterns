@@ -1,0 +1,1184 @@
+{
+  "bridge": {
+    "goal": "Отделить операцию Abstraction от подставляемой Implementation.",
+    "input": "Число 2; общий шаг +1, реализация A возвращает вход, B удваивает его.",
+    "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+    "roles": [
+      {
+        "name": "Abstraction",
+        "purpose": "Добавляет общий шаг +1."
+      },
+      {
+        "name": "Implementation",
+        "purpose": "Выполняет подставляемую часть операции."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "operation(2)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "2 + 1",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "3",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "Abstraction.operation(2)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "ImplementationA.operation → 2",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "+1 → 3",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовая операция",
+        "before": {
+          "path": "examples/bridge/python/without_pattern.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/bridge/python/abstraction.py",
+          "selectors": [
+            "Abstraction.operation"
+          ]
+        },
+        "explanation": "Abstraction сохраняет общий шаг, переменную часть делегирует Implementation."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/bridge/python/without_pattern_extended.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/bridge/python/implementation.py",
+          "selectors": [
+            "ImplementationB"
+          ]
+        },
+        "explanation": "Новая реализация заменяет часть операции, не повторяя общий шаг +1."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Добавить ImplementationB, удваивающую вход перед общим шагом.",
+        "before": "operation(2) считает 2 + 1; расширение выбирает между 2 + 1 и 2 * 2 + 1.",
+        "after": "Abstraction.operation(2) вызывает ImplementationA.operation(2), затем прибавляет 1. Подстановка B меняет промежуточное 2 на 4.",
+        "verdict": "В примере лишь одна абстракция, поэтому механизм похож на Strategy и выгода мала. Bridge выбирают для независимых направлений абстракций и реализаций; одну функцию проще передать напрямую."
+      },
+      {
+        "change": "Изменить общий контракт операции",
+        "before": "Исправить прямые вызовы.",
+        "after": "Исправить контракт, реализации и вызовы.",
+        "verdict": "Паттерн не изолирует изменение самого контракта."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Независимые варианты двух ролей",
+        "why": "Абстракции соединяются с реализациями через композицию, не образуя подкласс для каждой пары."
+      },
+      {
+        "case": "Замена способа выполнения",
+        "why": "Реализация меняется при сборке без копирования общего шага абстракции."
+      }
+    ],
+    "decision": {
+      "use": "Абстракции и способы выполнения растут независимо.",
+      "skip": "Меняется только одна простая функция."
+    },
+    "trace": {
+      "input": "Число 2; общий шаг +1, реализация A возвращает вход, B удваивает его.",
+      "before": "operation(2) считает 2 + 1; расширение выбирает между 2 + 1 и 2 * 2 + 1.",
+      "after": "Abstraction.operation(2) вызывает ImplementationA.operation(2), затем прибавляет 1. Подстановка B меняет промежуточное 2 на 4.",
+      "result": "База: 3. Расширение: 5 в обеих версиях."
+    },
+    "terms": [
+      {
+        "term": "Контракт",
+        "definition": "Требования к именам методов, аргументам и результату."
+      },
+      {
+        "term": "Клиент",
+        "definition": "Код, который вызывает операцию."
+      },
+      {
+        "term": "Делегирование",
+        "definition": "Передача вызова другому объекту."
+      },
+      {
+        "term": "Мост",
+        "definition": "Связь абстракции с отдельно подставляемой реализацией."
+      }
+    ],
+    "designNotes": [
+      "Abstraction владеет высокоуровневой операцией, Implementation — заменяемой частью выполнения. Эти роли отделены для независимого развития; варианты реализации удобно держать вместе.",
+      "В примере лишь одна абстракция, поэтому механизм похож на Strategy и выгода мала. Bridge выбирают для независимых направлений абстракций и реализаций; одну функцию проще передать напрямую."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/bridge/python/without_pattern.py",
+        "role": "Прямое решение и его зависимости"
+      },
+      {
+        "path": "examples/bridge/python/without_pattern_extended.py",
+        "role": "Прямое решение и его зависимости"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      3
+    ],
+    "fileAliases": {
+      "implementation_b.py": "implementation.py",
+      "implementation_choice.py": "without_pattern_extended.py",
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  },
+  "facade": {
+    "goal": "Скрыть одинаковую последовательность подсистем от двух клиентов.",
+    "input": "Два клиента передают 1 и 2. Подсистемы выполняют +1, затем *2; расширение добавляет −1.",
+    "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+    "roles": [
+      {
+        "name": "SubsystemA / B",
+        "purpose": "Выполняют отдельные операции."
+      },
+      {
+        "name": "Facade",
+        "purpose": "Задаёт один общий порядок вызовов."
+      },
+      {
+        "name": "Клиенты",
+        "purpose": "Используют один вход Facade.operation."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "client_a()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "A.operation(1) → B.operation(2)",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "4",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "client_a(Facade)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "Facade: A → B",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "4",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовая операция",
+        "before": {
+          "path": "examples/facade/python/without_pattern.py",
+          "selectors": [
+            "client_a"
+          ]
+        },
+        "after": {
+          "path": "examples/facade/python/facade.py",
+          "selectors": [
+            "Facade.operation"
+          ]
+        },
+        "explanation": "До каждый клиент знает порядок A→B. После последовательность находится в одном фасаде."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/facade/python/without_pattern_extended.py",
+          "selectors": [
+            "client_a"
+          ]
+        },
+        "after": {
+          "path": "examples/facade/python/facade.py",
+          "selectors": [
+            "ExtendedFacade.operation"
+          ]
+        },
+        "explanation": "До оба клиента добавляют C. После меняется общий сценарий, клиенты остаются прежними."
+      }
+    ],
+    "growth": [
+      {
+        "change": "После A и B вызвать дополнительную SubsystemC.",
+        "before": "Каждый клиент явно вызывает A.operation, затем B.operation. Расширение добавляет C.operation в обе последовательности.",
+        "after": "Клиенты вызывают Facade.operation. Фасад выполняет A → B; ExtendedFacade использует этот порядок и передаёт результат C.",
+        "verdict": "Последовательность и её тесты всё равно меняются. Подкласс здесь сохраняет базовый сценарий; обычная функция также может быть фасадом, отдельная иерархия необязательна."
+      },
+      {
+        "change": "Изменить общий контракт операции",
+        "before": "Исправить прямые вызовы.",
+        "after": "Исправить контракт, реализации и вызовы.",
+        "verdict": "Паттерн не изолирует изменение самого контракта."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Общий сценарий нескольких клиентов",
+        "why": "Одна последовательность подсистем скрыта за коротким входом."
+      },
+      {
+        "case": "Локализация изменения последовательности",
+        "why": "Изменение порядка сосредоточено в фасаде при сохранении его интерфейса."
+      }
+    ],
+    "decision": {
+      "use": "Нескольким клиентам нужна одна последовательность вызовов.",
+      "skip": "Единственный клиент уже содержит понятный короткий вызов."
+    },
+    "trace": {
+      "input": "Два клиента передают 1 и 2. Подсистемы выполняют +1, затем *2; расширение добавляет −1.",
+      "before": "Каждый клиент явно вызывает A.operation, затем B.operation. Расширение добавляет C.operation в обе последовательности.",
+      "after": "Клиенты вызывают Facade.operation. Фасад выполняет A → B; ExtendedFacade использует этот порядок и передаёт результат C.",
+      "result": "База: 4 6. Расширение: 3 5 в обеих версиях."
+    },
+    "terms": [
+      {
+        "term": "Контракт",
+        "definition": "Требования к именам методов, аргументам и результату."
+      },
+      {
+        "term": "Клиент",
+        "definition": "Код, который вызывает операцию."
+      },
+      {
+        "term": "Делегирование",
+        "definition": "Передача вызова другому объекту."
+      },
+      {
+        "term": "Фасад",
+        "definition": "Единый вход к нескольким подсистемам."
+      }
+    ],
+    "designNotes": [
+      "Фасад владеет общей последовательностью, подсистемы — отдельными операциями. Клиенты зависят от одного входа. Короткие подсистемы можно держать вместе, как и варианты фасада.",
+      "Последовательность и её тесты всё равно меняются. Подкласс здесь сохраняет базовый сценарий; обычная функция также может быть фасадом, отдельная иерархия необязательна."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/facade/python/without_pattern.py",
+        "role": "Прямое решение и его зависимости"
+      },
+      {
+        "path": "examples/facade/python/subsystems.py",
+        "role": "Прямое решение и его зависимости"
+      },
+      {
+        "path": "examples/facade/python/without_pattern_extended.py",
+        "role": "Прямое решение и его зависимости"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      3
+    ],
+    "fileAliases": {
+      "subsystem_c.py": "subsystems.py",
+      "extended_facade.py": "facade.py",
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  },
+  "flyweight": {
+    "goal": "Разделять равное неизменяемое состояние между независимыми контекстами.",
+    "input": "Два Context: state=0 и state=2, общее value=1. Расширение добавляет variant=2 в ключ.",
+    "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+    "roles": [
+      {
+        "name": "Shared",
+        "purpose": "Неизменяемая общая часть."
+      },
+      {
+        "name": "Context",
+        "purpose": "Индивидуальное состояние и ссылка на Shared."
+      },
+      {
+        "name": "Factory",
+        "purpose": "Повторно выдаёт Shared по ключу."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "create(0, 1); create(2, 1)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "два Shared(1)",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "равные значения, разные Shared",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "Factory.get(1) дважды",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "один кешированный Shared",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "два Context с общей ссылкой",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовая операция",
+        "before": {
+          "path": "examples/flyweight/python/without_pattern.py",
+          "selectors": [
+            "create"
+          ]
+        },
+        "after": {
+          "path": "examples/flyweight/python/factory.py",
+          "selectors": [
+            "Factory.get"
+          ]
+        },
+        "explanation": "Значения контекстов совпадают; после равные общие части имеют одну идентичность объекта."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/flyweight/python/without_pattern_extended.py",
+          "selectors": [
+            "create"
+          ]
+        },
+        "after": {
+          "path": "examples/flyweight/python/factory.py",
+          "selectors": [
+            "PairFactory.get"
+          ]
+        },
+        "explanation": "Вариант становится частью ключа: разные варианты больше нельзя объединять."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Учитывать дополнительный variant в ключе общего состояния.",
+        "before": "create отдельно создаёт Shared для каждого Context. Значения равны, но общие части — разные объекты.",
+        "after": "Factory.get(1) создаёт Shared один раз и повторно возвращает его. PairFactory использует ключ (1, 2). Каждый Context сохраняет свой state.",
+        "verdict": "Кеш удерживает объекты, а экономия зависит от повторов и размера Shared. Память не измеряется. Все поля, влияющие на Shared, должны участвовать в ключе; иначе объединятся разные значения."
+      },
+      {
+        "change": "Изменить общий контракт операции",
+        "before": "Исправить прямые вызовы.",
+        "after": "Исправить контракт, реализации и вызовы.",
+        "verdict": "Паттерн не изолирует изменение самого контракта."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Повторяющаяся неизменяемая часть",
+        "why": "Равные ключи получают один Shared вместо отдельных копий."
+      },
+      {
+        "case": "Различные контексты с общими данными",
+        "why": "Индивидуальный state остаётся в Context и не участвует в общем объекте."
+      }
+    ],
+    "decision": {
+      "use": "Много контекстов содержат одинаковую тяжёлую неизменяемую часть.",
+      "skip": "Данные малы или почти все ключи уникальны."
+    },
+    "trace": {
+      "input": "Два Context: state=0 и state=2, общее value=1. Расширение добавляет variant=2 в ключ.",
+      "before": "create отдельно создаёт Shared для каждого Context. Значения равны, но общие части — разные объекты.",
+      "after": "Factory.get(1) создаёт Shared один раз и повторно возвращает его. PairFactory использует ключ (1, 2). Каждый Context сохраняет свой state.",
+      "result": "Одинаковые Context до и после; тест отдельно проверяет общий Shared и независимый state."
+    },
+    "terms": [
+      {
+        "term": "Контракт",
+        "definition": "Требования к именам методов, аргументам и результату."
+      },
+      {
+        "term": "Клиент",
+        "definition": "Код, который вызывает операцию."
+      },
+      {
+        "term": "Делегирование",
+        "definition": "Передача вызова другому объекту."
+      },
+      {
+        "term": "Внутреннее состояние",
+        "definition": "Общая неизменяемая часть объекта."
+      },
+      {
+        "term": "Внешнее состояние",
+        "definition": "Индивидуальная часть контекста."
+      }
+    ],
+    "designNotes": [
+      "Shared содержит неизменяемую разделяемую часть, Context — отдельное состояние. Фабрика владеет кешем и равенством ключей. Обе структуры состояния удобно держать вместе, варианты фабрики — рядом.",
+      "Кеш удерживает объекты, а экономия зависит от повторов и размера Shared. Память не измеряется. Все поля, влияющие на Shared, должны участвовать в ключе; иначе объединятся разные значения."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/flyweight/python/without_pattern.py",
+        "role": "Прямое решение и его зависимости"
+      },
+      {
+        "path": "examples/flyweight/python/state.py",
+        "role": "Прямое решение и его зависимости"
+      },
+      {
+        "path": "examples/flyweight/python/without_pattern_extended.py",
+        "role": "Прямое решение и его зависимости"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      3
+    ],
+    "fileAliases": {
+      "pair_factory.py": "factory.py",
+      "shared.py": "state.py",
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  },
+  "proxy": {
+    "goal": "Контролировать вызовы, сохраняя интерфейс исходного объекта.",
+    "input": "Два вызова operation; RealSubject возвращает 1. В расширении учитываются оба обращения.",
+    "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+    "roles": [
+      {
+        "name": "Subject",
+        "purpose": "Контракт operation."
+      },
+      {
+        "name": "RealSubject",
+        "purpose": "Выполняет исходную операцию."
+      },
+      {
+        "name": "CachedProxy / CountingProxy",
+        "purpose": "Кешируют результат и считают обращения."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "operation(subject, cache)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "промах → subject.operation()",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "1; повтор → кеш",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "CachedProxy.operation()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "промах → inner.operation()",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "1; повтор → кеш",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовая операция",
+        "before": {
+          "path": "examples/proxy/python/without_pattern.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/proxy/python/cached_proxy.py",
+          "selectors": [
+            "CachedProxy.operation"
+          ]
+        },
+        "explanation": "Кеширование есть в обеих версиях. Proxy хранит состояние и подставляется вместо Subject."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/proxy/python/without_pattern_extended.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/proxy/python/counting_proxy.py",
+          "selectors": [
+            "CountingProxy.operation"
+          ]
+        },
+        "explanation": "Подсчёт обращений отделяется от кеширования; результаты операции остаются одинаковыми."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Считать все обращения, включая попадания в кеш.",
+        "before": "operation(subject, cache) заполняет кеш на первом вызове, затем читает его. Расширенная функция увеличивает calls перед каждым обращением.",
+        "after": "CachedProxy вызывает RealSubject один раз. Внешний CountingProxy увеличивает calls дважды, затем каждый раз делегирует кеширующему заместителю.",
+        "verdict": "Нужно правильно собрать цепочку: счётчик снаружи кеша видит попадания. Кеш бессрочный и не сбрасывается. Для одного клиента helper с явным состоянием проще."
+      },
+      {
+        "change": "Изменить общий контракт операции",
+        "before": "Исправить прямые вызовы.",
+        "after": "Исправить контракт, реализации и вызовы.",
+        "verdict": "Паттерн не изолирует изменение самого контракта."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Контроль повторных обращений",
+        "why": "Кеширующий заместитель сохраняет интерфейс исходного объекта."
+      },
+      {
+        "case": "Наблюдение за всеми вызовами",
+        "why": "Внешний заместитель считает обращения, в том числе попадания в кеш."
+      }
+    ],
+    "decision": {
+      "use": "Посредник должен подставляться вместо исходного объекта.",
+      "skip": "Один helper с явным кешем достаточно прост."
+    },
+    "trace": {
+      "input": "Два вызова operation; RealSubject возвращает 1. В расширении учитываются оба обращения.",
+      "before": "operation(subject, cache) заполняет кеш на первом вызове, затем читает его. Расширенная функция увеличивает calls перед каждым обращением.",
+      "after": "CachedProxy вызывает RealSubject один раз. Внешний CountingProxy увеличивает calls дважды, затем каждый раз делегирует кеширующему заместителю.",
+      "result": "База и расширение: 1 1. Две операции вызывают RealSubject один раз; счётчик расширения равен 2."
+    },
+    "terms": [
+      {
+        "term": "Контракт",
+        "definition": "Требования к именам методов, аргументам и результату."
+      },
+      {
+        "term": "Клиент",
+        "definition": "Код, который вызывает операцию."
+      },
+      {
+        "term": "Делегирование",
+        "definition": "Передача вызова другому объекту."
+      },
+      {
+        "term": "Заместитель",
+        "definition": "Объект того же интерфейса, контролирующий доступ к другому объекту."
+      }
+    ],
+    "designNotes": [
+      "Subject задаёт подстановку вместо исходного объекта. CachedProxy владеет кешем, CountingProxy — счётчиком: их можно соединять без изменения друг друга. Разделение обязанностей не требует отдельного файла на класс.",
+      "Нужно правильно собрать цепочку: счётчик снаружи кеша видит попадания. Кеш бессрочный и не сбрасывается. Для одного клиента helper с явным состоянием проще."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/proxy/python/without_pattern.py",
+        "role": "Прямое решение и его зависимости"
+      },
+      {
+        "path": "examples/proxy/python/subject.py",
+        "role": "Прямое решение и его зависимости"
+      },
+      {
+        "path": "examples/proxy/python/without_pattern_extended.py",
+        "role": "Прямое решение и его зависимости"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      3
+    ],
+    "fileAliases": {
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  },
+  "repository": {
+    "goal": "Скрыть представление набора значений за get(key).",
+    "input": "Ключ 1 существует; данные {1: 2} или [(1, 2)]. Клиент добавляет 1 к найденному значению.",
+    "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+    "roles": [
+      {
+        "name": "Repository",
+        "purpose": "Контракт чтения существующего ключа."
+      },
+      {
+        "name": "DictRepository / ListRepository",
+        "purpose": "Скрывают словарь и список пар."
+      },
+      {
+        "name": "Клиент",
+        "purpose": "Получает значение, добавляет 1 и не выбирает хранилище."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "operation({1: 2}, 1)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "values[1] → 2",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "+1 → 3",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "operation(repository, 1)",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "repository.get(1) → 2",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "+1 → 3",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовая операция",
+        "before": {
+          "path": "examples/repository/python/without_pattern.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/repository/python/client.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "explanation": "Контракт get отделяет клиентскую операцию от устройства данных."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/repository/python/without_pattern_extended.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/repository/python/repository.py",
+          "selectors": [
+            "ListRepository.get"
+          ]
+        },
+        "explanation": "Поиск в списке находится в новой реализации, а не в ветке клиента."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Подключить список пар вместо словаря, сохранив операцию клиента.",
+        "before": "operation читает словарь; расширение выбирает доступ к словарю или поиск в списке, затем добавляет 1.",
+        "after": "operation(repository, 1) вызывает repository.get(1). DictRepository и ListRepository находят 2, клиент одинаково возвращает 3.",
+        "verdict": "Добавляется контракт поверх простого доступа. Здесь ключ существует, ключи списка уникальны; ошибки, запись и производительность не моделируются. При единственном словаре прямой доступ проще."
+      },
+      {
+        "change": "Изменить общий контракт операции",
+        "before": "Исправить прямые вызовы.",
+        "after": "Исправить контракт, реализации и вызовы.",
+        "verdict": "Паттерн не изолирует изменение самого контракта."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Смена представления данных",
+        "why": "Клиент читает через get, не различая словарь и список."
+      },
+      {
+        "case": "Общий доступ нескольких операций",
+        "why": "Разные клиентские операции используют один контракт чтения."
+      }
+    ],
+    "decision": {
+      "use": "Несколько операций должны работать независимо от представления данных.",
+      "skip": "Есть один простой доступ к одному словарю."
+    },
+    "trace": {
+      "input": "Ключ 1 существует; данные {1: 2} или [(1, 2)]. Клиент добавляет 1 к найденному значению.",
+      "before": "operation читает словарь; расширение выбирает доступ к словарю или поиск в списке, затем добавляет 1.",
+      "after": "operation(repository, 1) вызывает repository.get(1). DictRepository и ListRepository находят 2, клиент одинаково возвращает 3.",
+      "result": "База и расширение: 3 в обеих версиях."
+    },
+    "terms": [
+      {
+        "term": "Контракт",
+        "definition": "Требования к именам методов, аргументам и результату."
+      },
+      {
+        "term": "Клиент",
+        "definition": "Код, который вызывает операцию."
+      },
+      {
+        "term": "Делегирование",
+        "definition": "Передача вызова другому объекту."
+      },
+      {
+        "term": "Репозиторий",
+        "definition": "Объект, скрывающий доступ к набору значений."
+      }
+    ],
+    "designNotes": [
+      "Repository отделяет клиентскую операцию от представления набора данных. Реализация владеет поиском; клиент — использованием значения. Короткие реализации хранилища можно держать вместе.",
+      "Добавляется контракт поверх простого доступа. Здесь ключ существует, ключи списка уникальны; ошибки, запись и производительность не моделируются. При единственном словаре прямой доступ проще."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/repository/python/without_pattern.py",
+        "role": "Прямое решение и его зависимости"
+      },
+      {
+        "path": "examples/repository/python/without_pattern_extended.py",
+        "role": "Прямое решение и его зависимости"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      3
+    ],
+    "fileAliases": {
+      "list_repository.py": "repository.py",
+      "storage_choice.py": "without_pattern_extended.py",
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  },
+  "dependency-injection": {
+    "goal": "Передавать зависимость клиенту снаружи вместо создания внутри операции.",
+    "input": "Источник возвращает 1; клиент прибавляет 1. Расширение передаёт источник с удвоением.",
+    "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+    "roles": [
+      {
+        "name": "Provider",
+        "purpose": "Контракт источника значения."
+      },
+      {
+        "name": "Client",
+        "purpose": "Добавляет 1 к значению переданного Provider."
+      },
+      {
+        "name": "Точка сборки",
+        "purpose": "Создаёт Provider и передаёт Client."
+      }
+    ],
+    "diagrams": {
+      "before": {
+        "nodes": [
+          {
+            "id": "before0",
+            "label": "operation()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "before1",
+            "label": "ValueProvider(1).get() → 1",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "before2",
+            "label": "+1 → 2",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "before0",
+            "to": "before1",
+            "label": "выполняет"
+          },
+          {
+            "from": "before1",
+            "to": "before2",
+            "label": "получает"
+          }
+        ]
+      },
+      "after": {
+        "nodes": [
+          {
+            "id": "after0",
+            "label": "Client(provider).operation()",
+            "role": "вход / вызов"
+          },
+          {
+            "id": "after1",
+            "label": "provider.get() → 1",
+            "role": "операция / передача вызова"
+          },
+          {
+            "id": "after2",
+            "label": "+1 → 2",
+            "role": "наблюдаемый результат"
+          }
+        ],
+        "edges": [
+          {
+            "from": "after0",
+            "to": "after1",
+            "label": "выполняет"
+          },
+          {
+            "from": "after1",
+            "to": "after2",
+            "label": "получает"
+          }
+        ]
+      }
+    },
+    "contrasts": [
+      {
+        "title": "Базовая операция",
+        "before": {
+          "path": "examples/dependency-injection/python/without_pattern.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/dependency-injection/python/client.py",
+          "selectors": [
+            "Client.operation"
+          ]
+        },
+        "explanation": "Различается место создания зависимости: внутри операции или в вызывающем коде."
+      },
+      {
+        "title": "Одно расширение",
+        "before": {
+          "path": "examples/dependency-injection/python/without_pattern_extended.py",
+          "selectors": [
+            "operation"
+          ]
+        },
+        "after": {
+          "path": "examples/dependency-injection/python/provider.py",
+          "selectors": [
+            "DoubleProvider.get"
+          ]
+        },
+        "explanation": "DoubleProvider подключается в запуске; Client не распознаёт его тип."
+      }
+    ],
+    "growth": [
+      {
+        "change": "Передать источник, удваивающий значение исходного Provider.",
+        "before": "operation сама создаёт ValueProvider(1); расширенная функция выбирает удвоение внутри операции.",
+        "after": "Точка сборки передаёт ValueProvider(1) в Client. Client.operation вызывает get и добавляет 1. DoubleProvider меняет полученное 1 на 2, результат клиента становится 3.",
+        "verdict": "Нужно явно собирать зависимости. Контейнер, Protocol и классы необязательны: передача функции тоже DI. Если зависимость фиксирована и подмена не нужна, локальное создание может быть проще."
+      },
+      {
+        "change": "Изменить общий контракт операции",
+        "before": "Исправить прямые вызовы.",
+        "after": "Исправить контракт, реализации и вызовы.",
+        "verdict": "Паттерн не изолирует изменение самого контракта."
+      }
+    ],
+    "applications": [
+      {
+        "case": "Подмена зависимости в тесте",
+        "why": "Тест передаёт источник с известным результатом."
+      },
+      {
+        "case": "Разные сборки одного клиента",
+        "why": "Вызывающий код выбирает реализацию Provider без изменения Client."
+      }
+    ],
+    "decision": {
+      "use": "Источник выбирается извне, в том числе в тесте.",
+      "skip": "Зависимость фиксирована и подмена не нужна: локальное создание может быть проще. Простой параметр уже реализует DI."
+    },
+    "trace": {
+      "input": "Источник возвращает 1; клиент прибавляет 1. Расширение передаёт источник с удвоением.",
+      "before": "operation сама создаёт ValueProvider(1); расширенная функция выбирает удвоение внутри операции.",
+      "after": "Точка сборки передаёт ValueProvider(1) в Client. Client.operation вызывает get и добавляет 1. DoubleProvider меняет полученное 1 на 2, результат клиента становится 3.",
+      "result": "База: 2. Расширение: 3 в обеих версиях; другой ValueProvider не требует менять Client."
+    },
+    "terms": [
+      {
+        "term": "Контракт",
+        "definition": "Требования к именам методов, аргументам и результату."
+      },
+      {
+        "term": "Клиент",
+        "definition": "Код, который вызывает операцию."
+      },
+      {
+        "term": "Делегирование",
+        "definition": "Передача вызова другому объекту."
+      },
+      {
+        "term": "Внедрение зависимости",
+        "definition": "Передача используемого объекта снаружи."
+      },
+      {
+        "term": "Точка сборки",
+        "definition": "Код создания и соединения объектов."
+      }
+    ],
+    "designNotes": [
+      "Точка сборки выбирает зависимость, Client только использует её. Provider задаёт минимальный контракт; короткие источники можно держать вместе. Эта граница позволяет подставить источник без изменения клиента.",
+      "Нужно явно собирать зависимости. Контейнер, Protocol и классы необязательны: передача функции тоже DI. Если зависимость фиксирована и подмена не нужна, локальное создание может быть проще."
+    ],
+    "baselineFiles": [
+      {
+        "path": "examples/dependency-injection/python/without_pattern.py",
+        "role": "Прямое решение и его зависимости"
+      },
+      {
+        "path": "examples/dependency-injection/python/provider.py",
+        "role": "Прямое решение и его зависимости"
+      },
+      {
+        "path": "examples/dependency-injection/python/without_pattern_extended.py",
+        "role": "Прямое решение и его зависимости"
+      }
+    ],
+    "legacyVersionIndices": [
+      0,
+      1,
+      3
+    ],
+    "fileAliases": {
+      "double_provider.py": "provider.py",
+      "provider_choice.py": "without_pattern_extended.py",
+      "run_extended.py": "with_pattern_extended.py",
+      "main.py": "with_pattern.py"
+    }
+  }
+}
