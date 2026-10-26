@@ -10,9 +10,9 @@ from design_patterns.guide import build_guide, order_source_files, source_diff
 
 ROOT = Path(__file__).resolve().parents[1]
 GUIDES = {
-    key: guide
-    for filename in (ROOT / "content").glob("guide-*.json")
-    for key, guide in json.loads(filename.read_text()).items()
+    topic["id"]: topic["guide"]
+    for topic in json.loads((ROOT / "web/lessons.json").read_text())
+    if topic["ready"]
 }
 
 
@@ -31,31 +31,21 @@ def test_source_reading_order_handles_shared_dependencies_cycles_and_orphans() -
     ] == ["entry.py", "a.py", "b.py", "leaf.py", "unused.py"]
 
 
-@pytest.mark.parametrize("chapter_ids", [[], ["unknown"]])
-def test_build_rejects_incomplete_guide_coverage(
-    tmp_path: Path, chapter_ids: list[str]
-) -> None:
-    content = tmp_path / "content"
-    content.mkdir()
-    (content / "topics.json").write_text(
+def test_build_rejects_missing_guide(tmp_path: Path) -> None:
+    (tmp_path / "web").mkdir()
+    (tmp_path / "web/lessons.json").write_text(
         json.dumps([{"id": "strategy", "ready": True}])
     )
-    (content / "guide-test.json").write_text(
-        json.dumps({key: {} for key in chapter_ids})
-    )
-    with pytest.raises(ValueError, match="Guide coverage mismatch"):
+    with pytest.raises(ValueError, match="Missing guide"):
         build(tmp_path)
 
 
-def test_build_rejects_duplicate_guide_chapter(tmp_path: Path) -> None:
-    content = tmp_path / "content"
-    content.mkdir()
-    (content / "topics.json").write_text(
-        json.dumps([{"id": "strategy", "ready": True}])
+def test_build_rejects_duplicate_topics(tmp_path: Path) -> None:
+    (tmp_path / "web").mkdir()
+    (tmp_path / "web/lessons.json").write_text(
+        json.dumps([{"id": "strategy", "ready": True, "guide": {}}] * 2)
     )
-    for name in ("a", "b"):
-        (content / f"guide-{name}.json").write_text('{"strategy": {}}')
-    with pytest.raises(ValueError, match="Duplicate guide chapters"):
+    with pytest.raises(ValueError, match="Duplicate topic identifiers"):
         build(tmp_path)
 
 
@@ -90,12 +80,7 @@ def test_guide_rejects_external_source() -> None:
 
 
 def test_guide_has_exact_differences_and_unique_full_files() -> None:
-    topics = json.loads(
-        (ROOT / "assets/course-data.js")
-        .read_text()
-        .split("window.COURSE_TOPICS = ", 1)[1]
-        .removesuffix(";\n")
-    )
+    topics = build(ROOT)
     chapters = [topic["guide"] for topic in topics if "guide" in topic]
     assert len(chapters) == 25
     for guide in chapters:
@@ -168,7 +153,7 @@ def test_source_diff_preserves_both_sources(
 def test_extension_diff_pairs_entrypoints_and_keeps_copyable_sources() -> None:
     topic = next(
         topic
-        for topic in json.loads((ROOT / "content/topics.json").read_text())
+        for topic in json.loads((ROOT / "web/lessons.json").read_text())
         if topic["id"] == "strategy"
     )
     topic["guide"] = deepcopy(GUIDES["strategy"])

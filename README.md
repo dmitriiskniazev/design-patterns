@@ -1,6 +1,6 @@
 # Паттерны проектирования на Python
 
-[Открыть курс](web/index.html). **23 GoF-паттерна** и два дополнительных подхода: **Repository** и **Dependency Injection**. Python3.15+.
+[Открыть курс](https://dmitriiskniazev.github.io/design-patterns/). **23 GoF-паттерна** и два дополнительных подхода: **Repository** и **Dependency Injection**. Python3.15+.
 
 Примеры максимально абстрактны: роли паттерна, нейтральные значения и направление вызовов. Предметных сюжетов и бизнес-правил нет. В каждой главе две пары коротких фрагментов: основная операция и одно расширение. Варианты без паттерна и с паттерном дают одинаковый результат.
 
@@ -13,7 +13,7 @@ uv sync
 uv run build-course
 uv run test-course
 uv run pytest
-uv run python -m http.server 8000 --bind 127.0.0.1  # http://localhost:8000/web/
+uv run python -m http.server 8000 --bind 127.0.0.1 --directory .build/site  # http://localhost:8000/
 uv run python examples/strategy/python/with_pattern.py
 uv run python examples/strategy/python/with_pattern_extended.py
 uv run python examples/strategy/python/without_pattern.py
@@ -24,8 +24,8 @@ uv run pytest examples/strategy/python
 
 ## Структура
 
-- `web/`, `assets/` — интерфейс и сгенерированные ресурсы.
-- `content/topics.json`, `content/guide-*.json` — главы и ссылки на исходники.
+- `web/` — HTML, стили, JavaScript и `lessons.json` с текстами всех глав и ссылками на исходники.
+- `.build/site/` — готовый сайт; создаётся сборкой и не хранится в Git.
 - `examples/<pattern>/python/` — ролевые модули, четыре запуска и тесты; связанные короткие реализации находятся вместе.
 - `src/design_patterns/`, `tests/` — сборка и инфраструктурные проверки.
 - `openspec/` — требования и история изменений.
@@ -40,7 +40,7 @@ uv run pytest examples/strategy/python
 
 ## GitHub Pages и iOS
 
-`uv run build-site` собирает сайт в `.build/site`. Для локальной проверки: `uv run python -m http.server 8000 --bind 127.0.0.1 --directory .build/site`. Откройте http://localhost:8000/. Исходный режим /web/ остаётся доступен, но офлайн-ресурсы создаются только build-site.
+`uv run build-course` собирает сайт в `.build/site`, не изменяя исходники. Одна сборка используется локально и на GitHub Pages. Старые ссылки `/web/#…` перенаправляются на тот же раздел. ZIP не создаются: полный код доступен для чтения и копирования на странице.
 
 В репозитории GitHub выберите Settings → Pages → Source → GitHub Actions. Workflow публикует ветку main и допускает ручной запуск. Для репозитория design-patterns адрес имеет вид https://dmitriiskniazev.github.io/design-patterns/.
 

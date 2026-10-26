@@ -6,16 +6,16 @@
 
 ## Структура
 
-- `web/index.html` — вход в курс.
-- `assets/app.js`, `assets/app.css` — интерфейс и его оформление.
-- `content/topics.json` — теория, задания, вопросы и ссылки на источники.
+- `web/index.html` — шаблон входа в курс; готовый сайт находится в `.build/site/`.
+- `web/app.js`, `web/app.css` — интерфейс и его оформление.
+- `web/lessons.json` — теория, задания, вопросы и ссылки на источники.
 - `examples/<pattern>/python/` — реализации и проверки.
 - `src/design_patterns/` — пакет сборки и проверки курса.
 - `tests/` — инфраструктурные pytest-проверки.
 - `pyproject.toml`, `uv.lock` — проект uv и зафиксированные зависимости.
 - `openspec/` — требования, планы, задачи и история изменений.
 
-`assets/course-data.js` генерируется сборщиком; `assets/highlight.css` задаёт цвета подсветки для обеих тем страницы. Меняйте исходники и пересобирайте их через `uv run build-course`.
+`.build/site/course-data.js` генерируется сборщиком и не хранится в Git; `web/highlight.css` задаёт цвета подсветки для обеих тем страницы. Меняйте исходники и пересобирайте их через `uv run build-course`.
 
 ## Команды
 
@@ -23,14 +23,14 @@
 uv sync
 uv run python examples/strategy/python/with_pattern.py
 uv run python examples/adapter/python/with_pattern.py
-uv run python -m http.server 8000 --bind 127.0.0.1  # http://localhost:8000/web/
+uv run python -m http.server 8000 --bind 127.0.0.1 --directory .build/site  # http://localhost:8000/
 uv run test-course
 uv run pytest
 uv run pytest examples/adapter/python
 uv run build-course
 ```
 
-Проект использует `uv`, `pyproject.toml`, `uv.lock`, пакет в `src/` и проверки в `tests/`. Все Python-команды запускайте через `uv run`; Python 3.15 выбран в `.python-version`, минимальная версия задана в `pyproject.toml`. Другую версию задавайте через `uv run --python 3.16 …`. `uv run test-course` проверяет инфраструктуру и автоматически находит темы, запуская каждую отдельным процессом с остановкой при ошибке. `uv run pytest` проверяет только `tests/`; для одной темы укажите её путь. Учебные ZIP-комплекты используют автономные команды `uv run --no-project --python 3.15`, тесты добавляют `--with pytest python -m pytest`.
+Проект использует `uv`, `pyproject.toml`, `uv.lock`, пакет в `src/` и проверки в `tests/`. Все Python-команды запускайте через `uv run`; Python 3.15 выбран в `.python-version`, минимальная версия задана в `pyproject.toml`. Другую версию задавайте через `uv run --python 3.16 …`. `uv run test-course` проверяет инфраструктуру и автоматически находит темы, запуская каждую отдельным процессом с остановкой при ошибке. `uv run pytest` проверяет только `tests/`; для одной темы укажите её путь. ZIP-комплекты не создаются. После копирования файлов примеры запускаются автономно через `uv run --no-project --python 3.15`, тесты добавляют `--with pytest python -m pytest`.
 
 ## Учебные материалы и код
 

@@ -1,4 +1,4 @@
-/* Template populated by build-site. Keep each release in its own cache. */
+/* Template populated by build-course. Keep each release in its own cache. */
 const VERSION = "__VERSION__";
 const FILES = "__FILES__";
 const PREFIX = 'patterns:' + self.registration.scope;

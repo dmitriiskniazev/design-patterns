@@ -1,9 +1,7 @@
-import json
 import shutil
 import subprocess
 import sys
 from pathlib import Path
-from zipfile import ZipFile
 
 import pytest
 
@@ -26,28 +24,23 @@ def test_extract_rejects_long_listing() -> None:
 
 def test_build_complete_course(tmp_path: Path) -> None:
     root = Path(__file__).resolve().parents[1]
-    for directory in ("content", "examples"):
+    for directory in ("web", "examples"):
         shutil.copytree(
             root / directory,
             tmp_path / directory,
             ignore=shutil.ignore_patterns("__pycache__", ".pytest_cache"),
         )
-    build(tmp_path)
-    data = (tmp_path / "assets/course-data.js").read_text()
-    topics = json.loads(data.split("window.COURSE_TOPICS = ", 1)[1].removesuffix(";\n"))
+    topics = build(tmp_path)
     ready = [topic for topic in topics if topic["ready"]]
     assert len(ready) == 25
-    assert len(list((tmp_path / "assets/examples").glob("*.zip"))) == 50
+    assert not list(tmp_path.rglob("*.zip"))
+    assert not (tmp_path / "assets").exists()
     for topic in ready:
         for flow in (topic, topic["extension"]):
             example = flow["example"]
-            with ZipFile(tmp_path / example["archivePath"]) as archive:
-                assert example["path"] in archive.namelist()
-                for file in example["files"]:
-                    assert (
-                        archive.read(file["path"]).decode()
-                        == (root / file["path"]).read_text()
-                    )
+            assert "archivePath" not in example
+            for file in example["files"]:
+                assert file["code"] == (root / file["path"]).read_text()
             for step in flow["steps"]:
                 lines = step["code"].splitlines()
                 assert sum(bool(line.strip()) for line in lines) <= 12

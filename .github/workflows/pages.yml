@@ -20,7 +20,7 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - run: uv sync --locked
       - run: uv run test-course
-      - run: uv run build-site
+      - run: uv run build-course
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:

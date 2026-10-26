@@ -232,6 +232,196 @@
       },
       "summary": "Подключить показанное расширение через общий контракт.",
       "limit": "Появляются объект Context и косвенный вызов. Для одной операции достаточно функции; если выбор приходит строкой, сопоставление строки и функции всё равно нужно."
+    },
+    "guide": {
+      "goal": "Переданная функция заменяет встроенный выбор операции.",
+      "input": "Число 2; в базе increment, в расширении double.",
+      "invariant": "При одинаковом входе варианты без паттерна и с паттерном дают одинаковый результат. База: 3. Расширение: 4.",
+      "roles": [
+        {
+          "name": "Context",
+          "purpose": "Вызывает переданную операцию."
+        },
+        {
+          "name": "increment / double",
+          "purpose": "Вычисляют x+1 или x*2."
+        },
+        {
+          "name": "Callable",
+          "purpose": "Контракт функции int → int."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "call(2)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "2 + 1",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "Context.call(2)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "increment(2)",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовый вызов",
+          "before": {
+            "path": "examples/strategy/python/without_pattern.py",
+            "selectors": [
+              "call"
+            ]
+          },
+          "after": {
+            "path": "examples/strategy/python/context.py",
+            "selectors": [
+              "Context.call"
+            ]
+          },
+          "explanation": "Переданная функция заменяет встроенный выбор операции."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/strategy/python/without_pattern_extended.py",
+            "selectors": [
+              "call"
+            ]
+          },
+          "after": {
+            "path": "examples/strategy/python/strategy.py",
+            "selectors": [
+              "double"
+            ]
+          },
+          "explanation": "Добавить операцию x * 2, сохранив Context без изменений. Если выбор идёт по имени из конфигурации, список имён и подключение всё равно меняются."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Добавить операцию x * 2, сохранив Context без изменений.",
+          "before": "call(2) вычисляет 2 + 1; расширенная call(2, Choice.B) выбирает 2 * 2.",
+          "after": "Context(increment).call(2) вызывает increment(2). При сборке Context(double) тот же call вызывает double(2).",
+          "verdict": "Появляются объект Context и косвенный вызов. Для одной операции достаточно функции; если выбор приходит строкой, сопоставление строки и функции всё равно нужно."
+        },
+        {
+          "change": "Оставить только базовую операцию.",
+          "before": "Меньше участников и переходов по файлам.",
+          "after": "Явные роли и дополнительный контракт.",
+          "verdict": "Для одного неизменного выражения обычная функция короче."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Выбор вычисления при сборке",
+          "why": "Вызывающий код передаёт одну из функций общего контракта."
+        },
+        {
+          "case": "Подмена вычисления в проверке",
+          "why": "Тест передаёт функцию с известным результатом в прежний Context."
+        }
+      ],
+      "decision": {
+        "use": "Нужно передавать разные операции через один контракт.",
+        "skip": "Для одного неизменного выражения обычная функция короче."
+      },
+      "trace": {
+        "input": "Число 2; в базе increment, в расширении double.",
+        "before": "call(2) вычисляет 2 + 1; расширенная call(2, Choice.B) выбирает 2 * 2.",
+        "after": "Context(increment).call(2) вызывает increment(2). При сборке Context(double) тот же call вызывает double(2).",
+        "result": "База: 3. Расширение: 4."
+      },
+      "terms": [
+        {
+          "term": "Context",
+          "definition": "Вызывает переданную операцию."
+        },
+        {
+          "term": "increment / double",
+          "definition": "Вычисляют x+1 или x*2."
+        },
+        {
+          "term": "Callable",
+          "definition": "Контракт функции int → int."
+        }
+      ],
+      "designNotes": [
+        "Context владеет местом вызова, а функции — вычислением. Поэтому новую операцию передают снаружи, не добавляя ветку в Context. Обе короткие функции удобно держать вместе в strategy.py.",
+        "Появляются объект Context и косвенный вызов. Для одной операции достаточно функции; если выбор приходит строкой, сопоставление строки и функции всё равно нужно."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/strategy/python/without_pattern.py",
+          "role": "Вариант без паттерна: without_pattern.py"
+        },
+        {
+          "path": "examples/strategy/python/without_pattern_extended.py",
+          "role": "Вариант без паттерна: without_pattern_extended.py"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "fileAliases": {
+        "double_strategy.py": "strategy.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -468,6 +658,197 @@
       },
       "summary": "Добавить класс C; Context прежний. Здесь C выбирается при создании.",
       "limit": "Классы заменяют простой match. Добавление C не меняет Context, но новый переход из B в C потребует изменить B; пример выбирает C при сборке."
+    },
+    "guide": {
+      "goal": "Одинаковый call делегируется текущему состоянию.",
+      "input": "Контекст в A; расширение начинает с C. Один вызов call.",
+      "invariant": "При одинаковом входе варианты без паттерна и с паттерном дают одинаковый результат. База: 1 и состояние B. Расширение: 3 и состояние A.",
+      "roles": [
+        {
+          "name": "Context",
+          "purpose": "Хранит текущий State и делегирует call."
+        },
+        {
+          "name": "A / B",
+          "purpose": "Возвращают 1/2 и меняют состояние."
+        },
+        {
+          "name": "C",
+          "purpose": "Возвращает 3 и переводит в A."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "Context.call()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "ветка A: state = B",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "1",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "Context.call()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "A.call(context): state = B",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "1",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовый вызов",
+          "before": {
+            "path": "examples/state/python/without_pattern.py",
+            "selectors": [
+              "Context.call"
+            ]
+          },
+          "after": {
+            "path": "examples/state/python/context.py",
+            "selectors": [
+              "Context.call"
+            ]
+          },
+          "explanation": "Одинаковый call делегируется текущему состоянию."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/state/python/without_pattern_extended.py",
+            "selectors": [
+              "Context.call"
+            ]
+          },
+          "after": {
+            "path": "examples/state/python/states.py",
+            "selectors": [
+              "C.call"
+            ]
+          },
+          "explanation": "Добавить состояние C: call возвращает 3 и переводит контекст в A. Новый входящий переход в C потребует изменить состояние-источник; пример начинает сразу с C."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Добавить состояние C: call возвращает 3 и переводит контекст в A.",
+          "before": "Context.call выбирает ветку по State.A, записывает State.B и возвращает 1; ветка C записывает A и возвращает 3.",
+          "after": "Context.call передаёт себя текущему состоянию. A.call записывает B; C.call записывает A. Возвращаются 1 и 3 соответственно.",
+          "verdict": "Классы заменяют простой match. Добавление C не меняет Context, но новый переход из B в C потребует изменить B; пример выбирает C при сборке."
+        },
+        {
+          "change": "Оставить только базовую операцию.",
+          "before": "Меньше участников и переходов по файлам.",
+          "after": "Явные роли и дополнительный контракт.",
+          "verdict": "Для двух коротких переходов общий match проще."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Повторные вызовы одного объекта",
+          "why": "Текущий State определяет результат и следующее состояние."
+        },
+        {
+          "case": "Разные начальные состояния",
+          "why": "Один Context запускает один контракт с различными точками входа."
+        }
+      ],
+      "decision": {
+        "use": "Поведение call и следующий переход зависят от текущего состояния.",
+        "skip": "Для двух коротких переходов общий match проще."
+      },
+      "trace": {
+        "input": "Контекст в A; расширение начинает с C. Один вызов call.",
+        "before": "Context.call выбирает ветку по State.A, записывает State.B и возвращает 1; ветка C записывает A и возвращает 3.",
+        "after": "Context.call передаёт себя текущему состоянию. A.call записывает B; C.call записывает A. Возвращаются 1 и 3 соответственно.",
+        "result": "База: 1 и состояние B. Расширение: 3 и состояние A."
+      },
+      "terms": [
+        {
+          "term": "Context",
+          "definition": "Хранит текущий State и делегирует call."
+        },
+        {
+          "term": "A / B",
+          "definition": "Возвращают 1/2 и меняют состояние."
+        },
+        {
+          "term": "C",
+          "definition": "Возвращает 3 и переводит в A."
+        }
+      ],
+      "designNotes": [
+        "Context хранит текущее состояние, а состояние объединяет результат и переход. Контракт и короткие состояния можно держать вместе: отдельный файл для каждого перехода не нужен.",
+        "Классы заменяют простой match. Добавление C не меняет Context, но новый переход из B в C потребует изменить B; пример выбирает C при сборке."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/state/python/without_pattern.py",
+          "role": "Вариант без паттерна: without_pattern.py"
+        },
+        {
+          "path": "examples/state/python/without_pattern_extended.py",
+          "role": "Вариант без паттерна: without_pattern_extended.py"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "fileAliases": {
+        "state_c.py": "states.py",
+        "state_contract.py": "states.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -687,6 +1068,195 @@
       },
       "summary": "Подключить показанное расширение через общий контракт.",
       "limit": "Наследование связывает варианты с Template. Helper или переданная функция тоже переиспользует +1; шаблон нужен, когда именно базовый класс должен задавать порядок."
+    },
+    "guide": {
+      "goal": "Базовый класс фиксирует порядок; подкласс заменяет один шаг.",
+      "input": "Число 2; step возвращает вход или удвоенный вход, затем всегда прибавляется 1.",
+      "invariant": "При одинаковом входе варианты без паттерна и с паттерном дают одинаковый результат. База: 3. Расширение: 5; завершающий +1 общий.",
+      "roles": [
+        {
+          "name": "Template.call",
+          "purpose": "Фиксирует порядок: step, затем +1."
+        },
+        {
+          "name": "A.step",
+          "purpose": "Возвращает входное значение."
+        },
+        {
+          "name": "B.step",
+          "purpose": "Возвращает входное значение *2."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "call(2)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "2 + 1",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "Template.call(2)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "A.step(2) → 2",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "+1 → 3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовый вызов",
+          "before": {
+            "path": "examples/template-method/python/without_pattern.py",
+            "selectors": [
+              "call"
+            ]
+          },
+          "after": {
+            "path": "examples/template-method/python/template.py",
+            "selectors": [
+              "Template.call"
+            ]
+          },
+          "explanation": "Базовый класс фиксирует порядок; подкласс заменяет один шаг."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/template-method/python/without_pattern_extended.py",
+            "selectors": [
+              "call"
+            ]
+          },
+          "after": {
+            "path": "examples/template-method/python/template.py",
+            "selectors": [
+              "B.step"
+            ]
+          },
+          "explanation": "Заменить только step на x * 2, сохранив общий шаг +1. Обычный helper или переданная функция тоже переиспользует общий шаг; паттерн выбирает наследование."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Заменить только step на x * 2, сохранив общий шаг +1.",
+          "before": "call(2) вычисляет 2 + 1. Расширенная функция вычисляет 2 * 2 + 1.",
+          "after": "A().call(2) наследует Template.call: A.step даёт 2, общий шаг даёт 3. B.step даёт 4, общий шаг даёт 5.",
+          "verdict": "Наследование связывает варианты с Template. Helper или переданная функция тоже переиспользует +1; шаблон нужен, когда именно базовый класс должен задавать порядок."
+        },
+        {
+          "change": "Оставить только базовую операцию.",
+          "before": "Меньше участников и переходов по файлам.",
+          "after": "Явные роли и дополнительный контракт.",
+          "verdict": "Для двух арифметических выражений функции короче наследования."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Общий порядок нескольких шагов",
+          "why": "Подклассы заменяют шаг, сохраняя порядок базового метода."
+        },
+        {
+          "case": "Общий завершающий шаг",
+          "why": "Одна реализация завершения используется всеми вариантами."
+        }
+      ],
+      "decision": {
+        "use": "Порядок шагов стабилен, заменяется строго определённый шаг.",
+        "skip": "Для двух арифметических выражений функции короче наследования."
+      },
+      "trace": {
+        "input": "Число 2; step возвращает вход или удвоенный вход, затем всегда прибавляется 1.",
+        "before": "call(2) вычисляет 2 + 1. Расширенная функция вычисляет 2 * 2 + 1.",
+        "after": "A().call(2) наследует Template.call: A.step даёт 2, общий шаг даёт 3. B.step даёт 4, общий шаг даёт 5.",
+        "result": "База: 3. Расширение: 5; завершающий +1 общий."
+      },
+      "terms": [
+        {
+          "term": "Template.call",
+          "definition": "Фиксирует порядок: step, затем +1."
+        },
+        {
+          "term": "A.step",
+          "definition": "Возвращает входное значение."
+        },
+        {
+          "term": "B.step",
+          "definition": "Возвращает входное значение *2."
+        }
+      ],
+      "designNotes": [
+        "Template.call владеет порядком, а step — единственной точкой изменения. Базовый класс и короткие подклассы удобно читать в одном модуле.",
+        "Наследование связывает варианты с Template. Helper или переданная функция тоже переиспользует +1; шаблон нужен, когда именно базовый класс должен задавать порядок."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/template-method/python/without_pattern.py",
+          "role": "Вариант без паттерна: without_pattern.py"
+        },
+        {
+          "path": "examples/template-method/python/without_pattern_extended.py",
+          "role": "Вариант без паттерна: without_pattern_extended.py"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "implementation_b.py": "template.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -931,6 +1501,199 @@
       },
       "summary": "Подключить показанное расширение через общий контракт.",
       "limit": "Список подписок и порядок требуют контроля. Вызовы синхронны: исключение одной реакции прерывает рассылку. Для одного постоянного получателя прямой вызов проще."
+    },
+    "guide": {
+      "goal": "Издатель вызывает зарегистрированные функции через общий контракт.",
+      "input": "Значение 2; одна подписка increment, затем две — increment и double.",
+      "invariant": "При одинаковом входе варианты без паттерна и с паттерном дают одинаковый результат. База: [3]. Расширение: [3, 4].",
+      "roles": [
+        {
+          "name": "Publisher",
+          "purpose": "Хранит callback и вызывает их при notify."
+        },
+        {
+          "name": "Callback",
+          "purpose": "Контракт функции int → int."
+        },
+        {
+          "name": "increment / double",
+          "purpose": "Независимые реакции на одно значение."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "notify(2)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "increment(2)",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "[3]",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "Publisher.notify(2)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "callback(2) для подписок",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "[3]",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовый вызов",
+          "before": {
+            "path": "examples/observer/python/without_pattern.py",
+            "selectors": [
+              "notify"
+            ]
+          },
+          "after": {
+            "path": "examples/observer/python/publisher.py",
+            "selectors": [
+              "Publisher.notify"
+            ]
+          },
+          "explanation": "Издатель вызывает зарегистрированные функции через общий контракт."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/observer/python/without_pattern_extended.py",
+            "selectors": [
+              "notify"
+            ]
+          },
+          "after": {
+            "path": "examples/observer/python/with_pattern_extended.py",
+            "selectors": [
+              "@usage"
+            ]
+          },
+          "explanation": "Подписать второй callback, не изменяя Publisher. Уведомления синхронные; исключение callback прервёт вызов, изоляции ошибок нет."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Подписать второй callback, не изменяя Publisher.",
+          "before": "notify(2) явно вызывает increment и возвращает [3]; расширение явно вызывает обе функции и возвращает [3, 4].",
+          "after": "Publisher.notify(2) обходит зарегистрированные callbacks. Одна подписка даёт [3], добавленная double — [3, 4].",
+          "verdict": "Список подписок и порядок требуют контроля. Вызовы синхронны: исключение одной реакции прерывает рассылку. Для одного постоянного получателя прямой вызов проще."
+        },
+        {
+          "change": "Оставить только базовую операцию.",
+          "before": "Меньше участников и переходов по файлам.",
+          "after": "Явные роли и дополнительный контракт.",
+          "verdict": "Для одного постоянного получателя прямой вызов проще."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Изменяемый набор реакций",
+          "why": "Новая подписка добавляет получателя без изменения издателя."
+        },
+        {
+          "case": "Несколько независимых получателей",
+          "why": "Один вход передаётся всем подписанным функциям через общий контракт."
+        }
+      ],
+      "decision": {
+        "use": "Набор реакций меняется независимо от издателя.",
+        "skip": "Для одного постоянного получателя прямой вызов проще."
+      },
+      "trace": {
+        "input": "Значение 2; одна подписка increment, затем две — increment и double.",
+        "before": "notify(2) явно вызывает increment и возвращает [3]; расширение явно вызывает обе функции и возвращает [3, 4].",
+        "after": "Publisher.notify(2) обходит зарегистрированные callbacks. Одна подписка даёт [3], добавленная double — [3, 4].",
+        "result": "База: [3]. Расширение: [3, 4]."
+      },
+      "terms": [
+        {
+          "term": "Publisher",
+          "definition": "Хранит callback и вызывает их при notify."
+        },
+        {
+          "term": "Callback",
+          "definition": "Контракт функции int → int."
+        },
+        {
+          "term": "increment / double",
+          "definition": "Независимые реакции на одно значение."
+        }
+      ],
+      "designNotes": [
+        "Publisher владеет подписками и рассылкой, callbacks — независимыми реакциями. Реакции можно хранить вместе; издатель не должен выбирать их по имени.",
+        "Список подписок и порядок требуют контроля. Вызовы синхронны: исключение одной реакции прерывает рассылку. Для одного постоянного получателя прямой вызов проще."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/observer/python/callbacks.py",
+          "role": "Вариант без паттерна: callbacks.py"
+        },
+        {
+          "path": "examples/observer/python/without_pattern.py",
+          "role": "Вариант без паттерна: without_pattern.py"
+        },
+        {
+          "path": "examples/observer/python/without_pattern_extended.py",
+          "role": "Вариант без паттерна: without_pattern_extended.py"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "fileAliases": {
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -1192,6 +1955,199 @@
       },
       "summary": "Подключить показанное расширение через общий контракт.",
       "limit": "Каждая команда хранит историю своих выполнений, поэтому один экземпляр можно использовать повторно. Invoker хранит общий порядок команд; undo требует непустую историю и обратный порядок. Для одного числа стек значений проще."
+    },
+    "guide": {
+      "goal": "Команда связывает получателя, выполнение и отмену.",
+      "input": "Receiver со значением 2; выполнение Increment или Double. Один экземпляр команды допускает повторное выполнение.",
+      "invariant": "При одинаковом входе варианты без паттерна и с паттерном дают одинаковый результат. База: 3. Расширение: 4. Undo возвращает 2.",
+      "roles": [
+        {
+          "name": "Receiver",
+          "purpose": "Хранит целое value."
+        },
+        {
+          "name": "Increment / Double",
+          "purpose": "Изменяют value и помнят значение для undo."
+        },
+        {
+          "name": "Invoker",
+          "purpose": "Выполняет команды и отменяет последнюю."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "Invoker.run()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "history.append(2); value += 1",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "Invoker.run(Increment)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "Increment.execute(): value += 1",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовый вызов",
+          "before": {
+            "path": "examples/command/python/without_pattern.py",
+            "selectors": [
+              "Invoker.run"
+            ]
+          },
+          "after": {
+            "path": "examples/command/python/invoker.py",
+            "selectors": [
+              "Invoker.run"
+            ]
+          },
+          "explanation": "Команда связывает получателя, выполнение и отмену."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/command/python/without_pattern_extended.py",
+            "selectors": [
+              "Invoker.run"
+            ]
+          },
+          "after": {
+            "path": "examples/command/python/command.py",
+            "selectors": [
+              "Double.execute"
+            ]
+          },
+          "explanation": "Добавить команду умножения на 2 с отменой, не меняя Invoker. Команда хранит стек прежних значений и поддерживает повторное выполнение; undo требует непустую историю и обратный порядок."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Добавить команду умножения на 2 с отменой, не меняя Invoker.",
+          "before": "Invoker сохраняет 2 в истории чисел, затем выполняет выбранное изменение. undo достаёт прежнее число.",
+          "after": "Invoker.run вызывает execute команды и сохраняет команду. Increment даёт 3, Double — 4; undo команды восстанавливает 2.",
+          "verdict": "Каждая команда хранит историю своих выполнений, поэтому один экземпляр можно использовать повторно. Invoker хранит общий порядок команд; undo требует непустую историю и обратный порядок. Для одного числа стек значений проще."
+        },
+        {
+          "change": "Оставить только базовую операцию.",
+          "before": "Меньше участников и переходов по файлам.",
+          "after": "Явные роли и дополнительный контракт.",
+          "verdict": "Для одного целого стек прежних значений проще."
+        }
+      ],
+      "applications": [
+        {
+          "case": "История выполненных действий",
+          "why": "Invoker хранит объекты команд, не перечисляя их виды."
+        },
+        {
+          "case": "Отложенное выполнение",
+          "why": "Команда связывает получателя с действием до момента execute; очередь в примере не реализуется."
+        }
+      ],
+      "decision": {
+        "use": "Действия нужно передавать, хранить и отменять через единый контракт.",
+        "skip": "Для одного целого стек прежних значений проще."
+      },
+      "trace": {
+        "input": "Receiver со значением 2; выполнение Increment или Double. Один экземпляр команды допускает повторное выполнение.",
+        "before": "Invoker сохраняет 2 в истории чисел, затем выполняет выбранное изменение. undo достаёт прежнее число.",
+        "after": "Invoker.run вызывает execute команды и сохраняет команду. Increment даёт 3, Double — 4; undo команды восстанавливает 2.",
+        "result": "База: 3. Расширение: 4. Undo возвращает 2."
+      },
+      "terms": [
+        {
+          "term": "Receiver",
+          "definition": "Хранит целое value."
+        },
+        {
+          "term": "Increment / Double",
+          "definition": "Изменяют value и помнят значение для undo."
+        },
+        {
+          "term": "Invoker",
+          "definition": "Выполняет команды и отменяет последнюю."
+        }
+      ],
+      "designNotes": [
+        "Команда объединяет получателя, действие и данные отмены. Invoker знает только execute/undo. Короткие команды принадлежат одному модулю; история отделена, поскольку не зависит от конкретного действия.",
+        "Каждая команда хранит историю своих выполнений, поэтому один экземпляр можно использовать повторно. Invoker хранит общий порядок команд; undo требует непустую историю и обратный порядок. Для одного числа стек значений проще."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/command/python/receiver.py",
+          "role": "Вариант без паттерна: receiver.py"
+        },
+        {
+          "path": "examples/command/python/without_pattern.py",
+          "role": "Вариант без паттерна: without_pattern.py"
+        },
+        {
+          "path": "examples/command/python/without_pattern_extended.py",
+          "role": "Вариант без паттерна: without_pattern_extended.py"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "double_command.py": "command.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -1428,6 +2384,194 @@
       },
       "summary": "Подключить показанное расширение через общий контракт.",
       "limit": "Нужно собрать и проверить порядок цепочки. Останавливает любой результат, отличный от None, включая 0. Для двух фиксированных условий обычная функция проще."
+    },
+    "guide": {
+      "goal": "Первый результат, отличный от None, останавливает передачу по цепочке.",
+      "input": "База: call(1). Расширение: цепочка first → second и call(2); для 3 результата нет.",
+      "invariant": "При одинаковом входе варианты без паттерна и с паттерном дают одинаковый результат. База: 1. Расширение: 2. Для 3 результата нет.",
+      "roles": [
+        {
+          "name": "Handler",
+          "purpose": "Пробует операцию и при None передаёт дальше."
+        },
+        {
+          "name": "first",
+          "purpose": "Обрабатывает только 1."
+        },
+        {
+          "name": "second",
+          "purpose": "Обрабатывает только 2."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "call(1)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "value == 1",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "1",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "Handler(first).call(1)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "first(1) → 1",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "вернуть 1; дальше не идти",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовый вызов",
+          "before": {
+            "path": "examples/chain-of-responsibility/python/without_pattern.py",
+            "selectors": [
+              "call"
+            ]
+          },
+          "after": {
+            "path": "examples/chain-of-responsibility/python/handler.py",
+            "selectors": [
+              "Handler.call"
+            ]
+          },
+          "explanation": "Первый результат, отличный от None, останавливает передачу по цепочке."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/chain-of-responsibility/python/without_pattern_extended.py",
+            "selectors": [
+              "call"
+            ]
+          },
+          "after": {
+            "path": "examples/chain-of-responsibility/python/with_pattern_extended.py",
+            "selectors": [
+              "@usage"
+            ]
+          },
+          "explanation": "Добавить второе звено: обрабатывать 2, если первое звено не вернуло результат. Сборка цепочки и тест порядка всё равно меняются; None означает отсутствие результата."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Добавить второе звено: обрабатывать 2, если первое звено не вернуло результат.",
+          "before": "call(1) возвращает 1. Расширенная функция проверяет сначала 1, затем 2; для 2 возвращает 2.",
+          "after": "Handler(first).call(1) сразу возвращает 1. Для 2 first даёт None, поэтому следующий Handler вызывает second и возвращает 2.",
+          "verdict": "Нужно собрать и проверить порядок цепочки. Останавливает любой результат, отличный от None, включая 0. Для двух фиксированных условий обычная функция проще."
+        },
+        {
+          "change": "Оставить только базовую операцию.",
+          "before": "Меньше участников и переходов по файлам.",
+          "after": "Явные роли и дополнительный контракт.",
+          "verdict": "Для двух фиксированных условий функция короче."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Приоритет обработчиков",
+          "why": "Порядок цепочки задаёт, кто получает первую возможность обработать вход."
+        },
+        {
+          "case": "Резервный обработчик",
+          "why": "Последний участник вызывается, только если предыдущие вернули None."
+        }
+      ],
+      "decision": {
+        "use": "Порядок и состав пробующих обработчиков меняются.",
+        "skip": "Для двух фиксированных условий функция короче."
+      },
+      "trace": {
+        "input": "База: call(1). Расширение: цепочка first → second и call(2); для 3 результата нет.",
+        "before": "call(1) возвращает 1. Расширенная функция проверяет сначала 1, затем 2; для 2 возвращает 2.",
+        "after": "Handler(first).call(1) сразу возвращает 1. Для 2 first даёт None, поэтому следующий Handler вызывает second и возвращает 2.",
+        "result": "База: 1. Расширение: 2. Для 3 результата нет."
+      },
+      "terms": [
+        {
+          "term": "Handler",
+          "definition": "Пробует операцию и при None передаёт дальше."
+        },
+        {
+          "term": "first",
+          "definition": "Обрабатывает только 1."
+        },
+        {
+          "term": "second",
+          "definition": "Обрабатывает только 2."
+        }
+      ],
+      "designNotes": [
+        "Handler отвечает за остановку и передачу дальше, функции — только за попытку обработки. Обработчики можно держать вместе; порядок задаётся при соединении Handler.",
+        "Нужно собрать и проверить порядок цепочки. Останавливает любой результат, отличный от None, включая 0. Для двух фиксированных условий обычная функция проще."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/chain-of-responsibility/python/without_pattern.py",
+          "role": "Вариант без паттерна: without_pattern.py"
+        },
+        {
+          "path": "examples/chain-of-responsibility/python/without_pattern_extended.py",
+          "role": "Вариант без паттерна: without_pattern_extended.py"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -1647,6 +2791,195 @@
       },
       "summary": "Вызвать reversed через обёртку reverse.",
       "limit": "Tuple уже поддерживает оба обхода: обёртка показывает подключение собственного типа к протоколу. reverse знает values, поэтому смена хранения затронет его."
+    },
+    "guide": {
+      "goal": "Коллекция создаёт независимый итератор для каждого обхода.",
+      "input": "Значения (1, 2); прямой обход и обратный обход.",
+      "invariant": "При одинаковом входе варианты без паттерна и с паттерном дают одинаковый результат. База: [1, 2]. Расширение: [2, 1].",
+      "roles": [
+        {
+          "name": "Collection",
+          "purpose": "Хранит tuple значений."
+        },
+        {
+          "name": "__iter__",
+          "purpose": "Создаёт новый встроенный итератор."
+        },
+        {
+          "name": "reverse",
+          "purpose": "Возвращает обратный итератор."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "list((1, 2))",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "итератор tuple",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "[1, 2]",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "list(Collection((1, 2)))",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "Collection.__iter__ → iter(values)",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "[1, 2]",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовый вызов",
+          "before": {
+            "path": "examples/iterator/python/without_pattern.py",
+            "selectors": [
+              "call"
+            ]
+          },
+          "after": {
+            "path": "examples/iterator/python/collection.py",
+            "selectors": [
+              "Collection.__iter__"
+            ]
+          },
+          "explanation": "Коллекция создаёт независимый итератор для каждого обхода."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/iterator/python/without_pattern_extended.py",
+            "selectors": [
+              "call"
+            ]
+          },
+          "after": {
+            "path": "examples/iterator/python/collection.py",
+            "selectors": [
+              "reverse"
+            ]
+          },
+          "explanation": "Добавить обратный обход тех же значений. Обратный обход знает поле values; смена хранения затронет reverse."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Добавить обратный обход тех же значений.",
+          "before": "list((1, 2)) даёт [1, 2]; list(reversed((1, 2))) даёт [2, 1].",
+          "after": "iter(Collection((1, 2))) вызывает __iter__, который создаёт итератор tuple. reverse создаёт обратный итератор; list потребляет его.",
+          "verdict": "Tuple уже поддерживает оба обхода: обёртка показывает подключение собственного типа к протоколу. reverse знает values, поэтому смена хранения затронет его."
+        },
+        {
+          "change": "Оставить только базовую операцию.",
+          "before": "Меньше участников и переходов по файлам.",
+          "after": "Явные роли и дополнительный контракт.",
+          "verdict": "Tuple уже умеет iter/reversed; обёртка здесь лишь показывает протокол."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Вложенные обходы",
+          "why": "Каждый iter создаёт свою позицию, поэтому обходы не мешают друг другу."
+        },
+        {
+          "case": "Смена порядка обхода",
+          "why": "Прямой и обратный итераторы используют один набор значений."
+        }
+      ],
+      "decision": {
+        "use": "Собственная коллекция должна работать со стандартным for и iter.",
+        "skip": "Tuple уже умеет iter/reversed; обёртка здесь лишь показывает протокол."
+      },
+      "trace": {
+        "input": "Значения (1, 2); прямой обход и обратный обход.",
+        "before": "list((1, 2)) даёт [1, 2]; list(reversed((1, 2))) даёт [2, 1].",
+        "after": "iter(Collection((1, 2))) вызывает __iter__, который создаёт итератор tuple. reverse создаёт обратный итератор; list потребляет его.",
+        "result": "База: [1, 2]. Расширение: [2, 1]."
+      },
+      "terms": [
+        {
+          "term": "Collection",
+          "definition": "Хранит tuple значений."
+        },
+        {
+          "term": "__iter__",
+          "definition": "Создаёт новый встроенный итератор."
+        },
+        {
+          "term": "reverse",
+          "definition": "Возвращает обратный итератор."
+        }
+      ],
+      "designNotes": [
+        "Коллекция хранит значения, итератор — позицию обхода. Каждый __iter__ создаёт новую позицию. Прямой и обратный обход удобно держать рядом с коллекцией.",
+        "Tuple уже поддерживает оба обхода: обёртка показывает подключение собственного типа к протоколу. reverse знает values, поэтому смена хранения затронет его."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/iterator/python/without_pattern.py",
+          "role": "Вариант без паттерна: without_pattern.py"
+        },
+        {
+          "path": "examples/iterator/python/without_pattern_extended.py",
+          "role": "Вариант без паттерна: without_pattern_extended.py"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "reverse_iterator.py": "collection.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -1891,6 +3224,198 @@
       },
       "summary": "Подключить показанное расширение через общий контракт.",
       "limit": "Список участников и синхронный обход остаются. Посредник может разрастись при множестве правил. Для двух объектов достаточно прямого вызова."
+    },
+    "guide": {
+      "goal": "Посредник хранит участников и направляет вызов всем, кроме отправителя.",
+      "input": "sender и один получатель; затем sender и два получателя. Передаваемое значение 1.",
+      "invariant": "При одинаковом входе варианты без паттерна и с паттерном дают одинаковый результат. База: 1. Расширение: 1 1. Sender не изменяется.",
+      "roles": [
+        {
+          "name": "Component",
+          "purpose": "Принимает значение через receive."
+        },
+        {
+          "name": "Mediator",
+          "purpose": "Хранит список участников и политику доставки."
+        },
+        {
+          "name": "sender",
+          "purpose": "Компонент, которому вызов не возвращается."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "notify(receiver, 1)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "receiver.receive(1)",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "receiver.value = 1",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "Mediator.notify(sender, 1)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "receive(1) у всех кроме sender",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "получатели.value = 1",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовый вызов",
+          "before": {
+            "path": "examples/mediator/python/without_pattern.py",
+            "selectors": [
+              "notify"
+            ]
+          },
+          "after": {
+            "path": "examples/mediator/python/mediator.py",
+            "selectors": [
+              "Mediator.notify"
+            ]
+          },
+          "explanation": "Посредник хранит участников и направляет вызов всем, кроме отправителя."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/mediator/python/without_pattern_extended.py",
+            "selectors": [
+              "notify"
+            ]
+          },
+          "after": {
+            "path": "examples/mediator/python/with_pattern_extended.py",
+            "selectors": [
+              "@usage"
+            ]
+          },
+          "explanation": "Подключить ещё один компонент к общей маршрутизации. Список участников и правила доставки не исчезают; в примере вызовы синхронны."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Подключить ещё один компонент к общей маршрутизации.",
+          "before": "notify(receiver, 1) напрямую вызывает receive. Расширение явно вызывает receive у first и second.",
+          "after": "Mediator.notify(sender, 1) обходит components, исключает sender по идентичности и вызывает receive(1) у остальных.",
+          "verdict": "Список участников и синхронный обход остаются. Посредник может разрастись при множестве правил. Для двух объектов достаточно прямого вызова."
+        },
+        {
+          "change": "Оставить только базовую операцию.",
+          "before": "Меньше участников и переходов по файлам.",
+          "after": "Явные роли и дополнительный контракт.",
+          "verdict": "Для двух объектов прямой вызов короче."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Изменение состава участников",
+          "why": "Посредник хранит новый набор связей без ссылок между компонентами."
+        },
+        {
+          "case": "Общая политика доставки",
+          "why": "Правило исключения отправителя находится в одном месте."
+        }
+      ],
+      "decision": {
+        "use": "Нужно одно место, владеющее маршрутизацией между компонентами.",
+        "skip": "Для двух объектов прямой вызов короче."
+      },
+      "trace": {
+        "input": "sender и один получатель; затем sender и два получателя. Передаваемое значение 1.",
+        "before": "notify(receiver, 1) напрямую вызывает receive. Расширение явно вызывает receive у first и second.",
+        "after": "Mediator.notify(sender, 1) обходит components, исключает sender по идентичности и вызывает receive(1) у остальных.",
+        "result": "База: 1. Расширение: 1 1. Sender не изменяется."
+      },
+      "terms": [
+        {
+          "term": "Component",
+          "definition": "Принимает значение через receive."
+        },
+        {
+          "term": "Mediator",
+          "definition": "Хранит список участников и политику доставки."
+        },
+        {
+          "term": "sender",
+          "definition": "Компонент, которому вызов не возвращается."
+        }
+      ],
+      "designNotes": [
+        "Mediator владеет составом и правилом доставки; Component только принимает значение. Отдельная политика позволяет менять связи без добавления ссылок между компонентами.",
+        "Список участников и синхронный обход остаются. Посредник может разрастись при множестве правил. Для двух объектов достаточно прямого вызова."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/mediator/python/component.py",
+          "role": "Вариант без паттерна: component.py"
+        },
+        {
+          "path": "examples/mediator/python/without_pattern.py",
+          "role": "Вариант без паттерна: without_pattern.py"
+        },
+        {
+          "path": "examples/mediator/python/without_pattern_extended.py",
+          "role": "Вариант без паттерна: without_pattern_extended.py"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -2136,6 +3661,202 @@
       },
       "summary": "Расширить Snapshot и Originator.save/restore; Caretaker прежний.",
       "limit": "Снимок не обеспечивает секретности полей Python; хранитель лишь не зависит от них. Здесь int/bool неизменяемы; глубокое копирование произвольных объектов не показано."
+    },
+    "guide": {
+      "goal": "Владелец создаёт и читает снимок; хранитель не разбирает его поля.",
+      "input": "value=1: сохранить, изменить на 2, восстановить. В расширении также flag=False → True → False.",
+      "invariant": "При одинаковом входе варианты без паттерна и с паттерном дают одинаковый результат. База: 1. Расширение: 1 False.",
+      "roles": [
+        {
+          "name": "Originator",
+          "purpose": "Создаёт снимок и восстанавливает свои поля."
+        },
+        {
+          "name": "Snapshot",
+          "purpose": "Неизменяемое представление сохранённых полей."
+        },
+        {
+          "name": "Caretaker",
+          "purpose": "Хранит снимок без чтения его полей."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "save(originator)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "изменить value; restore",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "value = 1",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "Originator.save() → Snapshot",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "Caretaker хранит → restore",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "value = 1",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовый вызов",
+          "before": {
+            "path": "examples/memento/python/without_pattern.py",
+            "selectors": [
+              "restore"
+            ]
+          },
+          "after": {
+            "path": "examples/memento/python/originator.py",
+            "selectors": [
+              "Originator.restore"
+            ]
+          },
+          "explanation": "Владелец создаёт и читает снимок; хранитель не разбирает его поля."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/memento/python/without_pattern_extended.py",
+            "selectors": [
+              "restore"
+            ]
+          },
+          "after": {
+            "path": "examples/memento/python/extended_originator.py",
+            "selectors": [
+              "Originator.restore"
+            ]
+          },
+          "explanation": "Включить flag в снимок, сохранив Caretaker без изменений. Снимок содержит значения, а не произвольный глубокий граф объектов; копирование изменяемых значений отдельно не показано."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Включить flag в снимок, сохранив Caretaker без изменений.",
+          "before": "Внешние save/restore читают и присваивают поля; расширение сохраняет пару (value, flag).",
+          "after": "Originator.save создаёт Snapshot; Caretaker хранит его. Originator.restore читает Snapshot и возвращает value=1, а в расширении flag=False.",
+          "verdict": "Снимок не обеспечивает секретности полей Python; хранитель лишь не зависит от них. Здесь int/bool неизменяемы; глубокое копирование произвольных объектов не показано."
+        },
+        {
+          "change": "Оставить только базовую операцию.",
+          "before": "Меньше участников и переходов по файлам.",
+          "after": "Явные роли и дополнительный контракт.",
+          "verdict": "Для одного int достаточно сохранить число."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Возврат к контрольной точке",
+          "why": "Originator восстанавливает собственные поля из снимка."
+        },
+        {
+          "case": "Хранение нескольких снимков",
+          "why": "Хранитель может хранить снимки, не зная их полей; выбор снимка задаёт вызывающий код."
+        }
+      ],
+      "decision": {
+        "use": "Формат состояния должен меняться независимо от его хранителя.",
+        "skip": "Для одного int достаточно сохранить число."
+      },
+      "trace": {
+        "input": "value=1: сохранить, изменить на 2, восстановить. В расширении также flag=False → True → False.",
+        "before": "Внешние save/restore читают и присваивают поля; расширение сохраняет пару (value, flag).",
+        "after": "Originator.save создаёт Snapshot; Caretaker хранит его. Originator.restore читает Snapshot и возвращает value=1, а в расширении flag=False.",
+        "result": "База: 1. Расширение: 1 False."
+      },
+      "terms": [
+        {
+          "term": "Originator",
+          "definition": "Создаёт снимок и восстанавливает свои поля."
+        },
+        {
+          "term": "Snapshot",
+          "definition": "Неизменяемое представление сохранённых полей."
+        },
+        {
+          "term": "Caretaker",
+          "definition": "Хранит снимок без чтения его полей."
+        }
+      ],
+      "designNotes": [
+        "Originator знает формат состояния, Caretaker — только тип хранимого снимка. Snapshot и Originator расположены вместе, поскольку меняются согласованно. Разные версии Originator показывают изменение формата.",
+        "Снимок не обеспечивает секретности полей Python; хранитель лишь не зависит от них. Здесь int/bool неизменяемы; глубокое копирование произвольных объектов не показано."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/memento/python/plain_originator.py",
+          "role": "Вариант без паттерна: plain_originator.py"
+        },
+        {
+          "path": "examples/memento/python/without_pattern.py",
+          "role": "Вариант без паттерна: without_pattern.py"
+        },
+        {
+          "path": "examples/memento/python/plain_extended_originator.py",
+          "role": "Вариант без паттерна: plain_extended_originator.py"
+        },
+        {
+          "path": "examples/memento/python/without_pattern_extended.py",
+          "role": "Вариант без паттерна: without_pattern_extended.py"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -2379,6 +4100,199 @@
       },
       "summary": "Добавить второй Visitor; узлы не меняются.",
       "limit": "Новая операция локальна и в варианте с match. Visitor добавляет accept и отдельный контракт; новый вид узла потребует нового метода у всех посетителей."
+    },
+    "guide": {
+      "goal": "Узел выбирает метод посетителя; операция находится в отдельном объекте.",
+      "input": "Дерево B(A(2)); базовая операция возвращает 3, вторая — 4.",
+      "invariant": "При одинаковом входе варианты без паттерна и с паттерном дают одинаковый результат. База: 3. Расширение: 4.",
+      "roles": [
+        {
+          "name": "A / B",
+          "purpose": "Два вида узлов с accept."
+        },
+        {
+          "name": "Visitor",
+          "purpose": "Общий контракт методов a и b."
+        },
+        {
+          "name": "ValueVisitor / DoubleVisitor",
+          "purpose": "Группирует одну операцию над всеми видами узлов."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "call(B(A(2)))",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "match B → match A",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "2 + 1 → 3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "B.accept(ValueVisitor)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "b → A.accept → a",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "2 + 1 → 3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовый вызов",
+          "before": {
+            "path": "examples/visitor/python/without_pattern.py",
+            "selectors": [
+              "call"
+            ]
+          },
+          "after": {
+            "path": "examples/visitor/python/visitor.py",
+            "selectors": [
+              "ValueVisitor"
+            ]
+          },
+          "explanation": "Узел выбирает метод посетителя; операция находится в отдельном объекте."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/visitor/python/without_pattern_extended.py",
+            "selectors": [
+              "call"
+            ]
+          },
+          "after": {
+            "path": "examples/visitor/python/visitor.py",
+            "selectors": [
+              "DoubleVisitor"
+            ]
+          },
+          "explanation": "Добавить вторую операцию над A/B, сохранив узлы неизменными. Новая операция локальна и с match. Новый вид узла меняет Visitor и все операции."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Добавить вторую операцию над A/B, сохранив узлы неизменными.",
+          "before": "call распознаёт B, рекурсивно обрабатывает A и прибавляет 1. Вторая функция удваивает A, а B только передаёт результат.",
+          "after": "B.accept(ValueVisitor) вызывает visitor.b; тот вызывает A.accept и visitor.a. Получается 2 + 1. DoubleVisitor возвращает 2 * 2 без прибавки B.",
+          "verdict": "Новая операция локальна и в варианте с match. Visitor добавляет accept и отдельный контракт; новый вид узла потребует нового метода у всех посетителей."
+        },
+        {
+          "change": "Оставить только базовую операцию.",
+          "before": "Меньше участников и переходов по файлам.",
+          "after": "Явные роли и дополнительный контракт.",
+          "verdict": "Для коротких операций функции с match проще."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Добавление операции над стабильными узлами",
+          "why": "Новый посетитель реализует методы для уже известных видов."
+        },
+        {
+          "case": "Разные типы результатов",
+          "why": "Обобщённый Visitor[T] позволяет операциям возвращать разные типы; конкретный пример возвращает int."
+        }
+      ],
+      "decision": {
+        "use": "Виды узлов стабильны, а отдельные операции над ними растут.",
+        "skip": "Для коротких операций функции с match проще."
+      },
+      "trace": {
+        "input": "Дерево B(A(2)); базовая операция возвращает 3, вторая — 4.",
+        "before": "call распознаёт B, рекурсивно обрабатывает A и прибавляет 1. Вторая функция удваивает A, а B только передаёт результат.",
+        "after": "B.accept(ValueVisitor) вызывает visitor.b; тот вызывает A.accept и visitor.a. Получается 2 + 1. DoubleVisitor возвращает 2 * 2 без прибавки B.",
+        "result": "База: 3. Расширение: 4."
+      },
+      "terms": [
+        {
+          "term": "A / B",
+          "definition": "Два вида узлов с accept."
+        },
+        {
+          "term": "Visitor",
+          "definition": "Общий контракт методов a и b."
+        },
+        {
+          "term": "ValueVisitor / DoubleVisitor",
+          "definition": "Группирует одну операцию над всеми видами узлов."
+        }
+      ],
+      "designNotes": [
+        "Узлы знают только выбор метода a/b через accept; посетитель собирает одну операцию над всеми видами узлов. Поэтому узлы и операции разделены, а короткие посетители можно держать вместе.",
+        "Новая операция локальна и в варианте с match. Visitor добавляет accept и отдельный контракт; новый вид узла потребует нового метода у всех посетителей."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/visitor/python/plain_nodes.py",
+          "role": "Вариант без паттерна: plain_nodes.py"
+        },
+        {
+          "path": "examples/visitor/python/without_pattern.py",
+          "role": "Вариант без паттерна: without_pattern.py"
+        },
+        {
+          "path": "examples/visitor/python/without_pattern_extended.py",
+          "role": "Вариант без паттерна: without_pattern_extended.py"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "second_visitor.py": "visitor.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -2598,6 +4512,195 @@
       },
       "summary": "Создать Sum из двух Literal.",
       "limit": "Объекты заменяют числа и пары, добавляя классы и вызовы. Парсера здесь нет: дерево создаёт Python-код. Для фиксированного выражения обычная арифметика проще."
+    },
+    "guide": {
+      "goal": "Представить вычисление объектами, которые можно вкладывать друг в друга.",
+      "input": "База: число 1. Расширение: сумма 1 и 2; выражения допускают вложенные суммы.",
+      "invariant": "Каждый узел предоставляет evaluate; Sum вычисляет дочерние узлы через тот же контракт.",
+      "roles": [
+        {
+          "name": "Expression",
+          "purpose": "Контракт evaluate без знания вида узла."
+        },
+        {
+          "name": "Literal",
+          "purpose": "Лист, возвращающий число."
+        },
+        {
+          "name": "Sum",
+          "purpose": "Узел, складывающий результаты двух выражений."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "evaluate((1, 2))",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "evaluate(1) + evaluate(2)",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "Sum.evaluate()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "left.evaluate() + right.evaluate()",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовая операция",
+          "before": {
+            "path": "examples/interpreter/python/without_pattern.py",
+            "selectors": [
+              "evaluate"
+            ]
+          },
+          "after": {
+            "path": "examples/interpreter/python/expression.py",
+            "selectors": [
+              "Literal.evaluate"
+            ]
+          },
+          "explanation": "Литерал хранит число в узле; для одного числа обычная функция проще."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/interpreter/python/without_pattern_extended.py",
+            "selectors": [
+              "evaluate"
+            ]
+          },
+          "after": {
+            "path": "examples/interpreter/python/expression.py",
+            "selectors": [
+              "Sum.evaluate"
+            ]
+          },
+          "explanation": "Обе версии вычисляют вложенное дерево. Прямая функция распознаёт int и пару; Sum вызывает evaluate дочерних выражений через общий контракт."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Сумма двух значений",
+          "before": "evaluate возвращает число; расширенный evaluate рекурсивно вычисляет два элемента пары и складывает их.",
+          "after": "Literal(1).evaluate возвращает 1. Sum(Literal(1), Literal(2)).evaluate вызывает оба дочерних evaluate и складывает 1 + 2.",
+          "verdict": "Объекты заменяют числа и пары, добавляя классы и вызовы. Парсера здесь нет: дерево создаёт Python-код. Для фиксированного выражения обычная арифметика проще."
+        },
+        {
+          "change": "Вложенная сумма",
+          "before": "Передать вложенную пару, например ((1, 2), 3); evaluate не меняется.",
+          "after": "Передать вложенный Sum; Sum.evaluate не меняется.",
+          "verdict": "Обе версии хранят дерево как данные и вычисляют его рекурсивно; различается представление узлов."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Вложенные выражения",
+          "why": "Операция узла рекурсивно вычисляет дочерние выражения."
+        },
+        {
+          "case": "Повторное вычисление сохранённого дерева",
+          "why": "Структура и операция представлены вместе, поэтому дерево можно вычислить снова."
+        }
+      ],
+      "decision": {
+        "use": "Вычисления нужно хранить и комбинировать как дерево узлов.",
+        "skip": "Достаточно вычислить фиксированное выражение напрямую."
+      },
+      "trace": {
+        "input": "База: число 1. Расширение: сумма 1 и 2; выражения допускают вложенные суммы.",
+        "before": "evaluate возвращает число; расширенный evaluate рекурсивно вычисляет два элемента пары и складывает их.",
+        "after": "Literal(1).evaluate возвращает 1. Sum(Literal(1), Literal(2)).evaluate вызывает оба дочерних evaluate и складывает 1 + 2.",
+        "result": "База: 1. Расширение: 3."
+      },
+      "terms": [
+        {
+          "term": "Выражение",
+          "definition": "Узел с операцией вычисления evaluate."
+        },
+        {
+          "term": "Лист",
+          "definition": "Узел без дочерних выражений."
+        },
+        {
+          "term": "Составной узел",
+          "definition": "Узел, вычисляющий дочерние выражения."
+        }
+      ],
+      "designNotes": [
+        "Expression задаёт вычисление узла, Literal хранит число, Sum хранит два выражения. Связанные узлы одной маленькой грамматики удобно держать вместе; рекурсия следует структуре дерева.",
+        "Объекты заменяют числа и пары, добавляя классы и вызовы. Парсера здесь нет: дерево создаёт Python-код. Для фиксированного выражения обычная арифметика проще."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/interpreter/python/without_pattern.py",
+          "role": "Прямая реализация"
+        },
+        {
+          "path": "examples/interpreter/python/without_pattern_extended.py",
+          "role": "Прямая реализация"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "sum_expression.py": "expression.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -2842,6 +4945,200 @@
       },
       "summary": "Добавить CreatorB; operation наследуется.",
       "limit": "Появляется иерархия создателей. Для одного выбора конструктора хватит функции; фабричный метод оправдан, когда общий процесс базового класса уже должен работать с разными продуктами."
+    },
+    "guide": {
+      "goal": "Заменять создаваемый Product, сохраняя Creator.operation.",
+      "input": "База: продукт A. Расширение: продукт B; operation возвращает маркер продукта.",
+      "invariant": "Обе версии возвращают тот же маркер; общий метод Creator вызывает переопределяемое создание.",
+      "roles": [
+        {
+          "name": "Product",
+          "purpose": "Объект с operation; A и B — условные реализации."
+        },
+        {
+          "name": "Creator",
+          "purpose": "Использует продукт, создание делегирует create."
+        },
+        {
+          "name": "CreatorA / CreatorB",
+          "purpose": "Переопределяют только create."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "operation()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "ProductA().operation()",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "A",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "CreatorA.operation()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "CreatorA.create() → ProductA",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "ProductA.operation() → A",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовая операция",
+          "before": {
+            "path": "examples/factory-method/python/without_pattern.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/factory-method/python/creator.py",
+            "selectors": [
+              "Creator.operation"
+            ]
+          },
+          "explanation": "Прямое создание заменено вызовом create. Общий operation не знает конкретного продукта."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/factory-method/python/without_pattern_extended.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/factory-method/python/creator.py",
+            "selectors": [
+              "CreatorB"
+            ]
+          },
+          "explanation": "До: новая ветка match. После: новый подкласс создателя; его выбор остаётся у вызывающего кода."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Другой продукт",
+          "before": "operation создаёт ProductA; расширенная функция выбирает ProductA или ProductB по Kind и вызывает operation продукта.",
+          "after": "CreatorA.operation наследует общий процесс: self.create создаёт ProductA, затем вызывается ProductA.operation. CreatorB подменяет только создание.",
+          "verdict": "Появляется иерархия создателей. Для одного выбора конструктора хватит функции; фабричный метод оправдан, когда общий процесс базового класса уже должен работать с разными продуктами."
+        },
+        {
+          "change": "Единственный вызов конструктора",
+          "before": "Прямая функция короче.",
+          "after": "Иерархия добавляет классы.",
+          "verdict": "Польза возникает внутри существующего общего процесса."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Подмена продукта внутри общего процесса",
+          "why": "Подкласс меняет create, сохраняя Creator.operation."
+        },
+        {
+          "case": "Расширение существующего базового класса",
+          "why": "Переопределяемый метод становится явной точкой выбора создаваемого объекта."
+        }
+      ],
+      "decision": {
+        "use": "В существующем базовом процессе подклассы должны создавать разные продукты.",
+        "skip": "Нужен только выбор конструктора: функция создания проще."
+      },
+      "trace": {
+        "input": "База: продукт A. Расширение: продукт B; operation возвращает маркер продукта.",
+        "before": "operation создаёт ProductA; расширенная функция выбирает ProductA или ProductB по Kind и вызывает operation продукта.",
+        "after": "CreatorA.operation наследует общий процесс: self.create создаёт ProductA, затем вызывается ProductA.operation. CreatorB подменяет только создание.",
+        "result": "База: A. Расширение: B."
+      },
+      "terms": [
+        {
+          "term": "Продукт",
+          "definition": "Создаваемый объект с общей операцией."
+        },
+        {
+          "term": "Фабричный метод",
+          "definition": "Переопределяемая операция создания продукта."
+        },
+        {
+          "term": "Создатель",
+          "definition": "Объект, который получает продукт через фабричный метод."
+        }
+      ],
+      "designNotes": [
+        "Creator владеет использованием продукта, create — точкой подмены его создания. Продукты и создатели разделены по обязанности; варианты A/B каждой роли можно держать вместе.",
+        "Появляется иерархия создателей. Для одного выбора конструктора хватит функции; фабричный метод оправдан, когда общий процесс базового класса уже должен работать с разными продуктами."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/factory-method/python/product.py",
+          "role": "Общая структура значения"
+        },
+        {
+          "path": "examples/factory-method/python/without_pattern.py",
+          "role": "Прямая реализация"
+        },
+        {
+          "path": "examples/factory-method/python/without_pattern_extended.py",
+          "role": "Прямая реализация"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "creator_b.py": "creator.py",
+        "product_b.py": "product.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -3103,6 +5400,199 @@
       },
       "summary": "Добавить FactoryB, клиент прежний.",
       "limit": "Один Product с маркерами показывает единицу подстановки, а не проверку совместимости типов. Простая функция тоже может вернуть согласованную пару. Новый вид продукта изменит контракт всех фабрик."
+    },
+    "guide": {
+      "goal": "Передавать создание двух связанных продуктов одной зависимостью.",
+      "input": "Пара маркеров A1/A2; расширение выбирает B1/B2 одной фабрикой.",
+      "invariant": "Клиент вызывает first и second одной фабрики; обе версии возвращают одинаковую пару.",
+      "roles": [
+        {
+          "name": "Product",
+          "purpose": "Содержит условный маркер."
+        },
+        {
+          "name": "Factory",
+          "purpose": "Контракт создания пары продуктов."
+        },
+        {
+          "name": "FactoryA / FactoryB",
+          "purpose": "Создают пары A1/A2 и B1/B2."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "operation()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "Product(A1), Product(A2)",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "(A1, A2)",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "operation(FactoryA)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "first(), second()",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "(A1, A2)",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовая операция",
+          "before": {
+            "path": "examples/abstract-factory/python/without_pattern.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/abstract-factory/python/client.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "explanation": "До: клиент знает, как создать пару. После: вызывает две операции переданной фабрики."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/abstract-factory/python/without_pattern_extended.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/abstract-factory/python/factory.py",
+            "selectors": [
+              "FactoryB"
+            ]
+          },
+          "explanation": "Новая фабрика меняет пару целиком. Простой match тоже может централизовать согласованное создание."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Другой набор продуктов",
+          "before": "operation создаёт два Product; расширение выбирает согласованную пару по Kind.",
+          "after": "operation(factory) вызывает first и second одной фабрики, затем operation обоих продуктов. FactoryA даёт A1/A2, FactoryB — B1/B2.",
+          "verdict": "Один Product с маркерами показывает единицу подстановки, а не проверку совместимости типов. Простая функция тоже может вернуть согласованную пару. Новый вид продукта изменит контракт всех фабрик."
+        },
+        {
+          "change": "Третья операция создания",
+          "before": "Дополнить функцию создания.",
+          "after": "Расширить Factory и каждую фабрику.",
+          "verdict": "Новый вид продукта затрагивает все семейства."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Подмена семейства целиком",
+          "why": "Одна зависимость меняет результаты нескольких операций создания."
+        },
+        {
+          "case": "Несколько клиентов одного семейства",
+          "why": "Одна фабрика передаётся разным клиентам с общим контрактом."
+        }
+      ],
+      "decision": {
+        "use": "Клиенты подменяют связанные операции создания как единое семейство.",
+        "skip": "Меняются только данные одного класса: функция с параметром компактнее."
+      },
+      "trace": {
+        "input": "Пара маркеров A1/A2; расширение выбирает B1/B2 одной фабрикой.",
+        "before": "operation создаёт два Product; расширение выбирает согласованную пару по Kind.",
+        "after": "operation(factory) вызывает first и second одной фабрики, затем operation обоих продуктов. FactoryA даёт A1/A2, FactoryB — B1/B2.",
+        "result": "База: ('A1', 'A2'). Расширение: ('B1', 'B2')."
+      },
+      "terms": [
+        {
+          "term": "Семейство",
+          "definition": "Набор продуктов, создаваемых совместно."
+        },
+        {
+          "term": "Фабрика",
+          "definition": "Объект с операциями создания продуктов."
+        },
+        {
+          "term": "Клиент",
+          "definition": "Код, использующий фабрику через её контракт."
+        }
+      ],
+      "designNotes": [
+        "Клиент зависит от операций создания пары, а фабрика выбирает семейство целиком. Короткие фабрики находятся вместе; Product хранит только нейтральный маркер.",
+        "Один Product с маркерами показывает единицу подстановки, а не проверку совместимости типов. Простая функция тоже может вернуть согласованную пару. Новый вид продукта изменит контракт всех фабрик."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/abstract-factory/python/product.py",
+          "role": "Общая структура значения"
+        },
+        {
+          "path": "examples/abstract-factory/python/without_pattern.py",
+          "role": "Прямая реализация"
+        },
+        {
+          "path": "examples/abstract-factory/python/without_pattern_extended.py",
+          "role": "Прямая реализация"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "factory_b.py": "factory.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -3342,6 +5832,194 @@
       },
       "summary": "Вызвать add(B).",
       "limit": "Нужно управлять временем жизни Builder и явно вызвать build. Если все части уже известны, прямой конструктор короче. Повторный build здесь создаёт новый снимок и не очищает Builder."
+    },
+    "guide": {
+      "goal": "Накопить части и получить отдельный неизменяемый Product.",
+      "input": "Сначала часть A; в расширении перед build добавляется B.",
+      "invariant": "build копирует части в tuple; дальнейшие шаги не изменяют уже построенный продукт.",
+      "roles": [
+        {
+          "name": "Product",
+          "purpose": "Готовый неизменяемый набор частей."
+        },
+        {
+          "name": "Builder",
+          "purpose": "Хранит изменяемые части до build."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "operation()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "Product((A,))",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "(A,)",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "Builder.add(A)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "build() → tuple(parts)",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "(A,)",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовая операция",
+          "before": {
+            "path": "examples/builder/python/without_pattern.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/builder/python/with_pattern.py",
+            "selectors": [
+              "@usage"
+            ]
+          },
+          "explanation": "Прямое создание получает все части сразу; Builder хранит их между отдельными шагами."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/builder/python/without_pattern_extended.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/builder/python/with_pattern_extended.py",
+            "selectors": [
+              "@usage"
+            ]
+          },
+          "explanation": "Расширение добавляет один add перед build. Класс Builder не меняется; для готовых частей прямое создание короче."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Следующая часть",
+          "before": "operation передаёт готовый tuple (A,) или (A, B) в Product.",
+          "after": "Builder.add сохраняет A, затем при расширении B. build копирует текущий список в tuple и создаёт Product.",
+          "verdict": "Нужно управлять временем жизни Builder и явно вызвать build. Если все части уже известны, прямой конструктор короче. Повторный build здесь создаёт новый снимок и не очищает Builder."
+        },
+        {
+          "change": "Изменить уже построенный результат",
+          "before": "Создать другое значение.",
+          "after": "Добавить шаг и вызвать build заново.",
+          "verdict": "Ранее построенное значение остаётся прежним."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Данные поступают отдельными шагами",
+          "why": "Builder хранит части до момента получения Product."
+        },
+        {
+          "case": "Несколько снимков сборки",
+          "why": "Повторный build выдаёт новое значение, не меняя прежний продукт."
+        }
+      ],
+      "decision": {
+        "use": "Данные поступают поэтапно, а готовый результат отделён от промежуточного состояния.",
+        "skip": "Все аргументы готовы: прямое создание проще."
+      },
+      "trace": {
+        "input": "Сначала часть A; в расширении перед build добавляется B.",
+        "before": "operation передаёт готовый tuple (A,) или (A, B) в Product.",
+        "after": "Builder.add сохраняет A, затем при расширении B. build копирует текущий список в tuple и создаёт Product.",
+        "result": "База: ('A',). Расширение: ('A', 'B')."
+      },
+      "terms": [
+        {
+          "term": "Строитель",
+          "definition": "Объект, накапливающий части до завершения."
+        },
+        {
+          "term": "Промежуточное состояние",
+          "definition": "Накопленные части до build."
+        },
+        {
+          "term": "Снимок",
+          "definition": "Отдельное значение, сохраняющее состояние на момент build."
+        }
+      ],
+      "designNotes": [
+        "Builder хранит незавершённое изменяемое состояние, Product — готовый неизменяемый результат. Эта граница позволяет продолжать сборку, не меняя ранее выданный продукт.",
+        "Нужно управлять временем жизни Builder и явно вызвать build. Если все части уже известны, прямой конструктор короче. Повторный build здесь создаёт новый снимок и не очищает Builder."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/builder/python/product.py",
+          "role": "Общая структура значения"
+        },
+        {
+          "path": "examples/builder/python/without_pattern.py",
+          "role": "Прямая реализация"
+        },
+        {
+          "path": "examples/builder/python/without_pattern_extended.py",
+          "role": "Прямая реализация"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -3583,6 +6261,194 @@
       },
       "summary": "clone, затем добавить B.",
       "limit": "Для списка строк достаточно копии списка; deepcopy выбран как политика clone этого примера. Ресурсы и произвольные графы требуют отдельной политики. Обычная функция копирования здесь столь же корректна."
+    },
+    "guide": {
+      "goal": "Создать независимую копию текущего состояния объекта.",
+      "input": "Исходный объект с parts=[A]; создать копию, в расширении добавить B только копии.",
+      "invariant": "Клон сохраняет текущие части, но его изменяемый список независим от исходного.",
+      "roles": [
+        {
+          "name": "Value",
+          "purpose": "Обычное значение с изменяемыми частями."
+        },
+        {
+          "name": "Prototype",
+          "purpose": "Предоставляет clone с глубокой копией."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "operation(original)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "Value(копия original.parts)",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "[A]",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "original.clone()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "deepcopy(original)",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "[A]",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовая операция",
+          "before": {
+            "path": "examples/prototype/python/without_pattern.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/prototype/python/prototype.py",
+            "selectors": [
+              "Prototype.clone"
+            ]
+          },
+          "explanation": "Обе версии копируют текущее состояние входного объекта. Функция копирует известный список parts; clone инкапсулирует политику копирования в объекте."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/prototype/python/without_pattern_extended.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/prototype/python/with_pattern_extended.py",
+            "selectors": [
+              "@usage"
+            ]
+          },
+          "explanation": "Обе версии добавляют B только независимой копии. Различается место знания о копировании: внешняя функция или метод clone."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Изменить копию",
+          "before": "Скопировать parts исходного Value и добавить B копии.",
+          "after": "Вызвать original.clone и добавить B клону.",
+          "verdict": "Для списка строк достаточно копии списка; deepcopy выбран как политика clone этого примера. Ресурсы и произвольные графы требуют отдельной политики. Обычная функция копирования здесь столь же корректна."
+        },
+        {
+          "change": "Исходный объект настроен во время работы",
+          "before": "Передать текущий original в operation: функция копирует его parts.",
+          "after": "Вызвать clone у текущего original: метод копирует объект.",
+          "verdict": "Обе версии копируют актуальное состояние. Различается владелец политики копирования: внешняя функция или сам объект."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Копия настроенного состояния",
+          "why": "clone использует текущие значения образца без повторения его настройки."
+        },
+        {
+          "case": "Независимое изменение копии",
+          "why": "После копирования изменяемая часть клона отделена от оригинала."
+        }
+      ],
+      "decision": {
+        "use": "Новые объекты повторяют текущее состояние уже настроенных объектов.",
+        "skip": "Исходные аргументы просты и доступны: прямое создание понятнее."
+      },
+      "trace": {
+        "input": "Исходный объект с parts=[A]; создать копию, в расширении добавить B только копии.",
+        "before": "operation(original) копирует текущий список parts в новый Value; расширение добавляет B новому списку.",
+        "after": "original.clone вызывает deepcopy и возвращает независимый Prototype с теми же parts. Добавление B меняет только клон.",
+        "result": "База: ['A']. Расширение: ['A', 'B']; исходный список остаётся ['A']."
+      },
+      "terms": [
+        {
+          "term": "Прототип",
+          "definition": "Объект, текущее состояние которого служит образцом."
+        },
+        {
+          "term": "Клон",
+          "definition": "Новый объект, созданный копированием образца."
+        },
+        {
+          "term": "Глубокая копия",
+          "definition": "Копирование вложенных изменяемых объектов, здесь списка."
+        }
+      ],
+      "designNotes": [
+        "clone переносит правило копирования к самому объекту; вызывающий код не перечисляет поля. Value задаёт общие данные, Prototype добавляет операцию копирования, не меняя их смысл.",
+        "Для списка строк достаточно копии списка; deepcopy выбран как политика clone этого примера. Ресурсы и произвольные графы требуют отдельной политики. Обычная функция копирования здесь столь же корректна."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/prototype/python/value.py",
+          "role": "Общая структура значения"
+        },
+        {
+          "path": "examples/prototype/python/without_pattern.py",
+          "role": "Прямая реализация"
+        },
+        {
+          "path": "examples/prototype/python/without_pattern_extended.py",
+          "role": "Прямая реализация"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -3822,6 +6688,194 @@
       },
       "summary": "Повторно вызвать Singleton().",
       "limit": "Общее состояние скрывает зависимость между вызовами и усложняет изоляцию тестов. Пример однопоточный; @final запрещает наследование лишь для проверки типов. Явная передача одного Instance обычно проще."
+    },
+    "guide": {
+      "goal": "Сравнить явное разделение экземпляра и принудительную единственность.",
+      "input": "Новый процесс; сначала один вызов operation, в расширении два получения общего экземпляра.",
+      "invariant": "Обе версии дают 1, затем 2 при повторном использовании; Singleton также возвращает один объект при каждом конструировании.",
+      "roles": [
+        {
+          "name": "Instance",
+          "purpose": "Обычный экземпляр со своим состоянием."
+        },
+        {
+          "name": "Singleton",
+          "purpose": "Возвращает сохранённый экземпляр вместо нового."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "shared = Instance()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "shared.operation()",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "1",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "Singleton.__new__()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "общий Instance → operation()",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "1",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовая операция",
+          "before": {
+            "path": "examples/singleton/python/without_pattern.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/singleton/python/singleton.py",
+            "selectors": [
+              "Singleton.__new__"
+            ]
+          },
+          "explanation": "До: вызывающий код создаёт и передаёт общий экземпляр явно. После: конструктор возвращает сохранённый объект."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/singleton/python/without_pattern_extended.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/singleton/python/with_pattern_extended.py",
+            "selectors": [
+              "@usage"
+            ]
+          },
+          "explanation": "Оба варианта сохраняют состояние между вызовами. Singleton скрывает разделение и запрещает независимые экземпляры; обычный объект уже решает задачу."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Повторное использование",
+          "before": "operation создаёт Instance и явно использует его один или два раза: значения 1 и затем 2.",
+          "after": "Первый Singleton() создаёт и сохраняет экземпляр. Второй возвращает тот же объект; пустой __init__ не сбрасывает value. operation даёт 1, затем 2.",
+          "verdict": "Общее состояние скрывает зависимость между вызовами и усложняет изоляцию тестов. Пример однопоточный; @final запрещает наследование лишь для проверки типов. Явная передача одного Instance обычно проще."
+        },
+        {
+          "change": "Независимые состояния",
+          "before": "Создать два Instance.",
+          "after": "Глобальный экземпляр мешает изоляции.",
+          "verdict": "Передача обычной зависимости сохраняет контроль владения."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Единственный экземпляр в заданной области",
+          "why": "Получение объекта централизовано; граница примера — один однопоточный процесс."
+        },
+        {
+          "case": "Повторные получения общего состояния",
+          "why": "Разные вызовы конструктора наблюдают изменения одного экземпляра."
+        }
+      ],
+      "decision": {
+        "use": "Принудительная единственность в одном процессе действительно является требованием.",
+        "skip": "Достаточно создать одну зависимость и передавать её явно."
+      },
+      "trace": {
+        "input": "Новый процесс; сначала один вызов operation, в расширении два получения общего экземпляра.",
+        "before": "operation создаёт Instance и явно использует его один или два раза: значения 1 и затем 2.",
+        "after": "Первый Singleton() создаёт и сохраняет экземпляр. Второй возвращает тот же объект; пустой __init__ не сбрасывает value. operation даёт 1, затем 2.",
+        "result": "База: 1. Расширение: (1, 2). Каждый вариант запускается в новом процессе."
+      },
+      "terms": [
+        {
+          "term": "Единственность",
+          "definition": "Все получения объекта ведут к одному экземпляру."
+        },
+        {
+          "term": "Область жизни",
+          "definition": "Граница существования экземпляра; здесь один процесс."
+        },
+        {
+          "term": "Общее состояние",
+          "definition": "Изменения видны всем, кто использует этот экземпляр."
+        }
+      ],
+      "designNotes": [
+        "Instance описывает обычное состояние и операцию; Singleton меняет только получение экземпляра. Разделение позволяет сравнить явное совместное использование с принудительной единственностью.",
+        "Общее состояние скрывает зависимость между вызовами и усложняет изоляцию тестов. Пример однопоточный; @final запрещает наследование лишь для проверки типов. Явная передача одного Instance обычно проще."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/singleton/python/instance.py",
+          "role": "Общая структура значения"
+        },
+        {
+          "path": "examples/singleton/python/without_pattern.py",
+          "role": "Прямая реализация"
+        },
+        {
+          "path": "examples/singleton/python/without_pattern_extended.py",
+          "role": "Прямая реализация"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -4082,6 +7136,207 @@
       },
       "summary": "Добавляется SecondAdapter; client.py и Target не меняются.",
       "limit": "Добавляется слой вызовов и сборка адаптера. Новый метод Target потребует доработки адаптеров. Если исходный интерфейс уже подходит, перевод не нужен."
+    },
+    "guide": {
+      "goal": "Согласовать разные имена методов через один Target.operation.",
+      "input": "Число 2; Adaptee.specific_operation добавляет 1, SecondAdaptee.different_operation удваивает.",
+      "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+      "roles": [
+        {
+          "name": "Adaptee",
+          "purpose": "Имеет неподходящий клиенту метод specific_operation."
+        },
+        {
+          "name": "Adapter",
+          "purpose": "Переводит operation в specific_operation."
+        },
+        {
+          "name": "Target",
+          "purpose": "Контракт, который вызывает клиент."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "operation(2)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "Adaptee.specific_operation(2)",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "call(Adapter, 2)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "Adapter.operation → specific_operation",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовая операция",
+          "before": {
+            "path": "examples/adapter/python/without_pattern.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/adapter/python/adapter.py",
+            "selectors": [
+              "Adapter.operation"
+            ]
+          },
+          "explanation": "До вызывается конкретный метод. После клиент вызывает единый operation через адаптер."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/adapter/python/without_pattern_extended.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/adapter/python/adapter.py",
+            "selectors": [
+              "SecondAdapter.operation"
+            ]
+          },
+          "explanation": "Второй несовместимый метод получает отдельный адаптер вместо новой ветки общего helper."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Подключить SecondAdaptee с другим именем метода.",
+          "before": "operation(2) вызывает specific_operation. Расширение выбирает конкретный несовместимый метод по Choice.",
+          "after": "call(Adapter(Adaptee()), 2) вызывает Target.operation, а Adapter переводит его в specific_operation(2). SecondAdapter переводит в different_operation(2).",
+          "verdict": "Добавляется слой вызовов и сборка адаптера. Новый метод Target потребует доработки адаптеров. Если исходный интерфейс уже подходит, перевод не нужен."
+        },
+        {
+          "change": "Изменить общий контракт операции",
+          "before": "Исправить прямые вызовы.",
+          "after": "Исправить контракт, реализации и вызовы.",
+          "verdict": "Паттерн не изолирует изменение самого контракта."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Несовпадающие имена методов",
+          "why": "Адаптер переводит клиентский вызов в существующий метод объекта."
+        },
+        {
+          "case": "Один клиент для разных интерфейсов",
+          "why": "Для каждого исходного интерфейса выбирается адаптер общего Target."
+        }
+      ],
+      "decision": {
+        "use": "Несовместимые интерфейсы должны обслуживать одного клиента.",
+        "skip": "Исходный интерфейс уже подходит клиенту."
+      },
+      "trace": {
+        "input": "Число 2; Adaptee.specific_operation добавляет 1, SecondAdaptee.different_operation удваивает.",
+        "before": "operation(2) вызывает specific_operation. Расширение выбирает конкретный несовместимый метод по Choice.",
+        "after": "call(Adapter(Adaptee()), 2) вызывает Target.operation, а Adapter переводит его в specific_operation(2). SecondAdapter переводит в different_operation(2).",
+        "result": "База: 3. Расширение: 4 в обеих версиях."
+      },
+      "terms": [
+        {
+          "term": "Контракт",
+          "definition": "Требования к именам методов, аргументам и результату."
+        },
+        {
+          "term": "Клиент",
+          "definition": "Код, который вызывает операцию."
+        },
+        {
+          "term": "Делегирование",
+          "definition": "Передача вызова другому объекту."
+        },
+        {
+          "term": "Адаптер",
+          "definition": "Объект, переводящий вызов между интерфейсами."
+        }
+      ],
+      "designNotes": [
+        "Adaptee сохраняет исходный интерфейс, Adapter переводит его в интерфейс клиента. Target, клиент и короткие адаптеры удобно читать рядом; исходные объекты отделены, поскольку адаптер не должен их переписывать.",
+        "Добавляется слой вызовов и сборка адаптера. Новый метод Target потребует доработки адаптеров. Если исходный интерфейс уже подходит, перевод не нужен."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/adapter/python/without_pattern.py",
+          "role": "Прямое решение и его зависимости"
+        },
+        {
+          "path": "examples/adapter/python/adaptee.py",
+          "role": "Прямое решение и его зависимости"
+        },
+        {
+          "path": "examples/adapter/python/without_pattern_extended.py",
+          "role": "Прямое решение и его зависимости"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "fileAliases": {
+        "second_adaptee.py": "adaptee.py",
+        "second_adapter.py": "adapter.py",
+        "target.py": "adapter.py",
+        "adaptee_choice.py": "without_pattern_extended.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -4313,6 +7568,196 @@
       },
       "summary": "Добавляется ImplementationB; Abstraction остаётся прежней.",
       "limit": "В примере лишь одна абстракция, поэтому механизм похож на Strategy и выгода мала. Bridge выбирают для независимых направлений абстракций и реализаций; одну функцию проще передать напрямую."
+    },
+    "guide": {
+      "goal": "Отделить операцию Abstraction от подставляемой Implementation.",
+      "input": "Число 2; общий шаг +1, реализация A возвращает вход, B удваивает его.",
+      "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+      "roles": [
+        {
+          "name": "Abstraction",
+          "purpose": "Добавляет общий шаг +1."
+        },
+        {
+          "name": "Implementation",
+          "purpose": "Выполняет подставляемую часть операции."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "operation(2)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "2 + 1",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "Abstraction.operation(2)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "ImplementationA.operation → 2",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "+1 → 3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовая операция",
+          "before": {
+            "path": "examples/bridge/python/without_pattern.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/bridge/python/abstraction.py",
+            "selectors": [
+              "Abstraction.operation"
+            ]
+          },
+          "explanation": "Abstraction сохраняет общий шаг, переменную часть делегирует Implementation."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/bridge/python/without_pattern_extended.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/bridge/python/implementation.py",
+            "selectors": [
+              "ImplementationB"
+            ]
+          },
+          "explanation": "Новая реализация заменяет часть операции, не повторяя общий шаг +1."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Добавить ImplementationB, удваивающую вход перед общим шагом.",
+          "before": "operation(2) считает 2 + 1; расширение выбирает между 2 + 1 и 2 * 2 + 1.",
+          "after": "Abstraction.operation(2) вызывает ImplementationA.operation(2), затем прибавляет 1. Подстановка B меняет промежуточное 2 на 4.",
+          "verdict": "В примере лишь одна абстракция, поэтому механизм похож на Strategy и выгода мала. Bridge выбирают для независимых направлений абстракций и реализаций; одну функцию проще передать напрямую."
+        },
+        {
+          "change": "Изменить общий контракт операции",
+          "before": "Исправить прямые вызовы.",
+          "after": "Исправить контракт, реализации и вызовы.",
+          "verdict": "Паттерн не изолирует изменение самого контракта."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Независимые варианты двух ролей",
+          "why": "Абстракции соединяются с реализациями через композицию, не образуя подкласс для каждой пары."
+        },
+        {
+          "case": "Замена способа выполнения",
+          "why": "Реализация меняется при сборке без копирования общего шага абстракции."
+        }
+      ],
+      "decision": {
+        "use": "Абстракции и способы выполнения растут независимо.",
+        "skip": "Меняется только одна простая функция."
+      },
+      "trace": {
+        "input": "Число 2; общий шаг +1, реализация A возвращает вход, B удваивает его.",
+        "before": "operation(2) считает 2 + 1; расширение выбирает между 2 + 1 и 2 * 2 + 1.",
+        "after": "Abstraction.operation(2) вызывает ImplementationA.operation(2), затем прибавляет 1. Подстановка B меняет промежуточное 2 на 4.",
+        "result": "База: 3. Расширение: 5 в обеих версиях."
+      },
+      "terms": [
+        {
+          "term": "Контракт",
+          "definition": "Требования к именам методов, аргументам и результату."
+        },
+        {
+          "term": "Клиент",
+          "definition": "Код, который вызывает операцию."
+        },
+        {
+          "term": "Делегирование",
+          "definition": "Передача вызова другому объекту."
+        },
+        {
+          "term": "Мост",
+          "definition": "Связь абстракции с отдельно подставляемой реализацией."
+        }
+      ],
+      "designNotes": [
+        "Abstraction владеет высокоуровневой операцией, Implementation — заменяемой частью выполнения. Эти роли отделены для независимого развития; варианты реализации удобно держать вместе.",
+        "В примере лишь одна абстракция, поэтому механизм похож на Strategy и выгода мала. Bridge выбирают для независимых направлений абстракций и реализаций; одну функцию проще передать напрямую."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/bridge/python/without_pattern.py",
+          "role": "Прямое решение и его зависимости"
+        },
+        {
+          "path": "examples/bridge/python/without_pattern_extended.py",
+          "role": "Прямое решение и его зависимости"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "implementation_b.py": "implementation.py",
+        "implementation_choice.py": "without_pattern_extended.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -4532,6 +7977,199 @@
       },
       "summary": "Новый компонент подключается без изменения Composite.",
       "limit": "Появляются объекты вместо int/list. Новый вид компонента локален, но новая операция общего контракта затронет все виды. RepeatedComponent здесь также использует механику декоратора."
+    },
+    "guide": {
+      "goal": "Вызывать одну операцию у элемента и составного компонента.",
+      "input": "Дерево из 1 и вложенного 2. В расширении результат вложенной части удваивается.",
+      "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+      "roles": [
+        {
+          "name": "Component",
+          "purpose": "Общий контракт operation."
+        },
+        {
+          "name": "Leaf",
+          "purpose": "Возвращает одно значение."
+        },
+        {
+          "name": "Composite",
+          "purpose": "Суммирует результаты дочерних компонентов."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "operation([1, [2]])",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "рекурсия int/list",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "1 + 2 → 3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "Composite.operation()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "Leaf.operation; Composite.operation",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "1 + 2 → 3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовая операция",
+          "before": {
+            "path": "examples/composite/python/without_pattern.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/composite/python/component.py",
+            "selectors": [
+              "Composite.operation"
+            ]
+          },
+          "explanation": "Рекурсия есть в обоих подходах. После обход вызывает один контракт вместо проверки типов."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/composite/python/without_pattern_extended.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/composite/python/component.py",
+            "selectors": [
+              "RepeatedComponent"
+            ]
+          },
+          "explanation": "RepeatedComponent удваивает результат вложенного компонента; Composite остаётся прежним."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Добавить компонент, удваивающий результат вложенного компонента.",
+          "before": "operation([1, [2]]) рекурсивно различает int/list и суммирует листья. Расширение распознаёт одноэлементный tuple как удвоение.",
+          "after": "Composite.operation вызывает operation каждого ребёнка. Leaf возвращает значение, вложенный Composite суммирует. RepeatedComponent удваивает результат своего ребёнка.",
+          "verdict": "Появляются объекты вместо int/list. Новый вид компонента локален, но новая операция общего контракта затронет все виды. RepeatedComponent здесь также использует механику декоратора."
+        },
+        {
+          "change": "Изменить общий контракт операции",
+          "before": "Исправить прямые вызовы.",
+          "after": "Исправить контракт, реализации и вызовы.",
+          "verdict": "Паттерн не изолирует изменение самого контракта."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Дерево неодинаковой глубины",
+          "why": "Клиент одинаково вызывает лист и вложенный составной компонент."
+        },
+        {
+          "case": "Новый вид дочернего узла",
+          "why": "Узел реализует общий operation, поэтому родитель не перечисляет его тип."
+        }
+      ],
+      "decision": {
+        "use": "Одиночные и составные компоненты нужны через один интерфейс.",
+        "skip": "Операции над фиксированным набором типов меняются чаще самих типов."
+      },
+      "trace": {
+        "input": "Дерево из 1 и вложенного 2. В расширении результат вложенной части удваивается.",
+        "before": "operation([1, [2]]) рекурсивно различает int/list и суммирует листья. Расширение распознаёт одноэлементный tuple как удвоение.",
+        "after": "Composite.operation вызывает operation каждого ребёнка. Leaf возвращает значение, вложенный Composite суммирует. RepeatedComponent удваивает результат своего ребёнка.",
+        "result": "База: 3. Расширение: 5 в обеих версиях."
+      },
+      "terms": [
+        {
+          "term": "Контракт",
+          "definition": "Требования к именам методов, аргументам и результату."
+        },
+        {
+          "term": "Клиент",
+          "definition": "Код, который вызывает операцию."
+        },
+        {
+          "term": "Делегирование",
+          "definition": "Передача вызова другому объекту."
+        },
+        {
+          "term": "Композиция",
+          "definition": "Составной объект из дочерних объектов."
+        }
+      ],
+      "designNotes": [
+        "Component объединяет лист и составной узел одним вызовом. Каждый узел владеет своей обработкой, поэтому Composite не перечисляет виды детей. Короткие виды узлов удобно держать вместе.",
+        "Появляются объекты вместо int/list. Новый вид компонента локален, но новая операция общего контракта затронет все виды. RepeatedComponent здесь также использует механику декоратора."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/composite/python/without_pattern.py",
+          "role": "Прямое решение и его зависимости"
+        },
+        {
+          "path": "examples/composite/python/without_pattern_extended.py",
+          "role": "Прямое решение и его зависимости"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "repeated_component.py": "component.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -4768,6 +8406,201 @@
       },
       "summary": "Новая обработка добавляется отдельной обёрткой; порядок задаётся вложением.",
       "limit": "Вложенность добавляет объекты и усложняет трассировку. Конвейер функций тоже подходит; фиксированное выражение короче. Объектный вариант допускает повторение и произвольную глубину обёрток."
+    },
+    "guide": {
+      "goal": "Добавлять обработки и менять их порядок через вложение компонентов.",
+      "input": "Value(1); прибавление 1. В расширении также удвоение и оба порядка обёрток.",
+      "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+      "roles": [
+        {
+          "name": "Component",
+          "purpose": "Сохраняет operation у исходного значения и обёрток."
+        },
+        {
+          "name": "IncrementDecorator",
+          "purpose": "Добавляет 1 к результату вложенного компонента."
+        },
+        {
+          "name": "DoubleDecorator",
+          "purpose": "Удваивает результат вложенного компонента."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "operation(1)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "1 + 1",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "2",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "IncrementDecorator.operation()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "Value.operation() → 1",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "+1 → 2",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовая операция",
+          "before": {
+            "path": "examples/decorator/python/without_pattern.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/decorator/python/decorators.py",
+            "selectors": [
+              "IncrementDecorator.operation"
+            ]
+          },
+          "explanation": "Обёртка сохраняет интерфейс и изменяет результат вложенной операции."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/decorator/python/without_pattern_extended.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/decorator/python/decorators.py",
+            "selectors": [
+              "DoubleDecorator.operation"
+            ]
+          },
+          "explanation": "Обе версии поддерживают два порядка. После порядок меняет сборка, сами обработки стабильны."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Добавить удвоение и поддержать оба порядка обработок.",
+          "before": "operation(1) даёт 2; расширение явно вычисляет (1 + 1) * 2 или 1 * 2 + 1.",
+          "after": "IncrementDecorator вызывает inner.operation и добавляет 1. Внешний DoubleDecorator удваивает результат: 4. При обратном вложении получается 3.",
+          "verdict": "Вложенность добавляет объекты и усложняет трассировку. Конвейер функций тоже подходит; фиксированное выражение короче. Объектный вариант допускает повторение и произвольную глубину обёрток."
+        },
+        {
+          "change": "Изменить общий контракт операции",
+          "before": "Исправить прямые вызовы.",
+          "after": "Исправить контракт, реализации и вызовы.",
+          "verdict": "Паттерн не изолирует изменение самого контракта."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Перестановка обработок",
+          "why": "Порядок определяется вложением объектов общего интерфейса."
+        },
+        {
+          "case": "Повторение одной обработки",
+          "why": "Один вид обёртки можно вложить несколько раз без добавления нового класса для комбинации."
+        }
+      ],
+      "decision": {
+        "use": "Обработки комбинируются, повторяются и меняют порядок.",
+        "skip": "Один фиксированный порядок проще записать функцией."
+      },
+      "trace": {
+        "input": "Value(1); прибавление 1. В расширении также удвоение и оба порядка обёрток.",
+        "before": "operation(1) даёт 2; расширение явно вычисляет (1 + 1) * 2 или 1 * 2 + 1.",
+        "after": "IncrementDecorator вызывает inner.operation и добавляет 1. Внешний DoubleDecorator удваивает результат: 4. При обратном вложении получается 3.",
+        "result": "База: 2. Расширение: 4 3 в обеих версиях."
+      },
+      "terms": [
+        {
+          "term": "Контракт",
+          "definition": "Требования к именам методов, аргументам и результату."
+        },
+        {
+          "term": "Клиент",
+          "definition": "Код, который вызывает операцию."
+        },
+        {
+          "term": "Делегирование",
+          "definition": "Передача вызова другому объекту."
+        },
+        {
+          "term": "Декоратор",
+          "definition": "Объект с тем же контрактом, добавляющий работу вокруг вложенной операции."
+        }
+      ],
+      "designNotes": [
+        "Каждая обёртка сохраняет Component.operation и добавляет одну обработку. Порядок принадлежит сборке объектов, а не внутреннему выбору декоратора. Короткие обёртки можно держать в одном модуле.",
+        "Вложенность добавляет объекты и усложняет трассировку. Конвейер функций тоже подходит; фиксированное выражение короче. Объектный вариант допускает повторение и произвольную глубину обёрток."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/decorator/python/without_pattern.py",
+          "role": "Прямое решение и его зависимости"
+        },
+        {
+          "path": "examples/decorator/python/without_pattern_extended.py",
+          "role": "Прямое решение и его зависимости"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "double_decorator.py": "decorators.py",
+        "operation_order.py": "without_pattern_extended.py",
+        "increment_decorator.py": "decorators.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -5029,6 +8862,204 @@
       },
       "summary": "Расширенный фасад добавляет один шаг; clients.py не меняется.",
       "limit": "Последовательность и её тесты всё равно меняются. Подкласс здесь сохраняет базовый сценарий; обычная функция также может быть фасадом, отдельная иерархия необязательна."
+    },
+    "guide": {
+      "goal": "Скрыть одинаковую последовательность подсистем от двух клиентов.",
+      "input": "Два клиента передают 1 и 2. Подсистемы выполняют +1, затем *2; расширение добавляет −1.",
+      "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+      "roles": [
+        {
+          "name": "SubsystemA / B",
+          "purpose": "Выполняют отдельные операции."
+        },
+        {
+          "name": "Facade",
+          "purpose": "Задаёт один общий порядок вызовов."
+        },
+        {
+          "name": "Клиенты",
+          "purpose": "Используют один вход Facade.operation."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "client_a()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "A.operation(1) → B.operation(2)",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "4",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "client_a(Facade)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "Facade: A → B",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "4",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовая операция",
+          "before": {
+            "path": "examples/facade/python/without_pattern.py",
+            "selectors": [
+              "client_a"
+            ]
+          },
+          "after": {
+            "path": "examples/facade/python/facade.py",
+            "selectors": [
+              "Facade.operation"
+            ]
+          },
+          "explanation": "До каждый клиент знает порядок A→B. После последовательность находится в одном фасаде."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/facade/python/without_pattern_extended.py",
+            "selectors": [
+              "client_a"
+            ]
+          },
+          "after": {
+            "path": "examples/facade/python/facade.py",
+            "selectors": [
+              "ExtendedFacade.operation"
+            ]
+          },
+          "explanation": "До оба клиента добавляют C. После меняется общий сценарий, клиенты остаются прежними."
+        }
+      ],
+      "growth": [
+        {
+          "change": "После A и B вызвать дополнительную SubsystemC.",
+          "before": "Каждый клиент явно вызывает A.operation, затем B.operation. Расширение добавляет C.operation в обе последовательности.",
+          "after": "Клиенты вызывают Facade.operation. Фасад выполняет A → B; ExtendedFacade использует этот порядок и передаёт результат C.",
+          "verdict": "Последовательность и её тесты всё равно меняются. Подкласс здесь сохраняет базовый сценарий; обычная функция также может быть фасадом, отдельная иерархия необязательна."
+        },
+        {
+          "change": "Изменить общий контракт операции",
+          "before": "Исправить прямые вызовы.",
+          "after": "Исправить контракт, реализации и вызовы.",
+          "verdict": "Паттерн не изолирует изменение самого контракта."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Общий сценарий нескольких клиентов",
+          "why": "Одна последовательность подсистем скрыта за коротким входом."
+        },
+        {
+          "case": "Локализация изменения последовательности",
+          "why": "Изменение порядка сосредоточено в фасаде при сохранении его интерфейса."
+        }
+      ],
+      "decision": {
+        "use": "Нескольким клиентам нужна одна последовательность вызовов.",
+        "skip": "Единственный клиент уже содержит понятный короткий вызов."
+      },
+      "trace": {
+        "input": "Два клиента передают 1 и 2. Подсистемы выполняют +1, затем *2; расширение добавляет −1.",
+        "before": "Каждый клиент явно вызывает A.operation, затем B.operation. Расширение добавляет C.operation в обе последовательности.",
+        "after": "Клиенты вызывают Facade.operation. Фасад выполняет A → B; ExtendedFacade использует этот порядок и передаёт результат C.",
+        "result": "База: 4 6. Расширение: 3 5 в обеих версиях."
+      },
+      "terms": [
+        {
+          "term": "Контракт",
+          "definition": "Требования к именам методов, аргументам и результату."
+        },
+        {
+          "term": "Клиент",
+          "definition": "Код, который вызывает операцию."
+        },
+        {
+          "term": "Делегирование",
+          "definition": "Передача вызова другому объекту."
+        },
+        {
+          "term": "Фасад",
+          "definition": "Единый вход к нескольким подсистемам."
+        }
+      ],
+      "designNotes": [
+        "Фасад владеет общей последовательностью, подсистемы — отдельными операциями. Клиенты зависят от одного входа. Короткие подсистемы можно держать вместе, как и варианты фасада.",
+        "Последовательность и её тесты всё равно меняются. Подкласс здесь сохраняет базовый сценарий; обычная функция также может быть фасадом, отдельная иерархия необязательна."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/facade/python/without_pattern.py",
+          "role": "Прямое решение и его зависимости"
+        },
+        {
+          "path": "examples/facade/python/subsystems.py",
+          "role": "Прямое решение и его зависимости"
+        },
+        {
+          "path": "examples/facade/python/without_pattern_extended.py",
+          "role": "Прямое решение и его зависимости"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "subsystem_c.py": "subsystems.py",
+        "extended_facade.py": "facade.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -5272,6 +9303,208 @@
       },
       "summary": "Фабрика использует полный ключ и переиспользует один Shared.",
       "limit": "Кеш удерживает объекты, а экономия зависит от повторов и размера Shared. Память не измеряется. Все поля, влияющие на Shared, должны участвовать в ключе; иначе объединятся разные значения."
+    },
+    "guide": {
+      "goal": "Разделять равное неизменяемое состояние между независимыми контекстами.",
+      "input": "Два Context: state=0 и state=2, общее value=1. Расширение добавляет variant=2 в ключ.",
+      "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+      "roles": [
+        {
+          "name": "Shared",
+          "purpose": "Неизменяемая общая часть."
+        },
+        {
+          "name": "Context",
+          "purpose": "Индивидуальное состояние и ссылка на Shared."
+        },
+        {
+          "name": "Factory",
+          "purpose": "Повторно выдаёт Shared по ключу."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "create(0, 1); create(2, 1)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "два Shared(1)",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "равные значения, разные Shared",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "Factory.get(1) дважды",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "один кешированный Shared",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "два Context с общей ссылкой",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовая операция",
+          "before": {
+            "path": "examples/flyweight/python/without_pattern.py",
+            "selectors": [
+              "create"
+            ]
+          },
+          "after": {
+            "path": "examples/flyweight/python/factory.py",
+            "selectors": [
+              "Factory.get"
+            ]
+          },
+          "explanation": "Значения контекстов совпадают; после равные общие части имеют одну идентичность объекта."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/flyweight/python/without_pattern_extended.py",
+            "selectors": [
+              "create"
+            ]
+          },
+          "after": {
+            "path": "examples/flyweight/python/factory.py",
+            "selectors": [
+              "PairFactory.get"
+            ]
+          },
+          "explanation": "Вариант становится частью ключа: разные варианты больше нельзя объединять."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Учитывать дополнительный variant в ключе общего состояния.",
+          "before": "create отдельно создаёт Shared для каждого Context. Значения равны, но общие части — разные объекты.",
+          "after": "Factory.get(1) создаёт Shared один раз и повторно возвращает его. PairFactory использует ключ (1, 2). Каждый Context сохраняет свой state.",
+          "verdict": "Кеш удерживает объекты, а экономия зависит от повторов и размера Shared. Память не измеряется. Все поля, влияющие на Shared, должны участвовать в ключе; иначе объединятся разные значения."
+        },
+        {
+          "change": "Изменить общий контракт операции",
+          "before": "Исправить прямые вызовы.",
+          "after": "Исправить контракт, реализации и вызовы.",
+          "verdict": "Паттерн не изолирует изменение самого контракта."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Повторяющаяся неизменяемая часть",
+          "why": "Равные ключи получают один Shared вместо отдельных копий."
+        },
+        {
+          "case": "Различные контексты с общими данными",
+          "why": "Индивидуальный state остаётся в Context и не участвует в общем объекте."
+        }
+      ],
+      "decision": {
+        "use": "Много контекстов содержат одинаковую тяжёлую неизменяемую часть.",
+        "skip": "Данные малы или почти все ключи уникальны."
+      },
+      "trace": {
+        "input": "Два Context: state=0 и state=2, общее value=1. Расширение добавляет variant=2 в ключ.",
+        "before": "create отдельно создаёт Shared для каждого Context. Значения равны, но общие части — разные объекты.",
+        "after": "Factory.get(1) создаёт Shared один раз и повторно возвращает его. PairFactory использует ключ (1, 2). Каждый Context сохраняет свой state.",
+        "result": "Одинаковые Context до и после; тест отдельно проверяет общий Shared и независимый state."
+      },
+      "terms": [
+        {
+          "term": "Контракт",
+          "definition": "Требования к именам методов, аргументам и результату."
+        },
+        {
+          "term": "Клиент",
+          "definition": "Код, который вызывает операцию."
+        },
+        {
+          "term": "Делегирование",
+          "definition": "Передача вызова другому объекту."
+        },
+        {
+          "term": "Внутреннее состояние",
+          "definition": "Общая неизменяемая часть объекта."
+        },
+        {
+          "term": "Внешнее состояние",
+          "definition": "Индивидуальная часть контекста."
+        }
+      ],
+      "designNotes": [
+        "Shared содержит неизменяемую разделяемую часть, Context — отдельное состояние. Фабрика владеет кешем и равенством ключей. Обе структуры состояния удобно держать вместе, варианты фабрики — рядом.",
+        "Кеш удерживает объекты, а экономия зависит от повторов и размера Shared. Память не измеряется. Все поля, влияющие на Shared, должны участвовать в ключе; иначе объединятся разные значения."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/flyweight/python/without_pattern.py",
+          "role": "Прямое решение и его зависимости"
+        },
+        {
+          "path": "examples/flyweight/python/state.py",
+          "role": "Прямое решение и его зависимости"
+        },
+        {
+          "path": "examples/flyweight/python/without_pattern_extended.py",
+          "role": "Прямое решение и его зависимости"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "pair_factory.py": "factory.py",
+        "shared.py": "state.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -5526,6 +9759,202 @@
       },
       "summary": "Отдельный посредник добавляет подсчёт; кеширующий посредник стабилен.",
       "limit": "Нужно правильно собрать цепочку: счётчик снаружи кеша видит попадания. Кеш бессрочный и не сбрасывается. Для одного клиента helper с явным состоянием проще."
+    },
+    "guide": {
+      "goal": "Контролировать вызовы, сохраняя интерфейс исходного объекта.",
+      "input": "Два вызова operation; RealSubject возвращает 1. В расширении учитываются оба обращения.",
+      "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+      "roles": [
+        {
+          "name": "Subject",
+          "purpose": "Контракт operation."
+        },
+        {
+          "name": "RealSubject",
+          "purpose": "Выполняет исходную операцию."
+        },
+        {
+          "name": "CachedProxy / CountingProxy",
+          "purpose": "Кешируют результат и считают обращения."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "operation(subject, cache)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "промах → subject.operation()",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "1; повтор → кеш",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "CachedProxy.operation()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "промах → inner.operation()",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "1; повтор → кеш",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовая операция",
+          "before": {
+            "path": "examples/proxy/python/without_pattern.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/proxy/python/cached_proxy.py",
+            "selectors": [
+              "CachedProxy.operation"
+            ]
+          },
+          "explanation": "Кеширование есть в обеих версиях. Proxy хранит состояние и подставляется вместо Subject."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/proxy/python/without_pattern_extended.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/proxy/python/counting_proxy.py",
+            "selectors": [
+              "CountingProxy.operation"
+            ]
+          },
+          "explanation": "Подсчёт обращений отделяется от кеширования; результаты операции остаются одинаковыми."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Считать все обращения, включая попадания в кеш.",
+          "before": "operation(subject, cache) заполняет кеш на первом вызове, затем читает его. Расширенная функция увеличивает calls перед каждым обращением.",
+          "after": "CachedProxy вызывает RealSubject один раз. Внешний CountingProxy увеличивает calls дважды, затем каждый раз делегирует кеширующему заместителю.",
+          "verdict": "Нужно правильно собрать цепочку: счётчик снаружи кеша видит попадания. Кеш бессрочный и не сбрасывается. Для одного клиента helper с явным состоянием проще."
+        },
+        {
+          "change": "Изменить общий контракт операции",
+          "before": "Исправить прямые вызовы.",
+          "after": "Исправить контракт, реализации и вызовы.",
+          "verdict": "Паттерн не изолирует изменение самого контракта."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Контроль повторных обращений",
+          "why": "Кеширующий заместитель сохраняет интерфейс исходного объекта."
+        },
+        {
+          "case": "Наблюдение за всеми вызовами",
+          "why": "Внешний заместитель считает обращения, в том числе попадания в кеш."
+        }
+      ],
+      "decision": {
+        "use": "Посредник должен подставляться вместо исходного объекта.",
+        "skip": "Один helper с явным кешем достаточно прост."
+      },
+      "trace": {
+        "input": "Два вызова operation; RealSubject возвращает 1. В расширении учитываются оба обращения.",
+        "before": "operation(subject, cache) заполняет кеш на первом вызове, затем читает его. Расширенная функция увеличивает calls перед каждым обращением.",
+        "after": "CachedProxy вызывает RealSubject один раз. Внешний CountingProxy увеличивает calls дважды, затем каждый раз делегирует кеширующему заместителю.",
+        "result": "База и расширение: 1 1. Две операции вызывают RealSubject один раз; счётчик расширения равен 2."
+      },
+      "terms": [
+        {
+          "term": "Контракт",
+          "definition": "Требования к именам методов, аргументам и результату."
+        },
+        {
+          "term": "Клиент",
+          "definition": "Код, который вызывает операцию."
+        },
+        {
+          "term": "Делегирование",
+          "definition": "Передача вызова другому объекту."
+        },
+        {
+          "term": "Заместитель",
+          "definition": "Объект того же интерфейса, контролирующий доступ к другому объекту."
+        }
+      ],
+      "designNotes": [
+        "Subject задаёт подстановку вместо исходного объекта. CachedProxy владеет кешем, CountingProxy — счётчиком: их можно соединять без изменения друг друга. Разделение обязанностей не требует отдельного файла на класс.",
+        "Нужно правильно собрать цепочку: счётчик снаружи кеша видит попадания. Кеш бессрочный и не сбрасывается. Для одного клиента helper с явным состоянием проще."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/proxy/python/without_pattern.py",
+          "role": "Прямое решение и его зависимости"
+        },
+        {
+          "path": "examples/proxy/python/subject.py",
+          "role": "Прямое решение и его зависимости"
+        },
+        {
+          "path": "examples/proxy/python/without_pattern_extended.py",
+          "role": "Прямое решение и его зависимости"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -5762,6 +10191,200 @@
       },
       "summary": "Добавляется ListRepository; операция клиента остаётся прежней.",
       "limit": "Добавляется контракт поверх простого доступа. Здесь ключ существует, ключи списка уникальны; ошибки, запись и производительность не моделируются. При единственном словаре прямой доступ проще."
+    },
+    "guide": {
+      "goal": "Скрыть представление набора значений за get(key).",
+      "input": "Ключ 1 существует; данные {1: 2} или [(1, 2)]. Клиент добавляет 1 к найденному значению.",
+      "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+      "roles": [
+        {
+          "name": "Repository",
+          "purpose": "Контракт чтения существующего ключа."
+        },
+        {
+          "name": "DictRepository / ListRepository",
+          "purpose": "Скрывают словарь и список пар."
+        },
+        {
+          "name": "Клиент",
+          "purpose": "Получает значение, добавляет 1 и не выбирает хранилище."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "operation({1: 2}, 1)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "values[1] → 2",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "+1 → 3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "operation(repository, 1)",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "repository.get(1) → 2",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "+1 → 3",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовая операция",
+          "before": {
+            "path": "examples/repository/python/without_pattern.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/repository/python/client.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "explanation": "Контракт get отделяет клиентскую операцию от устройства данных."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/repository/python/without_pattern_extended.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/repository/python/repository.py",
+            "selectors": [
+              "ListRepository.get"
+            ]
+          },
+          "explanation": "Поиск в списке находится в новой реализации, а не в ветке клиента."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Подключить список пар вместо словаря, сохранив операцию клиента.",
+          "before": "operation читает словарь; расширение выбирает доступ к словарю или поиск в списке, затем добавляет 1.",
+          "after": "operation(repository, 1) вызывает repository.get(1). DictRepository и ListRepository находят 2, клиент одинаково возвращает 3.",
+          "verdict": "Добавляется контракт поверх простого доступа. Здесь ключ существует, ключи списка уникальны; ошибки, запись и производительность не моделируются. При единственном словаре прямой доступ проще."
+        },
+        {
+          "change": "Изменить общий контракт операции",
+          "before": "Исправить прямые вызовы.",
+          "after": "Исправить контракт, реализации и вызовы.",
+          "verdict": "Паттерн не изолирует изменение самого контракта."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Смена представления данных",
+          "why": "Клиент читает через get, не различая словарь и список."
+        },
+        {
+          "case": "Общий доступ нескольких операций",
+          "why": "Разные клиентские операции используют один контракт чтения."
+        }
+      ],
+      "decision": {
+        "use": "Несколько операций должны работать независимо от представления данных.",
+        "skip": "Есть один простой доступ к одному словарю."
+      },
+      "trace": {
+        "input": "Ключ 1 существует; данные {1: 2} или [(1, 2)]. Клиент добавляет 1 к найденному значению.",
+        "before": "operation читает словарь; расширение выбирает доступ к словарю или поиск в списке, затем добавляет 1.",
+        "after": "operation(repository, 1) вызывает repository.get(1). DictRepository и ListRepository находят 2, клиент одинаково возвращает 3.",
+        "result": "База и расширение: 3 в обеих версиях."
+      },
+      "terms": [
+        {
+          "term": "Контракт",
+          "definition": "Требования к именам методов, аргументам и результату."
+        },
+        {
+          "term": "Клиент",
+          "definition": "Код, который вызывает операцию."
+        },
+        {
+          "term": "Делегирование",
+          "definition": "Передача вызова другому объекту."
+        },
+        {
+          "term": "Репозиторий",
+          "definition": "Объект, скрывающий доступ к набору значений."
+        }
+      ],
+      "designNotes": [
+        "Repository отделяет клиентскую операцию от представления набора данных. Реализация владеет поиском; клиент — использованием значения. Короткие реализации хранилища можно держать вместе.",
+        "Добавляется контракт поверх простого доступа. Здесь ключ существует, ключи списка уникальны; ошибки, запись и производительность не моделируются. При единственном словаре прямой доступ проще."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/repository/python/without_pattern.py",
+          "role": "Прямое решение и его зависимости"
+        },
+        {
+          "path": "examples/repository/python/without_pattern_extended.py",
+          "role": "Прямое решение и его зависимости"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "list_repository.py": "repository.py",
+        "storage_choice.py": "without_pattern_extended.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   },
   {
@@ -6006,6 +10629,208 @@
       },
       "summary": "Новый Provider передаётся снаружи; Client не меняется.",
       "limit": "Нужно явно собирать зависимости. Контейнер, Protocol и классы необязательны: передача функции тоже DI. Если зависимость фиксирована и подмена не нужна, локальное создание может быть проще."
+    },
+    "guide": {
+      "goal": "Передавать зависимость клиенту снаружи вместо создания внутри операции.",
+      "input": "Источник возвращает 1; клиент прибавляет 1. Расширение передаёт источник с удвоением.",
+      "invariant": "До и после паттерна одинаковые входы дают одинаковые результаты.",
+      "roles": [
+        {
+          "name": "Provider",
+          "purpose": "Контракт источника значения."
+        },
+        {
+          "name": "Client",
+          "purpose": "Добавляет 1 к значению переданного Provider."
+        },
+        {
+          "name": "Точка сборки",
+          "purpose": "Создаёт Provider и передаёт Client."
+        }
+      ],
+      "diagrams": {
+        "before": {
+          "nodes": [
+            {
+              "id": "before0",
+              "label": "operation()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "before1",
+              "label": "ValueProvider(1).get() → 1",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "before2",
+              "label": "+1 → 2",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "before0",
+              "to": "before1",
+              "label": "выполняет"
+            },
+            {
+              "from": "before1",
+              "to": "before2",
+              "label": "получает"
+            }
+          ]
+        },
+        "after": {
+          "nodes": [
+            {
+              "id": "after0",
+              "label": "Client(provider).operation()",
+              "role": "вход / вызов"
+            },
+            {
+              "id": "after1",
+              "label": "provider.get() → 1",
+              "role": "операция / передача вызова"
+            },
+            {
+              "id": "after2",
+              "label": "+1 → 2",
+              "role": "наблюдаемый результат"
+            }
+          ],
+          "edges": [
+            {
+              "from": "after0",
+              "to": "after1",
+              "label": "выполняет"
+            },
+            {
+              "from": "after1",
+              "to": "after2",
+              "label": "получает"
+            }
+          ]
+        }
+      },
+      "contrasts": [
+        {
+          "title": "Базовая операция",
+          "before": {
+            "path": "examples/dependency-injection/python/without_pattern.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/dependency-injection/python/client.py",
+            "selectors": [
+              "Client.operation"
+            ]
+          },
+          "explanation": "Различается место создания зависимости: внутри операции или в вызывающем коде."
+        },
+        {
+          "title": "Одно расширение",
+          "before": {
+            "path": "examples/dependency-injection/python/without_pattern_extended.py",
+            "selectors": [
+              "operation"
+            ]
+          },
+          "after": {
+            "path": "examples/dependency-injection/python/provider.py",
+            "selectors": [
+              "DoubleProvider.get"
+            ]
+          },
+          "explanation": "DoubleProvider подключается в запуске; Client не распознаёт его тип."
+        }
+      ],
+      "growth": [
+        {
+          "change": "Передать источник, удваивающий значение исходного Provider.",
+          "before": "operation сама создаёт ValueProvider(1); расширенная функция выбирает удвоение внутри операции.",
+          "after": "Точка сборки передаёт ValueProvider(1) в Client. Client.operation вызывает get и добавляет 1. DoubleProvider меняет полученное 1 на 2, результат клиента становится 3.",
+          "verdict": "Нужно явно собирать зависимости. Контейнер, Protocol и классы необязательны: передача функции тоже DI. Если зависимость фиксирована и подмена не нужна, локальное создание может быть проще."
+        },
+        {
+          "change": "Изменить общий контракт операции",
+          "before": "Исправить прямые вызовы.",
+          "after": "Исправить контракт, реализации и вызовы.",
+          "verdict": "Паттерн не изолирует изменение самого контракта."
+        }
+      ],
+      "applications": [
+        {
+          "case": "Подмена зависимости в тесте",
+          "why": "Тест передаёт источник с известным результатом."
+        },
+        {
+          "case": "Разные сборки одного клиента",
+          "why": "Вызывающий код выбирает реализацию Provider без изменения Client."
+        }
+      ],
+      "decision": {
+        "use": "Источник выбирается извне, в том числе в тесте.",
+        "skip": "Зависимость фиксирована и подмена не нужна: локальное создание может быть проще. Простой параметр уже реализует DI."
+      },
+      "trace": {
+        "input": "Источник возвращает 1; клиент прибавляет 1. Расширение передаёт источник с удвоением.",
+        "before": "operation сама создаёт ValueProvider(1); расширенная функция выбирает удвоение внутри операции.",
+        "after": "Точка сборки передаёт ValueProvider(1) в Client. Client.operation вызывает get и добавляет 1. DoubleProvider меняет полученное 1 на 2, результат клиента становится 3.",
+        "result": "База: 2. Расширение: 3 в обеих версиях; другой ValueProvider не требует менять Client."
+      },
+      "terms": [
+        {
+          "term": "Контракт",
+          "definition": "Требования к именам методов, аргументам и результату."
+        },
+        {
+          "term": "Клиент",
+          "definition": "Код, который вызывает операцию."
+        },
+        {
+          "term": "Делегирование",
+          "definition": "Передача вызова другому объекту."
+        },
+        {
+          "term": "Внедрение зависимости",
+          "definition": "Передача используемого объекта снаружи."
+        },
+        {
+          "term": "Точка сборки",
+          "definition": "Код создания и соединения объектов."
+        }
+      ],
+      "designNotes": [
+        "Точка сборки выбирает зависимость, Client только использует её. Provider задаёт минимальный контракт; короткие источники можно держать вместе. Эта граница позволяет подставить источник без изменения клиента.",
+        "Нужно явно собирать зависимости. Контейнер, Protocol и классы необязательны: передача функции тоже DI. Если зависимость фиксирована и подмена не нужна, локальное создание может быть проще."
+      ],
+      "baselineFiles": [
+        {
+          "path": "examples/dependency-injection/python/without_pattern.py",
+          "role": "Прямое решение и его зависимости"
+        },
+        {
+          "path": "examples/dependency-injection/python/provider.py",
+          "role": "Прямое решение и его зависимости"
+        },
+        {
+          "path": "examples/dependency-injection/python/without_pattern_extended.py",
+          "role": "Прямое решение и его зависимости"
+        }
+      ],
+      "legacyVersionIndices": [
+        0,
+        1,
+        3
+      ],
+      "fileAliases": {
+        "double_provider.py": "provider.py",
+        "provider_choice.py": "without_pattern_extended.py",
+        "run_extended.py": "with_pattern_extended.py",
+        "main.py": "with_pattern.py"
+      }
     }
   }
 ]

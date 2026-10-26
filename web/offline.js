@@ -2,7 +2,7 @@
   'use strict';
   const status = document.getElementById('offline-status');
   if (!('serviceWorker' in navigator) || !window.isSecureContext) return;
-  navigator.serviceWorker.register('../sw.js', {scope: '../'}).then(registration => {
+  navigator.serviceWorker.register('./sw.js', {scope: './'}).then(registration => {
     const ready = () => { status.textContent = 'Курс доступен офлайн'; };
     if (registration.waiting) status.textContent = 'Обновление загружено. Закройте окна курса и откройте снова.';
     else if (registration.active && navigator.serviceWorker.controller) ready();

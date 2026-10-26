@@ -8,11 +8,10 @@ import pytest
 
 from design_patterns.comparisons import build_comparison
 
-
 ROOT = Path(__file__).resolve().parents[1]
 TOPICS = {
     topic["id"]: topic["fileComparison"]
-    for topic in json.loads((ROOT / "content/topics.json").read_text())
+    for topic in json.loads((ROOT / "web/lessons.json").read_text())
     if isinstance(topic.get("fileComparison"), dict)
 }
 GROUPS = ("before", "after", "beforeExtension", "afterExtension")
@@ -21,7 +20,7 @@ GROUPS = ("before", "after", "beforeExtension", "afterExtension")
 def test_comparison_topics() -> None:
     ready = {
         topic["id"]
-        for topic in json.loads((ROOT / "content/topics.json").read_text())
+        for topic in json.loads((ROOT / "web/lessons.json").read_text())
         if topic["ready"]
     }
     assert len(TOPICS) == 25
@@ -50,6 +49,7 @@ def test_displayed_comparison_runs_independently(
     result = subprocess.run(
         [sys.executable, "-E", "-B", group["entry"]],
         cwd=tmp_path,
+        check=False,
         capture_output=True,
         text=True,
         timeout=10,
