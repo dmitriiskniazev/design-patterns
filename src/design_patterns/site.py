@@ -41,7 +41,10 @@ def package(root: Path) -> Path:
         (target / f"assets/icon-{size}.png").write_bytes(icon(size))
     (target / "index.html").write_text('<!doctype html><html lang="ru"><meta charset="utf-8"><title>Паттерны</title><script>location.replace("web/"+location.search+location.hash)</script><a href="web/">Открыть курс</a></html>')
     (target / ".nojekyll").touch()
-    files = sorted(path for path in target.rglob("*") if path.is_file())
+    files = sorted(
+        path for path in target.rglob("*")
+        if path.is_file() and not path.name.startswith(".")
+    )
     digest = hashlib.sha256()
     for path in files:
         digest.update(path.relative_to(target).as_posix().encode())

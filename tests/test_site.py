@@ -12,12 +12,13 @@ def test_offline_snapshot_contains_every_published_file() -> None:
     worker = (target / "sw.js").read_text()
     files = json.loads(worker.split("const FILES = ", 1)[1].split(";", 1)[0])
     assert "web/" in files and "./" in files
+    assert ".nojekyll" not in files
     assert "assets/course-data.js" in files
     assert "assets/examples/strategy-base.zip" in files
     for name in files:
         assert (target / name).exists()
     for path in target.rglob("*"):
-        if path.is_file() and path.name != "sw.js":
+        if path.is_file() and path.name != "sw.js" and not path.name.startswith("."):
             assert path.relative_to(target).as_posix() in files
     assert "__VERSION__" not in worker
     assert not list(target.rglob("__pycache__"))
