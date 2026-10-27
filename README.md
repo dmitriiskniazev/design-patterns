@@ -14,23 +14,26 @@ uv run build-course
 uv run test-course
 uv run pytest
 uv run python -m http.server 8000 --bind 127.0.0.1 --directory .build/site  # http://localhost:8000/
-uv run python examples/strategy/python/with_pattern.py
-uv run python examples/strategy/python/with_pattern_extended.py
-uv run python examples/strategy/python/without_pattern.py
-uv run pytest examples/strategy/python
+uv run python examples/strategy/base/with_pattern/main.py
+uv run python examples/strategy/extended/with_pattern/main.py
+uv run python examples/strategy/base/without_pattern/main.py
+uv run test-course strategy
+uv run pytest examples/strategy/base/with_pattern
 ```
 
-Все команды выполняются из корня. Python выбирается через uv; другая версия задаётся `uv run --python 3.16 …`. `test-course` находит все темы и запускает каждую отдельным процессом. `pytest` без пути проверяет только `tests/`.
+Все команды выполняются из корня. Python выбирается через uv; другая версия задаётся `uv run --python 3.16 …`. `test-course` находит все 100 вариантов и запускает каждый отдельным процессом; аргумент выбирает одну тему. `pytest` без пути проверяет только `tests/`.
 
 ## Структура
 
 - `web/` — HTML, стили, JavaScript и `lessons.json` с текстами всех глав и ссылками на исходники.
 - `.build/site/` — готовый сайт; создаётся сборкой и не хранится в Git.
-- `examples/<pattern>/python/` — ролевые модули, четыре запуска и тесты; связанные короткие реализации находятся вместе.
+- `examples/<pattern>/{base,extended}/{without_pattern,with_pattern}/` — четыре автономных варианта темы; в каждом `main.py`, ролевые модули и `test_example.py`.
 - `src/design_patterns/`, `tests/` — сборка и инфраструктурные проверки.
 - `openspec/` — требования и история изменений.
 
-`with_pattern.py` и `with_pattern_extended.py` запускают реализации с паттерном. `without_pattern.py` и `without_pattern_extended.py` — соответствующие исходные решения. Другие имена отражают роли: `context.py`, `component.py`, `creator.py`. Скачивание не требуется.
+Сначала выберите этап — `base` или `extended`, затем реализацию — `without_pattern` или `with_pattern`. Любую конечную папку можно скопировать и запустить отдельно: `uv run --no-project --python 3.15 main.py`; её тесты — `uv run --no-project --python 3.15 --with pytest python -m pytest`. Импортов из соседних вариантов нет. Одинаковые маленькие модули повторяются намеренно; базовая версия не содержит новые классы расширения заранее.
+
+Например, `abstract-factory/base/with_pattern/factory.py` содержит FactoryA, а `extended/with_pattern/factory.py` добавляет FactoryB. В обоих каталогах `main.py` запускает пример, `client.py` использует фабрику, `product.py` описывает продукт. Скачивание ZIP не требуется.
 
 В расширенном режиме переключатель **Изменения** показывает diff относительно базового примера той же стороны: добавленные строки с `+`, удалённые с `−`. Кнопка копирования всегда берёт полный текущий файл без отметок diff.
 

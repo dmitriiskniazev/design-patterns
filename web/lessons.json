@@ -55,65 +55,23 @@
       "correct": 1,
       "feedback": "Context не распознаёт double: он вызывает любой совместимый Callable; выбор функции остаётся у вызывающего кода."
     },
-    "testCommand": "uv run pytest examples/strategy/python",
+    "testCommand": "uv run test-course strategy",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/strategy/python/without_pattern.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/strategy/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/strategy/python/with_pattern.py"
-          },
-          {
-            "name": "context.py",
-            "path": "examples/strategy/python/context.py"
-          },
-          {
-            "name": "strategy.py",
-            "path": "examples/strategy/python/strategy.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/strategy/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/strategy/python/without_pattern_extended.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/strategy/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/strategy/python/with_pattern_extended.py"
-          },
-          {
-            "name": "context.py",
-            "path": "examples/strategy/python/context.py"
-          },
-          {
-            "name": "strategy.py",
-            "path": "examples/strategy/python/strategy.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/strategy/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Добавить операцию x * 2, сохранив Context без изменений.",
       "apply": "Нужно передавать разные операции через один контракт.",
@@ -129,8 +87,12 @@
       "output": "3\n",
       "extensionOutput": "4\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
+      {
+        "file": "main.py",
+        "role": "Запуск"
+      },
       {
         "file": "context.py",
         "role": "Роль: context"
@@ -138,10 +100,6 @@
       {
         "file": "strategy.py",
         "role": "Роль: strategy"
-      },
-      {
-        "file": "with_pattern.py",
-        "role": "Запуск"
       }
     ],
     "steps": [
@@ -175,19 +133,19 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
+        {
+          "file": "main.py",
+          "role": "Запуск"
+        },
         {
           "file": "context.py",
           "role": "Роль: context"
         },
         {
           "file": "strategy.py",
-          "role": "Роль: double_strategy"
-        },
-        {
-          "file": "with_pattern_extended.py",
-          "role": "Запуск"
+          "role": "Роль: strategy"
         }
       ],
       "steps": [
@@ -319,13 +277,13 @@
         {
           "title": "Базовый вызов",
           "before": {
-            "path": "examples/strategy/python/without_pattern.py",
+            "path": "examples/strategy/base/without_pattern/main.py",
             "selectors": [
               "call"
             ]
           },
           "after": {
-            "path": "examples/strategy/python/context.py",
+            "path": "examples/strategy/base/with_pattern/context.py",
             "selectors": [
               "Context.call"
             ]
@@ -335,13 +293,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/strategy/python/without_pattern_extended.py",
+            "path": "examples/strategy/extended/without_pattern/main.py",
             "selectors": [
               "call"
             ]
           },
           "after": {
-            "path": "examples/strategy/python/strategy.py",
+            "path": "examples/strategy/extended/with_pattern/strategy.py",
             "selectors": [
               "double"
             ]
@@ -401,16 +359,6 @@
         "Context владеет местом вызова, а функции — вычислением. Поэтому новую операцию передают снаружи, не добавляя ветку в Context. Обе короткие функции удобно держать вместе в strategy.py.",
         "Появляются объект Context и косвенный вызов. Для одной операции достаточно функции; если выбор приходит строкой, сопоставление строки и функции всё равно нужно."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/strategy/python/without_pattern.py",
-          "role": "Вариант без паттерна: without_pattern.py"
-        },
-        {
-          "path": "examples/strategy/python/without_pattern_extended.py",
-          "role": "Вариант без паттерна: without_pattern_extended.py"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -419,8 +367,16 @@
       ],
       "fileAliases": {
         "double_strategy.py": "strategy.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -480,65 +436,23 @@
       "correct": 1,
       "feedback": "Входящий переход в C задаётся состоянием-источником; его нужно изменить. Здесь C выбирается сразу при создании контекста."
     },
-    "testCommand": "uv run pytest examples/state/python",
+    "testCommand": "uv run test-course state",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/state/python/without_pattern.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/state/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/state/python/with_pattern.py"
-          },
-          {
-            "name": "context.py",
-            "path": "examples/state/python/context.py"
-          },
-          {
-            "name": "states.py",
-            "path": "examples/state/python/states.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/state/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/state/python/without_pattern_extended.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/state/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/state/python/with_pattern_extended.py"
-          },
-          {
-            "name": "context.py",
-            "path": "examples/state/python/context.py"
-          },
-          {
-            "name": "states.py",
-            "path": "examples/state/python/states.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/state/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Добавить состояние C: call возвращает 3 и переводит контекст в A.",
       "apply": "Поведение call и следующий переход зависят от текущего состояния.",
@@ -547,7 +461,6 @@
       "afterChange": "Добавить класс C; Context прежний. Здесь C выбирается при создании.",
       "architecture": {
         "stableFiles": [
-          "states.py",
           "context.py"
         ],
         "exercise": "Добавьте C и проверьте два последовательных вызова: 3, затем 1. Укажите состояние после каждого вызова."
@@ -555,19 +468,19 @@
       "output": "1\n",
       "extensionOutput": "3\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "states.py",
-        "role": "Роль: state_contract"
+        "file": "main.py",
+        "role": "Запуск"
       },
       {
         "file": "context.py",
         "role": "Роль: context"
       },
       {
-        "file": "with_pattern.py",
-        "role": "Запуск"
+        "file": "states.py",
+        "role": "Роль: states"
       }
     ],
     "steps": [
@@ -601,19 +514,19 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "states.py",
-          "role": "Роль: state_contract"
+          "file": "main.py",
+          "role": "Запуск"
         },
         {
           "file": "context.py",
           "role": "Роль: context"
         },
         {
-          "file": "with_pattern_extended.py",
-          "role": "Запуск"
+          "file": "states.py",
+          "role": "Роль: states"
         }
       ],
       "steps": [
@@ -745,13 +658,13 @@
         {
           "title": "Базовый вызов",
           "before": {
-            "path": "examples/state/python/without_pattern.py",
+            "path": "examples/state/base/without_pattern/main.py",
             "selectors": [
               "Context.call"
             ]
           },
           "after": {
-            "path": "examples/state/python/context.py",
+            "path": "examples/state/base/with_pattern/context.py",
             "selectors": [
               "Context.call"
             ]
@@ -761,13 +674,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/state/python/without_pattern_extended.py",
+            "path": "examples/state/extended/without_pattern/main.py",
             "selectors": [
               "Context.call"
             ]
           },
           "after": {
-            "path": "examples/state/python/states.py",
+            "path": "examples/state/extended/with_pattern/states.py",
             "selectors": [
               "C.call"
             ]
@@ -827,16 +740,6 @@
         "Context хранит текущее состояние, а состояние объединяет результат и переход. Контракт и короткие состояния можно держать вместе: отдельный файл для каждого перехода не нужен.",
         "Классы заменяют простой match. Добавление C не меняет Context, но новый переход из B в C потребует изменить B; пример выбирает C при сборке."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/state/python/without_pattern.py",
-          "role": "Вариант без паттерна: without_pattern.py"
-        },
-        {
-          "path": "examples/state/python/without_pattern_extended.py",
-          "role": "Вариант без паттерна: without_pattern_extended.py"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -846,8 +749,16 @@
       "fileAliases": {
         "state_c.py": "states.py",
         "state_contract.py": "states.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -907,57 +818,23 @@
       "correct": 1,
       "feedback": "B сможет обойти общий порядок и завершающий +1; переопределение step сохраняет алгоритм Template.call."
     },
-    "testCommand": "uv run pytest examples/template-method/python",
+    "testCommand": "uv run test-course template-method",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/template-method/python/without_pattern.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/template-method/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/template-method/python/with_pattern.py"
-          },
-          {
-            "name": "template.py",
-            "path": "examples/template-method/python/template.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/template-method/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/template-method/python/without_pattern_extended.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/template-method/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/template-method/python/with_pattern_extended.py"
-          },
-          {
-            "name": "template.py",
-            "path": "examples/template-method/python/template.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/template-method/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Заменить только step на x * 2, сохранив общий шаг +1.",
       "apply": "Порядок шагов стабилен, заменяется строго определённый шаг.",
@@ -965,23 +842,21 @@
       "beforeChange": "Изменить прямой вариант операции или его выбор.",
       "afterChange": "Подключить показанное расширение через общий контракт.",
       "architecture": {
-        "stableFiles": [
-          "template.py"
-        ],
+        "stableFiles": [],
         "exercise": "Реализуйте B.step без переопределения call. Проверьте результат 5 для входа 2 и сохранение завершающего +1."
       },
       "output": "3\n",
       "extensionOutput": "5\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
+      {
+        "file": "main.py",
+        "role": "Запуск"
+      },
       {
         "file": "template.py",
         "role": "Роль: template"
-      },
-      {
-        "file": "with_pattern.py",
-        "role": "Запуск"
       }
     ],
     "steps": [
@@ -1015,15 +890,15 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
+        {
+          "file": "main.py",
+          "role": "Запуск"
+        },
         {
           "file": "template.py",
           "role": "Роль: template"
-        },
-        {
-          "file": "with_pattern_extended.py",
-          "role": "Запуск"
         }
       ],
       "steps": [
@@ -1155,13 +1030,13 @@
         {
           "title": "Базовый вызов",
           "before": {
-            "path": "examples/template-method/python/without_pattern.py",
+            "path": "examples/template-method/base/without_pattern/main.py",
             "selectors": [
               "call"
             ]
           },
           "after": {
-            "path": "examples/template-method/python/template.py",
+            "path": "examples/template-method/base/with_pattern/template.py",
             "selectors": [
               "Template.call"
             ]
@@ -1171,13 +1046,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/template-method/python/without_pattern_extended.py",
+            "path": "examples/template-method/extended/without_pattern/main.py",
             "selectors": [
               "call"
             ]
           },
           "after": {
-            "path": "examples/template-method/python/template.py",
+            "path": "examples/template-method/extended/with_pattern/template.py",
             "selectors": [
               "B.step"
             ]
@@ -1237,16 +1112,6 @@
         "Template.call владеет порядком, а step — единственной точкой изменения. Базовый класс и короткие подклассы удобно читать в одном модуле.",
         "Наследование связывает варианты с Template. Helper или переданная функция тоже переиспользует +1; шаблон нужен, когда именно базовый класс должен задавать порядок."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/template-method/python/without_pattern.py",
-          "role": "Вариант без паттерна: without_pattern.py"
-        },
-        {
-          "path": "examples/template-method/python/without_pattern_extended.py",
-          "role": "Вариант без паттерна: without_pattern_extended.py"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -1254,8 +1119,16 @@
       ],
       "fileAliases": {
         "implementation_b.py": "template.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -1315,73 +1188,23 @@
       "correct": 1,
       "feedback": "Рассылка прервётся: в notify нет перехвата исключений. Observer сам по себе не обещает изоляции ошибок или асинхронности."
     },
-    "testCommand": "uv run pytest examples/observer/python",
+    "testCommand": "uv run test-course observer",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/observer/python/without_pattern.py"
-          },
-          {
-            "name": "callbacks.py",
-            "path": "examples/observer/python/callbacks.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/observer/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/observer/python/with_pattern.py"
-          },
-          {
-            "name": "callbacks.py",
-            "path": "examples/observer/python/callbacks.py"
-          },
-          {
-            "name": "publisher.py",
-            "path": "examples/observer/python/publisher.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/observer/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/observer/python/without_pattern_extended.py"
-          },
-          {
-            "name": "callbacks.py",
-            "path": "examples/observer/python/callbacks.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/observer/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/observer/python/with_pattern_extended.py"
-          },
-          {
-            "name": "callbacks.py",
-            "path": "examples/observer/python/callbacks.py"
-          },
-          {
-            "name": "publisher.py",
-            "path": "examples/observer/python/publisher.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/observer/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Подписать второй callback, не изменяя Publisher.",
       "apply": "Набор реакций меняется независимо от издателя.",
@@ -1390,7 +1213,6 @@
       "afterChange": "Подключить показанное расширение через общий контракт.",
       "architecture": {
         "stableFiles": [
-          "callbacks.py",
           "publisher.py"
         ],
         "exercise": "Подпишите double после increment и проверьте [3, 4] для 2. Объясните, какой код определяет порядок реакций."
@@ -1398,8 +1220,12 @@
       "output": "[3]\n",
       "extensionOutput": "[3, 4]\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
+      {
+        "file": "main.py",
+        "role": "Запуск"
+      },
       {
         "file": "callbacks.py",
         "role": "Роль: callbacks"
@@ -1407,10 +1233,6 @@
       {
         "file": "publisher.py",
         "role": "Роль: publisher"
-      },
-      {
-        "file": "with_pattern.py",
-        "role": "Запуск"
       }
     ],
     "steps": [
@@ -1444,8 +1266,12 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
+        {
+          "file": "main.py",
+          "role": "Запуск"
+        },
         {
           "file": "callbacks.py",
           "role": "Роль: callbacks"
@@ -1453,31 +1279,27 @@
         {
           "file": "publisher.py",
           "role": "Роль: publisher"
-        },
-        {
-          "file": "with_pattern_extended.py",
-          "role": "Запуск"
         }
       ],
       "steps": [
         {
           "title": "Одно расширение",
           "text": "Подписать второй callback, не изменяя Publisher. Уведомления синхронные; исключение callback прервёт вызов, изоляции ошибок нет.",
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "selectors": [
             "@usage"
           ],
           "takeaway": "База: [3]. Расширение: [3, 4].",
-          "owner": "with_pattern_extended.py",
-          "place": "with_pattern_extended.py — участник паттерна."
+          "owner": "main.py",
+          "place": "main.py — участник паттерна."
         }
       ],
       "overview": {
         "purpose": "Издатель вызывает зарегистрированные функции через общий контракт.",
         "nodes": [
           {
-            "id": "with_pattern_extended.py",
-            "name": "with_pattern_extended.py",
+            "id": "main.py",
+            "name": "main.py",
             "role": "Участник паттерна",
             "step": 1
           }
@@ -1588,13 +1410,13 @@
         {
           "title": "Базовый вызов",
           "before": {
-            "path": "examples/observer/python/without_pattern.py",
+            "path": "examples/observer/base/without_pattern/main.py",
             "selectors": [
               "notify"
             ]
           },
           "after": {
-            "path": "examples/observer/python/publisher.py",
+            "path": "examples/observer/base/with_pattern/publisher.py",
             "selectors": [
               "Publisher.notify"
             ]
@@ -1604,13 +1426,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/observer/python/without_pattern_extended.py",
+            "path": "examples/observer/extended/without_pattern/main.py",
             "selectors": [
               "notify"
             ]
           },
           "after": {
-            "path": "examples/observer/python/with_pattern_extended.py",
+            "path": "examples/observer/extended/with_pattern/main.py",
             "selectors": [
               "@usage"
             ]
@@ -1670,20 +1492,6 @@
         "Publisher владеет подписками и рассылкой, callbacks — независимыми реакциями. Реакции можно хранить вместе; издатель не должен выбирать их по имени.",
         "Список подписок и порядок требуют контроля. Вызовы синхронны: исключение одной реакции прерывает рассылку. Для одного постоянного получателя прямой вызов проще."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/observer/python/callbacks.py",
-          "role": "Вариант без паттерна: callbacks.py"
-        },
-        {
-          "path": "examples/observer/python/without_pattern.py",
-          "role": "Вариант без паттерна: without_pattern.py"
-        },
-        {
-          "path": "examples/observer/python/without_pattern_extended.py",
-          "role": "Вариант без паттерна: without_pattern_extended.py"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -1691,8 +1499,16 @@
         3
       ],
       "fileAliases": {
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -1752,81 +1568,23 @@
       "correct": 1,
       "feedback": "Invoker хранит общий порядок команд, а команда — прежние значения для каждого своего выполнения. При отмене оба стека извлекаются в обратном порядке."
     },
-    "testCommand": "uv run pytest examples/command/python",
+    "testCommand": "uv run test-course command",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/command/python/without_pattern.py"
-          },
-          {
-            "name": "receiver.py",
-            "path": "examples/command/python/receiver.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/command/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/command/python/with_pattern.py"
-          },
-          {
-            "name": "command.py",
-            "path": "examples/command/python/command.py"
-          },
-          {
-            "name": "invoker.py",
-            "path": "examples/command/python/invoker.py"
-          },
-          {
-            "name": "receiver.py",
-            "path": "examples/command/python/receiver.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/command/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/command/python/without_pattern_extended.py"
-          },
-          {
-            "name": "receiver.py",
-            "path": "examples/command/python/receiver.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/command/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/command/python/with_pattern_extended.py"
-          },
-          {
-            "name": "command.py",
-            "path": "examples/command/python/command.py"
-          },
-          {
-            "name": "invoker.py",
-            "path": "examples/command/python/invoker.py"
-          },
-          {
-            "name": "receiver.py",
-            "path": "examples/command/python/receiver.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/command/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Добавить команду умножения на 2 с отменой, не меняя Invoker.",
       "apply": "Действия нужно передавать, хранить и отменять через единый контракт.",
@@ -1835,20 +1593,19 @@
       "afterChange": "Подключить показанное расширение через общий контракт.",
       "architecture": {
         "stableFiles": [
-          "receiver.py",
-          "command.py",
-          "invoker.py"
+          "invoker.py",
+          "receiver.py"
         ],
         "exercise": "Выполните один экземпляр Increment дважды над 2. Проверьте 3, 4 и две отмены: 3, 2. Затем проверьте смешанную историю Increment и Double."
       },
       "output": "3\n",
       "extensionOutput": "4\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "receiver.py",
-        "role": "Роль: receiver"
+        "file": "main.py",
+        "role": "Запуск"
       },
       {
         "file": "command.py",
@@ -1859,8 +1616,8 @@
         "role": "Роль: invoker"
       },
       {
-        "file": "with_pattern.py",
-        "role": "Запуск"
+        "file": "receiver.py",
+        "role": "Роль: receiver"
       }
     ],
     "steps": [
@@ -1894,11 +1651,11 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "receiver.py",
-          "role": "Роль: receiver"
+          "file": "main.py",
+          "role": "Запуск"
         },
         {
           "file": "command.py",
@@ -1909,8 +1666,8 @@
           "role": "Роль: invoker"
         },
         {
-          "file": "with_pattern_extended.py",
-          "role": "Запуск"
+          "file": "receiver.py",
+          "role": "Роль: receiver"
         }
       ],
       "steps": [
@@ -2042,13 +1799,13 @@
         {
           "title": "Базовый вызов",
           "before": {
-            "path": "examples/command/python/without_pattern.py",
+            "path": "examples/command/base/without_pattern/main.py",
             "selectors": [
               "Invoker.run"
             ]
           },
           "after": {
-            "path": "examples/command/python/invoker.py",
+            "path": "examples/command/base/with_pattern/invoker.py",
             "selectors": [
               "Invoker.run"
             ]
@@ -2058,13 +1815,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/command/python/without_pattern_extended.py",
+            "path": "examples/command/extended/without_pattern/main.py",
             "selectors": [
               "Invoker.run"
             ]
           },
           "after": {
-            "path": "examples/command/python/command.py",
+            "path": "examples/command/extended/with_pattern/command.py",
             "selectors": [
               "Double.execute"
             ]
@@ -2124,20 +1881,6 @@
         "Команда объединяет получателя, действие и данные отмены. Invoker знает только execute/undo. Короткие команды принадлежат одному модулю; история отделена, поскольку не зависит от конкретного действия.",
         "Каждая команда хранит историю своих выполнений, поэтому один экземпляр можно использовать повторно. Invoker хранит общий порядок команд; undo требует непустую историю и обратный порядок. Для одного числа стек значений проще."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/command/python/receiver.py",
-          "role": "Вариант без паттерна: receiver.py"
-        },
-        {
-          "path": "examples/command/python/without_pattern.py",
-          "role": "Вариант без паттерна: without_pattern.py"
-        },
-        {
-          "path": "examples/command/python/without_pattern_extended.py",
-          "role": "Вариант без паттерна: without_pattern_extended.py"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -2145,8 +1888,16 @@
       ],
       "fileAliases": {
         "double_command.py": "command.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -2206,65 +1957,23 @@
       "correct": 1,
       "feedback": "Да: остановка проверяет result is not None. Проверка истинности ошибочно пропустила бы допустимый результат 0."
     },
-    "testCommand": "uv run pytest examples/chain-of-responsibility/python",
+    "testCommand": "uv run test-course chain-of-responsibility",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/chain-of-responsibility/python/without_pattern.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/chain-of-responsibility/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/chain-of-responsibility/python/with_pattern.py"
-          },
-          {
-            "name": "handler.py",
-            "path": "examples/chain-of-responsibility/python/handler.py"
-          },
-          {
-            "name": "operations.py",
-            "path": "examples/chain-of-responsibility/python/operations.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/chain-of-responsibility/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/chain-of-responsibility/python/without_pattern_extended.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/chain-of-responsibility/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/chain-of-responsibility/python/with_pattern_extended.py"
-          },
-          {
-            "name": "handler.py",
-            "path": "examples/chain-of-responsibility/python/handler.py"
-          },
-          {
-            "name": "operations.py",
-            "path": "examples/chain-of-responsibility/python/operations.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/chain-of-responsibility/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Добавить второе звено: обрабатывать 2, если первое звено не вернуло результат.",
       "apply": "Порядок и состав пробующих обработчиков меняются.",
@@ -2273,7 +1982,6 @@
       "afterChange": "Подключить показанное расширение через общий контракт.",
       "architecture": {
         "stableFiles": [
-          "operations.py",
           "handler.py"
         ],
         "exercise": "Соберите first → second. Проверьте входы 1, 2, 3 и результаты 1, 2, None; объясните остановку после первого результата."
@@ -2281,19 +1989,19 @@
       "output": "1\n",
       "extensionOutput": "2\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "operations.py",
-        "role": "Роль: operations"
+        "file": "main.py",
+        "role": "Запуск"
       },
       {
         "file": "handler.py",
         "role": "Роль: handler"
       },
       {
-        "file": "with_pattern.py",
-        "role": "Запуск"
+        "file": "operations.py",
+        "role": "Роль: operations"
       }
     ],
     "steps": [
@@ -2327,40 +2035,40 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "operations.py",
-          "role": "Роль: operations"
+          "file": "main.py",
+          "role": "Запуск"
         },
         {
           "file": "handler.py",
           "role": "Роль: handler"
         },
         {
-          "file": "with_pattern_extended.py",
-          "role": "Запуск"
+          "file": "operations.py",
+          "role": "Роль: operations"
         }
       ],
       "steps": [
         {
           "title": "Одно расширение",
           "text": "Добавить второе звено: обрабатывать 2, если первое звено не вернуло результат. Сборка цепочки и тест порядка всё равно меняются; None означает отсутствие результата.",
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "selectors": [
             "@usage"
           ],
           "takeaway": "База: 1. Расширение: 2. Для 3 результата нет.",
-          "owner": "with_pattern_extended.py",
-          "place": "with_pattern_extended.py — участник паттерна."
+          "owner": "main.py",
+          "place": "main.py — участник паттерна."
         }
       ],
       "overview": {
         "purpose": "Первый результат, отличный от None, останавливает передачу по цепочке.",
         "nodes": [
           {
-            "id": "with_pattern_extended.py",
-            "name": "with_pattern_extended.py",
+            "id": "main.py",
+            "name": "main.py",
             "role": "Участник паттерна",
             "step": 1
           }
@@ -2471,13 +2179,13 @@
         {
           "title": "Базовый вызов",
           "before": {
-            "path": "examples/chain-of-responsibility/python/without_pattern.py",
+            "path": "examples/chain-of-responsibility/base/without_pattern/main.py",
             "selectors": [
               "call"
             ]
           },
           "after": {
-            "path": "examples/chain-of-responsibility/python/handler.py",
+            "path": "examples/chain-of-responsibility/base/with_pattern/handler.py",
             "selectors": [
               "Handler.call"
             ]
@@ -2487,13 +2195,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/chain-of-responsibility/python/without_pattern_extended.py",
+            "path": "examples/chain-of-responsibility/extended/without_pattern/main.py",
             "selectors": [
               "call"
             ]
           },
           "after": {
-            "path": "examples/chain-of-responsibility/python/with_pattern_extended.py",
+            "path": "examples/chain-of-responsibility/extended/with_pattern/main.py",
             "selectors": [
               "@usage"
             ]
@@ -2553,24 +2261,22 @@
         "Handler отвечает за остановку и передачу дальше, функции — только за попытку обработки. Обработчики можно держать вместе; порядок задаётся при соединении Handler.",
         "Нужно собрать и проверить порядок цепочки. Останавливает любой результат, отличный от None, включая 0. Для двух фиксированных условий обычная функция проще."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/chain-of-responsibility/python/without_pattern.py",
-          "role": "Вариант без паттерна: without_pattern.py"
-        },
-        {
-          "path": "examples/chain-of-responsibility/python/without_pattern_extended.py",
-          "role": "Вариант без паттерна: without_pattern_extended.py"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
         3
       ],
       "fileAliases": {
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -2630,57 +2336,23 @@
       "correct": 1,
       "feedback": "Два обхода должны иметь независимые позиции; общий сохранённый итератор заставил бы их потреблять друг друга."
     },
-    "testCommand": "uv run pytest examples/iterator/python",
+    "testCommand": "uv run test-course iterator",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/iterator/python/without_pattern.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/iterator/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/iterator/python/with_pattern.py"
-          },
-          {
-            "name": "collection.py",
-            "path": "examples/iterator/python/collection.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/iterator/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/iterator/python/without_pattern_extended.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/iterator/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/iterator/python/with_pattern_extended.py"
-          },
-          {
-            "name": "collection.py",
-            "path": "examples/iterator/python/collection.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/iterator/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Добавить обратный обход тех же значений.",
       "apply": "Собственная коллекция должна работать со стандартным for и iter.",
@@ -2688,23 +2360,21 @@
       "beforeChange": "Вызвать reversed(tuple).",
       "afterChange": "Вызвать reversed через обёртку reverse.",
       "architecture": {
-        "stableFiles": [
-          "collection.py"
-        ],
+        "stableFiles": [],
         "exercise": "Получите два итератора одной Collection((1, 2)). Продвиньте первый и убедитесь, что второй всё ещё начинается с 1. Проверьте обратный обход."
       },
       "output": "[1, 2]\n",
       "extensionOutput": "[2, 1]\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
+      {
+        "file": "main.py",
+        "role": "Запуск"
+      },
       {
         "file": "collection.py",
         "role": "Роль: collection"
-      },
-      {
-        "file": "with_pattern.py",
-        "role": "Запуск"
       }
     ],
     "steps": [
@@ -2738,15 +2408,15 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
+        {
+          "file": "main.py",
+          "role": "Запуск"
+        },
         {
           "file": "collection.py",
           "role": "Роль: collection"
-        },
-        {
-          "file": "with_pattern_extended.py",
-          "role": "Запуск"
         }
       ],
       "steps": [
@@ -2878,13 +2548,13 @@
         {
           "title": "Базовый вызов",
           "before": {
-            "path": "examples/iterator/python/without_pattern.py",
+            "path": "examples/iterator/base/without_pattern/main.py",
             "selectors": [
               "call"
             ]
           },
           "after": {
-            "path": "examples/iterator/python/collection.py",
+            "path": "examples/iterator/base/with_pattern/collection.py",
             "selectors": [
               "Collection.__iter__"
             ]
@@ -2894,13 +2564,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/iterator/python/without_pattern_extended.py",
+            "path": "examples/iterator/extended/without_pattern/main.py",
             "selectors": [
               "call"
             ]
           },
           "after": {
-            "path": "examples/iterator/python/collection.py",
+            "path": "examples/iterator/extended/with_pattern/collection.py",
             "selectors": [
               "reverse"
             ]
@@ -2960,16 +2630,6 @@
         "Коллекция хранит значения, итератор — позицию обхода. Каждый __iter__ создаёт новую позицию. Прямой и обратный обход удобно держать рядом с коллекцией.",
         "Tuple уже поддерживает оба обхода: обёртка показывает подключение собственного типа к протоколу. reverse знает values, поэтому смена хранения затронет его."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/iterator/python/without_pattern.py",
-          "role": "Вариант без паттерна: without_pattern.py"
-        },
-        {
-          "path": "examples/iterator/python/without_pattern_extended.py",
-          "role": "Вариант без паттерна: without_pattern_extended.py"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -2977,8 +2637,16 @@
       ],
       "fileAliases": {
         "reverse_iterator.py": "collection.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -3038,73 +2706,23 @@
       "correct": 1,
       "feedback": "Нужно исключить именно объект-отправитель; разные компоненты с равными полями всё равно должны получить сообщение."
     },
-    "testCommand": "uv run pytest examples/mediator/python",
+    "testCommand": "uv run test-course mediator",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/mediator/python/without_pattern.py"
-          },
-          {
-            "name": "component.py",
-            "path": "examples/mediator/python/component.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/mediator/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/mediator/python/with_pattern.py"
-          },
-          {
-            "name": "component.py",
-            "path": "examples/mediator/python/component.py"
-          },
-          {
-            "name": "mediator.py",
-            "path": "examples/mediator/python/mediator.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/mediator/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/mediator/python/without_pattern_extended.py"
-          },
-          {
-            "name": "component.py",
-            "path": "examples/mediator/python/component.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/mediator/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/mediator/python/with_pattern_extended.py"
-          },
-          {
-            "name": "component.py",
-            "path": "examples/mediator/python/component.py"
-          },
-          {
-            "name": "mediator.py",
-            "path": "examples/mediator/python/mediator.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/mediator/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Подключить ещё один компонент к общей маршрутизации.",
       "apply": "Нужно одно место, владеющее маршрутизацией между компонентами.",
@@ -3121,8 +2739,12 @@
       "output": "1\n",
       "extensionOutput": "1 1\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
+      {
+        "file": "main.py",
+        "role": "Запуск"
+      },
       {
         "file": "component.py",
         "role": "Роль: component"
@@ -3130,10 +2752,6 @@
       {
         "file": "mediator.py",
         "role": "Роль: mediator"
-      },
-      {
-        "file": "with_pattern.py",
-        "role": "Запуск"
       }
     ],
     "steps": [
@@ -3167,8 +2785,12 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
+        {
+          "file": "main.py",
+          "role": "Запуск"
+        },
         {
           "file": "component.py",
           "role": "Роль: component"
@@ -3176,31 +2798,27 @@
         {
           "file": "mediator.py",
           "role": "Роль: mediator"
-        },
-        {
-          "file": "with_pattern_extended.py",
-          "role": "Запуск"
         }
       ],
       "steps": [
         {
           "title": "Одно расширение",
           "text": "Подключить ещё один компонент к общей маршрутизации. Список участников и правила доставки не исчезают; в примере вызовы синхронны.",
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "selectors": [
             "@usage"
           ],
           "takeaway": "База: 1. Расширение: 1 1. Sender не изменяется.",
-          "owner": "with_pattern_extended.py",
-          "place": "with_pattern_extended.py — участник паттерна."
+          "owner": "main.py",
+          "place": "main.py — участник паттерна."
         }
       ],
       "overview": {
         "purpose": "Посредник хранит участников и направляет вызов всем, кроме отправителя.",
         "nodes": [
           {
-            "id": "with_pattern_extended.py",
-            "name": "with_pattern_extended.py",
+            "id": "main.py",
+            "name": "main.py",
             "role": "Участник паттерна",
             "step": 1
           }
@@ -3311,13 +2929,13 @@
         {
           "title": "Базовый вызов",
           "before": {
-            "path": "examples/mediator/python/without_pattern.py",
+            "path": "examples/mediator/base/without_pattern/main.py",
             "selectors": [
               "notify"
             ]
           },
           "after": {
-            "path": "examples/mediator/python/mediator.py",
+            "path": "examples/mediator/base/with_pattern/mediator.py",
             "selectors": [
               "Mediator.notify"
             ]
@@ -3327,13 +2945,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/mediator/python/without_pattern_extended.py",
+            "path": "examples/mediator/extended/without_pattern/main.py",
             "selectors": [
               "notify"
             ]
           },
           "after": {
-            "path": "examples/mediator/python/with_pattern_extended.py",
+            "path": "examples/mediator/extended/with_pattern/main.py",
             "selectors": [
               "@usage"
             ]
@@ -3393,28 +3011,22 @@
         "Mediator владеет составом и правилом доставки; Component только принимает значение. Отдельная политика позволяет менять связи без добавления ссылок между компонентами.",
         "Список участников и синхронный обход остаются. Посредник может разрастись при множестве правил. Для двух объектов достаточно прямого вызова."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/mediator/python/component.py",
-          "role": "Вариант без паттерна: component.py"
-        },
-        {
-          "path": "examples/mediator/python/without_pattern.py",
-          "role": "Вариант без паттерна: without_pattern.py"
-        },
-        {
-          "path": "examples/mediator/python/without_pattern_extended.py",
-          "role": "Вариант без паттерна: without_pattern_extended.py"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
         3
       ],
       "fileAliases": {
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -3474,75 +3086,23 @@
       "correct": 1,
       "feedback": "Сохранять и восстанавливать flag должен владелец формата; хранитель продолжает хранить снимок целиком, не читая его поля."
     },
-    "testCommand": "uv run pytest examples/memento/python",
+    "testCommand": "uv run test-course memento",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/memento/python/without_pattern.py"
-          },
-          {
-            "name": "plain_originator.py",
-            "path": "examples/memento/python/plain_originator.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/memento/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/memento/python/with_pattern.py"
-          },
-          {
-            "name": "caretaker.py",
-            "path": "examples/memento/python/caretaker.py"
-          },
-          {
-            "name": "originator.py",
-            "path": "examples/memento/python/originator.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/memento/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/memento/python/without_pattern_extended.py"
-          },
-          {
-            "name": "plain_extended_originator.py",
-            "path": "examples/memento/python/plain_extended_originator.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py",
-          "plain_originator.py"
-        ]
+        "directory": "examples/memento/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/memento/python/with_pattern_extended.py"
-          },
-          {
-            "name": "caretaker.py",
-            "path": "examples/memento/python/caretaker.py"
-          },
-          {
-            "name": "extended_originator.py",
-            "path": "examples/memento/python/extended_originator.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py",
-          "originator.py"
-        ]
+        "directory": "examples/memento/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Включить flag в снимок, сохранив Caretaker без изменений.",
       "apply": "Формат состояния должен меняться независимо от его хранителя.",
@@ -3558,19 +3118,19 @@
       "output": "1\n",
       "extensionOutput": "1 False\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "originator.py",
-        "role": "Роль: originator"
+        "file": "main.py",
+        "role": "Запуск"
       },
       {
         "file": "caretaker.py",
         "role": "Роль: caretaker"
       },
       {
-        "file": "with_pattern.py",
-        "role": "Запуск"
+        "file": "originator.py",
+        "role": "Роль: originator"
       }
     ],
     "steps": [
@@ -3604,40 +3164,40 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "extended_originator.py",
-          "role": "Роль: extended_originator"
+          "file": "main.py",
+          "role": "Запуск"
         },
         {
           "file": "caretaker.py",
           "role": "Роль: caretaker"
         },
         {
-          "file": "with_pattern_extended.py",
-          "role": "Запуск"
+          "file": "originator.py",
+          "role": "Роль: originator"
         }
       ],
       "steps": [
         {
           "title": "Одно расширение",
           "text": "Включить flag в снимок, сохранив Caretaker без изменений. Снимок содержит значения, а не произвольный глубокий граф объектов; копирование изменяемых значений отдельно не показано.",
-          "file": "extended_originator.py",
+          "file": "originator.py",
           "selectors": [
             "Originator.restore"
           ],
           "takeaway": "База: 1. Расширение: 1 False.",
-          "owner": "extended_originator.py",
-          "place": "extended_originator.py — участник паттерна."
+          "owner": "originator.py",
+          "place": "originator.py — участник паттерна."
         }
       ],
       "overview": {
         "purpose": "Владелец создаёт и читает снимок; хранитель не разбирает его поля.",
         "nodes": [
           {
-            "id": "extended_originator.py",
-            "name": "extended_originator.py",
+            "id": "originator.py",
+            "name": "originator.py",
             "role": "Участник паттерна",
             "step": 1
           }
@@ -3748,13 +3308,13 @@
         {
           "title": "Базовый вызов",
           "before": {
-            "path": "examples/memento/python/without_pattern.py",
+            "path": "examples/memento/base/without_pattern/main.py",
             "selectors": [
               "restore"
             ]
           },
           "after": {
-            "path": "examples/memento/python/originator.py",
+            "path": "examples/memento/base/with_pattern/originator.py",
             "selectors": [
               "Originator.restore"
             ]
@@ -3764,13 +3324,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/memento/python/without_pattern_extended.py",
+            "path": "examples/memento/extended/without_pattern/main.py",
             "selectors": [
               "restore"
             ]
           },
           "after": {
-            "path": "examples/memento/python/extended_originator.py",
+            "path": "examples/memento/extended/with_pattern/originator.py",
             "selectors": [
               "Originator.restore"
             ]
@@ -3830,32 +3390,22 @@
         "Originator знает формат состояния, Caretaker — только тип хранимого снимка. Snapshot и Originator расположены вместе, поскольку меняются согласованно. Разные версии Originator показывают изменение формата.",
         "Снимок не обеспечивает секретности полей Python; хранитель лишь не зависит от них. Здесь int/bool неизменяемы; глубокое копирование произвольных объектов не показано."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/memento/python/plain_originator.py",
-          "role": "Вариант без паттерна: plain_originator.py"
-        },
-        {
-          "path": "examples/memento/python/without_pattern.py",
-          "role": "Вариант без паттерна: without_pattern.py"
-        },
-        {
-          "path": "examples/memento/python/plain_extended_originator.py",
-          "role": "Вариант без паттерна: plain_extended_originator.py"
-        },
-        {
-          "path": "examples/memento/python/without_pattern_extended.py",
-          "role": "Вариант без паттерна: without_pattern_extended.py"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
         3
       ],
       "fileAliases": {
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -3915,73 +3465,23 @@
       "correct": 1,
       "feedback": "Операции: добавляется посетитель. Новый вид узла меняет Visitor и каждого посетителя, чтобы все операции умели его обработать."
     },
-    "testCommand": "uv run pytest examples/visitor/python",
+    "testCommand": "uv run test-course visitor",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/visitor/python/without_pattern.py"
-          },
-          {
-            "name": "plain_nodes.py",
-            "path": "examples/visitor/python/plain_nodes.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/visitor/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/visitor/python/with_pattern.py"
-          },
-          {
-            "name": "nodes.py",
-            "path": "examples/visitor/python/nodes.py"
-          },
-          {
-            "name": "visitor.py",
-            "path": "examples/visitor/python/visitor.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/visitor/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/visitor/python/without_pattern_extended.py"
-          },
-          {
-            "name": "plain_nodes.py",
-            "path": "examples/visitor/python/plain_nodes.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/visitor/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/visitor/python/with_pattern_extended.py"
-          },
-          {
-            "name": "nodes.py",
-            "path": "examples/visitor/python/nodes.py"
-          },
-          {
-            "name": "visitor.py",
-            "path": "examples/visitor/python/visitor.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/visitor/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Добавить вторую операцию над A/B, сохранив узлы неизменными.",
       "apply": "Виды узлов стабильны, а отдельные операции над ними растут.",
@@ -3997,8 +3497,12 @@
       "output": "3\n",
       "extensionOutput": "4\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
+      {
+        "file": "main.py",
+        "role": "Запуск"
+      },
       {
         "file": "nodes.py",
         "role": "Роль: nodes"
@@ -4006,10 +3510,6 @@
       {
         "file": "visitor.py",
         "role": "Роль: visitor"
-      },
-      {
-        "file": "with_pattern.py",
-        "role": "Запуск"
       }
     ],
     "steps": [
@@ -4043,19 +3543,19 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
+        {
+          "file": "main.py",
+          "role": "Запуск"
+        },
         {
           "file": "nodes.py",
           "role": "Роль: nodes"
         },
         {
           "file": "visitor.py",
-          "role": "Роль: second_visitor"
-        },
-        {
-          "file": "with_pattern_extended.py",
-          "role": "Запуск"
+          "role": "Роль: visitor"
         }
       ],
       "steps": [
@@ -4187,13 +3687,13 @@
         {
           "title": "Базовый вызов",
           "before": {
-            "path": "examples/visitor/python/without_pattern.py",
+            "path": "examples/visitor/base/without_pattern/main.py",
             "selectors": [
               "call"
             ]
           },
           "after": {
-            "path": "examples/visitor/python/visitor.py",
+            "path": "examples/visitor/base/with_pattern/visitor.py",
             "selectors": [
               "ValueVisitor"
             ]
@@ -4203,18 +3703,18 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/visitor/python/without_pattern_extended.py",
+            "path": "examples/visitor/extended/without_pattern/main.py",
             "selectors": [
-              "call"
+              "double_call"
             ]
           },
           "after": {
-            "path": "examples/visitor/python/visitor.py",
+            "path": "examples/visitor/extended/with_pattern/visitor.py",
             "selectors": [
               "DoubleVisitor"
             ]
           },
-          "explanation": "Добавить вторую операцию над A/B, сохранив узлы неизменными. Новая операция локальна и с match. Новый вид узла меняет Visitor и все операции."
+          "explanation": "Вторая функция double_call добавлена рядом с прежней call; обе операции остаются доступны. Новый вид узла меняет Visitor и все операции."
         }
       ],
       "growth": [
@@ -4269,20 +3769,6 @@
         "Узлы знают только выбор метода a/b через accept; посетитель собирает одну операцию над всеми видами узлов. Поэтому узлы и операции разделены, а короткие посетители можно держать вместе.",
         "Новая операция локальна и в варианте с match. Visitor добавляет accept и отдельный контракт; новый вид узла потребует нового метода у всех посетителей."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/visitor/python/plain_nodes.py",
-          "role": "Вариант без паттерна: plain_nodes.py"
-        },
-        {
-          "path": "examples/visitor/python/without_pattern.py",
-          "role": "Вариант без паттерна: without_pattern.py"
-        },
-        {
-          "path": "examples/visitor/python/without_pattern_extended.py",
-          "role": "Вариант без паттерна: without_pattern_extended.py"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -4290,8 +3776,16 @@
       ],
       "fileAliases": {
         "second_visitor.py": "visitor.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -4351,76 +3845,40 @@
       "correct": 1,
       "feedback": "Нет: каждый ребёнок предоставляет evaluate. Sum вызывает контракт ребёнка, не проверяя конкретный тип."
     },
-    "testCommand": "uv run pytest examples/interpreter/python",
+    "testCommand": "uv run test-course interpreter",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/interpreter/python/without_pattern.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/interpreter/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/interpreter/python/with_pattern.py"
-          },
-          {
-            "name": "expression.py",
-            "path": "examples/interpreter/python/expression.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/interpreter/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/interpreter/python/without_pattern_extended.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/interpreter/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/interpreter/python/with_pattern_extended.py"
-          },
-          {
-            "name": "expression.py",
-            "path": "examples/interpreter/python/expression.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/interpreter/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Добавить узел Sum, вычисляющий сумму двух выражений.",
       "apply": "Вычисления нужно хранить и комбинировать как дерево узлов.",
       "limit": "Объекты заменяют числа и пары, добавляя классы и вызовы. Парсера здесь нет: дерево создаёт Python-код. Для фиксированного выражения обычная арифметика проще.",
-      "beforeChange": "Вызвать функцию сложения.",
+      "beforeChange": "Добавить в evaluate ветку пары и рекурсивно вычислять её элементы.",
       "afterChange": "Создать Sum из двух Literal.",
       "architecture": {
-        "stableFiles": [
-          "expression.py"
-        ],
+        "stableFiles": [],
         "exercise": "Вычислите вложенную сумму (1 + 2) + 3 в обеих версиях. Объясните, почему Sum не проверяет тип дочернего узла."
       },
       "output": "1\n",
       "extensionOutput": "3\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "with_pattern.py",
+        "file": "main.py",
         "role": "Запуск"
       },
       {
@@ -4459,10 +3917,10 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "role": "Запуск"
         },
         {
@@ -4599,13 +4057,13 @@
         {
           "title": "Базовая операция",
           "before": {
-            "path": "examples/interpreter/python/without_pattern.py",
+            "path": "examples/interpreter/base/without_pattern/main.py",
             "selectors": [
               "evaluate"
             ]
           },
           "after": {
-            "path": "examples/interpreter/python/expression.py",
+            "path": "examples/interpreter/base/with_pattern/expression.py",
             "selectors": [
               "Literal.evaluate"
             ]
@@ -4615,13 +4073,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/interpreter/python/without_pattern_extended.py",
+            "path": "examples/interpreter/extended/without_pattern/main.py",
             "selectors": [
               "evaluate"
             ]
           },
           "after": {
-            "path": "examples/interpreter/python/expression.py",
+            "path": "examples/interpreter/extended/with_pattern/expression.py",
             "selectors": [
               "Sum.evaluate"
             ]
@@ -4681,16 +4139,6 @@
         "Expression задаёт вычисление узла, Literal хранит число, Sum хранит два выражения. Связанные узлы одной маленькой грамматики удобно держать вместе; рекурсия следует структуре дерева.",
         "Объекты заменяют числа и пары, добавляя классы и вызовы. Парсера здесь нет: дерево создаёт Python-код. Для фиксированного выражения обычная арифметика проще."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/interpreter/python/without_pattern.py",
-          "role": "Прямая реализация"
-        },
-        {
-          "path": "examples/interpreter/python/without_pattern_extended.py",
-          "role": "Прямая реализация"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -4698,8 +4146,16 @@
       ],
       "fileAliases": {
         "sum_expression.py": "expression.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -4759,73 +4215,23 @@
       "correct": 1,
       "feedback": "Здесь метод создания переопределяется подклассом и вызывается из общего процесса Creator.operation; простой match не использует эту точку расширения."
     },
-    "testCommand": "uv run pytest examples/factory-method/python",
+    "testCommand": "uv run test-course factory-method",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/factory-method/python/without_pattern.py"
-          },
-          {
-            "name": "product.py",
-            "path": "examples/factory-method/python/product.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/factory-method/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/factory-method/python/with_pattern.py"
-          },
-          {
-            "name": "creator.py",
-            "path": "examples/factory-method/python/creator.py"
-          },
-          {
-            "name": "product.py",
-            "path": "examples/factory-method/python/product.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/factory-method/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/factory-method/python/without_pattern_extended.py"
-          },
-          {
-            "name": "product.py",
-            "path": "examples/factory-method/python/product.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/factory-method/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/factory-method/python/with_pattern_extended.py"
-          },
-          {
-            "name": "creator.py",
-            "path": "examples/factory-method/python/creator.py"
-          },
-          {
-            "name": "product.py",
-            "path": "examples/factory-method/python/product.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/factory-method/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Добавить ProductB и создавать его через CreatorB.",
       "apply": "В существующем базовом процессе подклассы должны создавать разные продукты.",
@@ -4833,19 +4239,16 @@
       "beforeChange": "Добавить case B.",
       "afterChange": "Добавить CreatorB; operation наследуется.",
       "architecture": {
-        "stableFiles": [
-          "creator.py",
-          "product.py"
-        ],
+        "stableFiles": [],
         "exercise": "Подключите CreatorB. Проверьте маркер B и убедитесь, что Creator.operation не переопределён."
       },
       "output": "A\n",
       "extensionOutput": "B\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "with_pattern.py",
+        "file": "main.py",
         "role": "Запуск"
       },
       {
@@ -4888,15 +4291,15 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "role": "Запуск"
         },
         {
           "file": "creator.py",
-          "role": "Роль: creator_b"
+          "role": "Роль: creator"
         },
         {
           "file": "product.py",
@@ -5032,13 +4435,13 @@
         {
           "title": "Базовая операция",
           "before": {
-            "path": "examples/factory-method/python/without_pattern.py",
+            "path": "examples/factory-method/base/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/factory-method/python/creator.py",
+            "path": "examples/factory-method/base/with_pattern/creator.py",
             "selectors": [
               "Creator.operation"
             ]
@@ -5048,13 +4451,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/factory-method/python/without_pattern_extended.py",
+            "path": "examples/factory-method/extended/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/factory-method/python/creator.py",
+            "path": "examples/factory-method/extended/with_pattern/creator.py",
             "selectors": [
               "CreatorB"
             ]
@@ -5114,20 +4517,6 @@
         "Creator владеет использованием продукта, create — точкой подмены его создания. Продукты и создатели разделены по обязанности; варианты A/B каждой роли можно держать вместе.",
         "Появляется иерархия создателей. Для одного выбора конструктора хватит функции; фабричный метод оправдан, когда общий процесс базового класса уже должен работать с разными продуктами."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/factory-method/python/product.py",
-          "role": "Общая структура значения"
-        },
-        {
-          "path": "examples/factory-method/python/without_pattern.py",
-          "role": "Прямая реализация"
-        },
-        {
-          "path": "examples/factory-method/python/without_pattern_extended.py",
-          "role": "Прямая реализация"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -5136,8 +4525,16 @@
       "fileAliases": {
         "creator_b.py": "creator.py",
         "product_b.py": "product.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -5197,81 +4594,23 @@
       "correct": 1,
       "feedback": "Третья операция: её нужно добавить в Factory и все фабрики. Новое семейство реализует прежние first/second."
     },
-    "testCommand": "uv run pytest examples/abstract-factory/python",
+    "testCommand": "uv run test-course abstract-factory",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/abstract-factory/python/without_pattern.py"
-          },
-          {
-            "name": "product.py",
-            "path": "examples/abstract-factory/python/product.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/abstract-factory/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/abstract-factory/python/with_pattern.py"
-          },
-          {
-            "name": "client.py",
-            "path": "examples/abstract-factory/python/client.py"
-          },
-          {
-            "name": "factory.py",
-            "path": "examples/abstract-factory/python/factory.py"
-          },
-          {
-            "name": "product.py",
-            "path": "examples/abstract-factory/python/product.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/abstract-factory/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/abstract-factory/python/without_pattern_extended.py"
-          },
-          {
-            "name": "product.py",
-            "path": "examples/abstract-factory/python/product.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/abstract-factory/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/abstract-factory/python/with_pattern_extended.py"
-          },
-          {
-            "name": "client.py",
-            "path": "examples/abstract-factory/python/client.py"
-          },
-          {
-            "name": "factory.py",
-            "path": "examples/abstract-factory/python/factory.py"
-          },
-          {
-            "name": "product.py",
-            "path": "examples/abstract-factory/python/product.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/abstract-factory/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Добавить семейство B1/B2 и передать FactoryB прежнему клиенту.",
       "apply": "Клиенты подменяют связанные операции создания как единое семейство.",
@@ -5281,7 +4620,6 @@
       "architecture": {
         "stableFiles": [
           "client.py",
-          "factory.py",
           "product.py"
         ],
         "exercise": "Передайте FactoryB прежнему клиенту. Проверьте пару B1/B2; объясните, где обеспечивается согласованный выбор семейства."
@@ -5289,10 +4627,10 @@
       "output": "('A1', 'A2')\n",
       "extensionOutput": "('B1', 'B2')\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "with_pattern.py",
+        "file": "main.py",
         "role": "Запуск"
       },
       {
@@ -5339,10 +4677,10 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "role": "Запуск"
         },
         {
@@ -5487,13 +4825,13 @@
         {
           "title": "Базовая операция",
           "before": {
-            "path": "examples/abstract-factory/python/without_pattern.py",
+            "path": "examples/abstract-factory/base/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/abstract-factory/python/client.py",
+            "path": "examples/abstract-factory/base/with_pattern/client.py",
             "selectors": [
               "operation"
             ]
@@ -5503,13 +4841,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/abstract-factory/python/without_pattern_extended.py",
+            "path": "examples/abstract-factory/extended/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/abstract-factory/python/factory.py",
+            "path": "examples/abstract-factory/extended/with_pattern/factory.py",
             "selectors": [
               "FactoryB"
             ]
@@ -5569,20 +4907,6 @@
         "Клиент зависит от операций создания пары, а фабрика выбирает семейство целиком. Короткие фабрики находятся вместе; Product хранит только нейтральный маркер.",
         "Один Product с маркерами показывает единицу подстановки, а не проверку совместимости типов. Простая функция тоже может вернуть согласованную пару. Новый вид продукта изменит контракт всех фабрик."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/abstract-factory/python/product.py",
-          "role": "Общая структура значения"
-        },
-        {
-          "path": "examples/abstract-factory/python/without_pattern.py",
-          "role": "Прямая реализация"
-        },
-        {
-          "path": "examples/abstract-factory/python/without_pattern_extended.py",
-          "role": "Прямая реализация"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -5590,8 +4914,16 @@
       ],
       "fileAliases": {
         "factory_b.py": "factory.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -5646,73 +4978,23 @@
       "correct": 1,
       "feedback": "Нет: build создал tuple текущих частей. Список Builder и tuple Product больше не являются одним изменяемым контейнером."
     },
-    "testCommand": "uv run pytest examples/builder/python",
+    "testCommand": "uv run test-course builder",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/builder/python/without_pattern.py"
-          },
-          {
-            "name": "product.py",
-            "path": "examples/builder/python/product.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/builder/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/builder/python/with_pattern.py"
-          },
-          {
-            "name": "builder.py",
-            "path": "examples/builder/python/builder.py"
-          },
-          {
-            "name": "product.py",
-            "path": "examples/builder/python/product.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/builder/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/builder/python/without_pattern_extended.py"
-          },
-          {
-            "name": "product.py",
-            "path": "examples/builder/python/product.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/builder/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/builder/python/with_pattern_extended.py"
-          },
-          {
-            "name": "builder.py",
-            "path": "examples/builder/python/builder.py"
-          },
-          {
-            "name": "product.py",
-            "path": "examples/builder/python/product.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/builder/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Добавить часть B отдельным шагом перед build.",
       "apply": "Данные поступают поэтапно, а готовый результат отделён от промежуточного состояния.",
@@ -5729,10 +5011,10 @@
       "output": "('A',)\n",
       "extensionOutput": "('A', 'B')\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "with_pattern.py",
+        "file": "main.py",
         "role": "Запуск"
       },
       {
@@ -5748,21 +5030,21 @@
       {
         "title": "Базовая операция",
         "text": "Прямое создание получает все части сразу; Builder хранит их между отдельными шагами.",
-        "file": "with_pattern.py",
+        "file": "main.py",
         "selectors": [
           "@usage"
         ],
         "takeaway": "База: ('A',). Расширение: ('A', 'B').",
-        "owner": "with_pattern.py",
-        "place": "with_pattern.py — участник паттерна."
+        "owner": "main.py",
+        "place": "main.py — участник паттерна."
       }
     ],
     "overview": {
       "purpose": "Накопить части и получить отдельный неизменяемый Product.",
       "nodes": [
         {
-          "id": "with_pattern.py",
-          "name": "with_pattern.py",
+          "id": "main.py",
+          "name": "main.py",
           "role": "Участник паттерна",
           "step": 1
         }
@@ -5775,10 +5057,10 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "role": "Запуск"
         },
         {
@@ -5794,21 +5076,21 @@
         {
           "title": "Одно расширение",
           "text": "Расширение добавляет один add перед build. Класс Builder не меняется; для готовых частей прямое создание короче.",
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "selectors": [
             "@usage"
           ],
           "takeaway": "База: ('A',). Расширение: ('A', 'B').",
-          "owner": "with_pattern_extended.py",
-          "place": "with_pattern_extended.py — участник паттерна."
+          "owner": "main.py",
+          "place": "main.py — участник паттерна."
         }
       ],
       "overview": {
         "purpose": "Накопить части и получить отдельный неизменяемый Product.",
         "nodes": [
           {
-            "id": "with_pattern_extended.py",
-            "name": "with_pattern_extended.py",
+            "id": "main.py",
+            "name": "main.py",
             "role": "Участник паттерна",
             "step": 1
           }
@@ -5915,13 +5197,13 @@
         {
           "title": "Базовая операция",
           "before": {
-            "path": "examples/builder/python/without_pattern.py",
+            "path": "examples/builder/base/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/builder/python/with_pattern.py",
+            "path": "examples/builder/base/with_pattern/main.py",
             "selectors": [
               "@usage"
             ]
@@ -5931,13 +5213,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/builder/python/without_pattern_extended.py",
+            "path": "examples/builder/extended/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/builder/python/with_pattern_extended.py",
+            "path": "examples/builder/extended/with_pattern/main.py",
             "selectors": [
               "@usage"
             ]
@@ -5997,28 +5279,22 @@
         "Builder хранит незавершённое изменяемое состояние, Product — готовый неизменяемый результат. Эта граница позволяет продолжать сборку, не меняя ранее выданный продукт.",
         "Нужно управлять временем жизни Builder и явно вызвать build. Если все части уже известны, прямой конструктор короче. Повторный build здесь создаёт новый снимок и не очищает Builder."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/builder/python/product.py",
-          "role": "Общая структура значения"
-        },
-        {
-          "path": "examples/builder/python/without_pattern.py",
-          "role": "Прямая реализация"
-        },
-        {
-          "path": "examples/builder/python/without_pattern_extended.py",
-          "role": "Прямая реализация"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
         3
       ],
       "fileAliases": {
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -6073,75 +5349,23 @@
       "correct": 1,
       "feedback": "Оба объекта получили бы один список: append через клон менял бы оригинал. Нужно скопировать изменяемый контейнер."
     },
-    "testCommand": "uv run pytest examples/prototype/python",
+    "testCommand": "uv run test-course prototype",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/prototype/python/without_pattern.py"
-          },
-          {
-            "name": "value.py",
-            "path": "examples/prototype/python/value.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/prototype/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/prototype/python/with_pattern.py"
-          },
-          {
-            "name": "prototype.py",
-            "path": "examples/prototype/python/prototype.py"
-          },
-          {
-            "name": "value.py",
-            "path": "examples/prototype/python/value.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/prototype/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/prototype/python/without_pattern_extended.py"
-          },
-          {
-            "name": "value.py",
-            "path": "examples/prototype/python/value.py"
-          },
-          {
-            "name": "without_pattern.py",
-            "path": "examples/prototype/python/without_pattern.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": []
+        "directory": "examples/prototype/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/prototype/python/with_pattern_extended.py"
-          },
-          {
-            "name": "prototype.py",
-            "path": "examples/prototype/python/prototype.py"
-          },
-          {
-            "name": "value.py",
-            "path": "examples/prototype/python/value.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/prototype/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Добавить часть B копии, сохранив исходный объект.",
       "apply": "Новые объекты повторяют текущее состояние уже настроенных объектов.",
@@ -6158,10 +5382,10 @@
       "output": "['A']\n",
       "extensionOutput": "['A', 'B']\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "with_pattern.py",
+        "file": "main.py",
         "role": "Запуск"
       },
       {
@@ -6204,10 +5428,10 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "role": "Запуск"
         },
         {
@@ -6223,21 +5447,21 @@
         {
           "title": "Одно расширение",
           "text": "После clone добавляется B только копии. Рецепт без паттерна задаёт весь список заново.",
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "selectors": [
             "@usage"
           ],
           "takeaway": "База: ['A']. Расширение: ['A', 'B']; исходный список остаётся ['A'].",
-          "owner": "with_pattern_extended.py",
-          "place": "with_pattern_extended.py — участник паттерна."
+          "owner": "main.py",
+          "place": "main.py — участник паттерна."
         }
       ],
       "overview": {
         "purpose": "Создать независимую копию текущего состояния объекта.",
         "nodes": [
           {
-            "id": "with_pattern_extended.py",
-            "name": "with_pattern_extended.py",
+            "id": "main.py",
+            "name": "main.py",
             "role": "Участник паттерна",
             "step": 1
           }
@@ -6344,13 +5568,13 @@
         {
           "title": "Базовая операция",
           "before": {
-            "path": "examples/prototype/python/without_pattern.py",
+            "path": "examples/prototype/base/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/prototype/python/prototype.py",
+            "path": "examples/prototype/base/with_pattern/prototype.py",
             "selectors": [
               "Prototype.clone"
             ]
@@ -6360,13 +5584,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/prototype/python/without_pattern_extended.py",
+            "path": "examples/prototype/extended/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/prototype/python/with_pattern_extended.py",
+            "path": "examples/prototype/extended/with_pattern/main.py",
             "selectors": [
               "@usage"
             ]
@@ -6426,28 +5650,27 @@
         "clone переносит правило копирования к самому объекту; вызывающий код не перечисляет поля. Value задаёт общие данные, Prototype добавляет операцию копирования, не меняя их смысл.",
         "Для списка строк достаточно копии списка; deepcopy выбран как политика clone этого примера. Ресурсы и произвольные графы требуют отдельной политики. Обычная функция копирования здесь столь же корректна."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/prototype/python/value.py",
-          "role": "Общая структура значения"
-        },
-        {
-          "path": "examples/prototype/python/without_pattern.py",
-          "role": "Прямая реализация"
-        },
-        {
-          "path": "examples/prototype/python/without_pattern_extended.py",
-          "role": "Прямая реализация"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
         3
       ],
       "fileAliases": {
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
+      },
+      "variantFileAliases": {
+        "beforeExtension": {
+          "without_pattern.py": "clone.py"
+        }
       }
     }
   },
@@ -6468,7 +5691,7 @@
       ],
       "example": "База: 1. Расширение: (1, 2). Каждый вариант запускается в новом процессе."
     },
-    "startingPoint": "До: вызывающий код создаёт и передаёт общий экземпляр явно. После: конструктор возвращает сохранённый объект.",
+    "startingPoint": "До: вызывающий код создаёт и использует один экземпляр явно. После: конструктор возвращает сохранённый объект.",
     "problem": "Выполнить operation дважды с одним состоянием.",
     "intent": "Сравнить явное разделение экземпляра и принудительную единственность.",
     "roles": [
@@ -6502,73 +5725,23 @@
       "correct": 1,
       "feedback": "Python вызывает __init__ и для повторно возвращённого экземпляра. Инициализация из Instance сбросила бы value при каждом Singleton()."
     },
-    "testCommand": "uv run pytest examples/singleton/python",
+    "testCommand": "uv run test-course singleton",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/singleton/python/without_pattern.py"
-          },
-          {
-            "name": "instance.py",
-            "path": "examples/singleton/python/instance.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/singleton/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/singleton/python/with_pattern.py"
-          },
-          {
-            "name": "singleton.py",
-            "path": "examples/singleton/python/singleton.py"
-          },
-          {
-            "name": "instance.py",
-            "path": "examples/singleton/python/instance.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/singleton/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/singleton/python/without_pattern_extended.py"
-          },
-          {
-            "name": "instance.py",
-            "path": "examples/singleton/python/instance.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/singleton/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/singleton/python/with_pattern_extended.py"
-          },
-          {
-            "name": "singleton.py",
-            "path": "examples/singleton/python/singleton.py"
-          },
-          {
-            "name": "instance.py",
-            "path": "examples/singleton/python/instance.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/singleton/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Выполнить operation дважды с одним состоянием.",
       "apply": "Принудительная единственность в одном процессе действительно является требованием.",
@@ -6577,18 +5750,18 @@
       "afterChange": "Повторно вызвать Singleton().",
       "architecture": {
         "stableFiles": [
-          "singleton.py",
-          "instance.py"
+          "instance.py",
+          "singleton.py"
         ],
         "exercise": "В новом процессе дважды получите Singleton и вызовите operation. Проверьте идентичность объектов и результаты 1, 2; сравните с одним явно переданным Instance."
       },
       "output": "1\n",
       "extensionOutput": "(1, 2)\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "with_pattern.py",
+        "file": "main.py",
         "role": "Запуск"
       },
       {
@@ -6603,7 +5776,7 @@
     "steps": [
       {
         "title": "Базовая операция",
-        "text": "До: вызывающий код создаёт и передаёт общий экземпляр явно. После: конструктор возвращает сохранённый объект.",
+        "text": "До: вызывающий код создаёт и использует один экземпляр явно. После: конструктор возвращает сохранённый объект.",
         "file": "singleton.py",
         "selectors": [
           "Singleton.__new__"
@@ -6631,10 +5804,10 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "role": "Запуск"
         },
         {
@@ -6650,21 +5823,21 @@
         {
           "title": "Одно расширение",
           "text": "Оба варианта сохраняют состояние между вызовами. Singleton скрывает разделение и запрещает независимые экземпляры; обычный объект уже решает задачу.",
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "selectors": [
             "@usage"
           ],
           "takeaway": "База: 1. Расширение: (1, 2). Каждый вариант запускается в новом процессе.",
-          "owner": "with_pattern_extended.py",
-          "place": "with_pattern_extended.py — участник паттерна."
+          "owner": "main.py",
+          "place": "main.py — участник паттерна."
         }
       ],
       "overview": {
         "purpose": "Сравнить явное разделение экземпляра и принудительную единственность.",
         "nodes": [
           {
-            "id": "with_pattern_extended.py",
-            "name": "with_pattern_extended.py",
+            "id": "main.py",
+            "name": "main.py",
             "role": "Участник паттерна",
             "step": 1
           }
@@ -6771,29 +5944,29 @@
         {
           "title": "Базовая операция",
           "before": {
-            "path": "examples/singleton/python/without_pattern.py",
+            "path": "examples/singleton/base/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/singleton/python/singleton.py",
+            "path": "examples/singleton/base/with_pattern/singleton.py",
             "selectors": [
               "Singleton.__new__"
             ]
           },
-          "explanation": "До: вызывающий код создаёт и передаёт общий экземпляр явно. После: конструктор возвращает сохранённый объект."
+          "explanation": "До: вызывающий код создаёт и использует один экземпляр явно. После: конструктор возвращает сохранённый объект."
         },
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/singleton/python/without_pattern_extended.py",
+            "path": "examples/singleton/extended/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/singleton/python/with_pattern_extended.py",
+            "path": "examples/singleton/extended/with_pattern/main.py",
             "selectors": [
               "@usage"
             ]
@@ -6853,28 +6026,22 @@
         "Instance описывает обычное состояние и операцию; Singleton меняет только получение экземпляра. Разделение позволяет сравнить явное совместное использование с принудительной единственностью.",
         "Общее состояние скрывает зависимость между вызовами и усложняет изоляцию тестов. Пример однопоточный; @final запрещает наследование лишь для проверки типов. Явная передача одного Instance обычно проще."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/singleton/python/instance.py",
-          "role": "Общая структура значения"
-        },
-        {
-          "path": "examples/singleton/python/without_pattern.py",
-          "role": "Прямая реализация"
-        },
-        {
-          "path": "examples/singleton/python/without_pattern_extended.py",
-          "role": "Прямая реализация"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
         3
       ],
       "fileAliases": {
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -6934,81 +6101,23 @@
       "correct": 1,
       "feedback": "Новый адаптер переводит прежний operation в метод ThirdAdaptee; клиент и Target остаются прежними, меняется точка сборки."
     },
-    "testCommand": "uv run pytest examples/adapter/python",
+    "testCommand": "uv run test-course adapter",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/adapter/python/without_pattern.py"
-          },
-          {
-            "name": "adaptee.py",
-            "path": "examples/adapter/python/adaptee.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/adapter/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/adapter/python/with_pattern.py"
-          },
-          {
-            "name": "adaptee.py",
-            "path": "examples/adapter/python/adaptee.py"
-          },
-          {
-            "name": "adapter.py",
-            "path": "examples/adapter/python/adapter.py"
-          },
-          {
-            "name": "client.py",
-            "path": "examples/adapter/python/client.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/adapter/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/adapter/python/without_pattern_extended.py"
-          },
-          {
-            "name": "adaptee.py",
-            "path": "examples/adapter/python/adaptee.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/adapter/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/adapter/python/with_pattern_extended.py"
-          },
-          {
-            "name": "adaptee.py",
-            "path": "examples/adapter/python/adaptee.py"
-          },
-          {
-            "name": "adapter.py",
-            "path": "examples/adapter/python/adapter.py"
-          },
-          {
-            "name": "client.py",
-            "path": "examples/adapter/python/client.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/adapter/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Подключить SecondAdaptee с другим именем метода.",
       "apply": "Несовместимые интерфейсы должны обслуживать одного клиента.",
@@ -7017,7 +6126,6 @@
       "afterChange": "Добавляется SecondAdapter; client.py и Target не меняются.",
       "architecture": {
         "stableFiles": [
-          "adapter.py",
           "client.py"
         ],
         "exercise": "Подключите SecondAdapter к прежнему call. Для входа 2 проверьте результат 4 и отсутствие изменений в клиентском контракте."
@@ -7025,10 +6133,10 @@
       "output": "3\n",
       "extensionOutput": "4\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "with_pattern.py",
+        "file": "main.py",
         "role": "Запуск"
       },
       {
@@ -7075,19 +6183,19 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "role": "Запуск"
         },
         {
           "file": "adaptee.py",
-          "role": "Роль: second_adaptee"
+          "role": "Роль: adaptee"
         },
         {
           "file": "adapter.py",
-          "role": "Роль: second_adapter"
+          "role": "Роль: adapter"
         },
         {
           "file": "client.py",
@@ -7223,13 +6331,13 @@
         {
           "title": "Базовая операция",
           "before": {
-            "path": "examples/adapter/python/without_pattern.py",
+            "path": "examples/adapter/base/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/adapter/python/adapter.py",
+            "path": "examples/adapter/base/with_pattern/adapter.py",
             "selectors": [
               "Adapter.operation"
             ]
@@ -7239,13 +6347,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/adapter/python/without_pattern_extended.py",
+            "path": "examples/adapter/extended/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/adapter/python/adapter.py",
+            "path": "examples/adapter/extended/with_pattern/adapter.py",
             "selectors": [
               "SecondAdapter.operation"
             ]
@@ -7309,20 +6417,6 @@
         "Adaptee сохраняет исходный интерфейс, Adapter переводит его в интерфейс клиента. Target, клиент и короткие адаптеры удобно читать рядом; исходные объекты отделены, поскольку адаптер не должен их переписывать.",
         "Добавляется слой вызовов и сборка адаптера. Новый метод Target потребует доработки адаптеров. Если исходный интерфейс уже подходит, перевод не нужен."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/adapter/python/without_pattern.py",
-          "role": "Прямое решение и его зависимости"
-        },
-        {
-          "path": "examples/adapter/python/adaptee.py",
-          "role": "Прямое решение и его зависимости"
-        },
-        {
-          "path": "examples/adapter/python/without_pattern_extended.py",
-          "role": "Прямое решение и его зависимости"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -7333,9 +6427,17 @@
         "second_adaptee.py": "adaptee.py",
         "second_adapter.py": "adapter.py",
         "target.py": "adapter.py",
-        "adaptee_choice.py": "without_pattern_extended.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "adaptee_choice.py": "main.py",
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -7390,65 +6492,23 @@
       "correct": 1,
       "feedback": "Второго независимо меняющегося семейства абстракций. Здесь показана лишь связь Abstraction с подставляемой Implementation."
     },
-    "testCommand": "uv run pytest examples/bridge/python",
+    "testCommand": "uv run test-course bridge",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/bridge/python/without_pattern.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/bridge/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/bridge/python/with_pattern.py"
-          },
-          {
-            "name": "abstraction.py",
-            "path": "examples/bridge/python/abstraction.py"
-          },
-          {
-            "name": "implementation.py",
-            "path": "examples/bridge/python/implementation.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/bridge/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/bridge/python/without_pattern_extended.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/bridge/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/bridge/python/with_pattern_extended.py"
-          },
-          {
-            "name": "abstraction.py",
-            "path": "examples/bridge/python/abstraction.py"
-          },
-          {
-            "name": "implementation.py",
-            "path": "examples/bridge/python/implementation.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/bridge/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Добавить ImplementationB, удваивающую вход перед общим шагом.",
       "apply": "Абстракции и способы выполнения растут независимо.",
@@ -7457,18 +6517,17 @@
       "afterChange": "Добавляется ImplementationB; Abstraction остаётся прежней.",
       "architecture": {
         "stableFiles": [
-          "abstraction.py",
-          "implementation.py"
+          "abstraction.py"
         ],
         "exercise": "Передайте ImplementationB прежней Abstraction. Проверьте результат 5 для 2 и объясните, кто выполняет общий +1."
       },
       "output": "3\n",
       "extensionOutput": "5\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "with_pattern.py",
+        "file": "main.py",
         "role": "Запуск"
       },
       {
@@ -7511,10 +6570,10 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "role": "Запуск"
         },
         {
@@ -7651,13 +6710,13 @@
         {
           "title": "Базовая операция",
           "before": {
-            "path": "examples/bridge/python/without_pattern.py",
+            "path": "examples/bridge/base/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/bridge/python/abstraction.py",
+            "path": "examples/bridge/base/with_pattern/abstraction.py",
             "selectors": [
               "Abstraction.operation"
             ]
@@ -7667,13 +6726,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/bridge/python/without_pattern_extended.py",
+            "path": "examples/bridge/extended/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/bridge/python/implementation.py",
+            "path": "examples/bridge/extended/with_pattern/implementation.py",
             "selectors": [
               "ImplementationB"
             ]
@@ -7737,16 +6796,6 @@
         "Abstraction владеет высокоуровневой операцией, Implementation — заменяемой частью выполнения. Эти роли отделены для независимого развития; варианты реализации удобно держать вместе.",
         "В примере лишь одна абстракция, поэтому механизм похож на Strategy и выгода мала. Bridge выбирают для независимых направлений абстракций и реализаций; одну функцию проще передать напрямую."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/bridge/python/without_pattern.py",
-          "role": "Прямое решение и его зависимости"
-        },
-        {
-          "path": "examples/bridge/python/without_pattern_extended.py",
-          "role": "Прямое решение и его зависимости"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -7754,9 +6803,17 @@
       ],
       "fileAliases": {
         "implementation_b.py": "implementation.py",
-        "implementation_choice.py": "without_pattern_extended.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "implementation_choice.py": "main.py",
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -7816,57 +6873,23 @@
       "correct": 1,
       "feedback": "Новый ребёнок выполняет прежний operation. Новая операция должна быть реализована у каждого вида, включая Composite."
     },
-    "testCommand": "uv run pytest examples/composite/python",
+    "testCommand": "uv run test-course composite",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/composite/python/without_pattern.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/composite/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/composite/python/with_pattern.py"
-          },
-          {
-            "name": "component.py",
-            "path": "examples/composite/python/component.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/composite/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/composite/python/without_pattern_extended.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/composite/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/composite/python/with_pattern_extended.py"
-          },
-          {
-            "name": "component.py",
-            "path": "examples/composite/python/component.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/composite/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Добавить компонент, удваивающий результат вложенного компонента.",
       "apply": "Одиночные и составные компоненты нужны через один интерфейс.",
@@ -7874,18 +6897,16 @@
       "beforeChange": "Центральная рекурсия распознаёт виды узлов.",
       "afterChange": "Новый компонент подключается без изменения Composite.",
       "architecture": {
-        "stableFiles": [
-          "component.py"
-        ],
+        "stableFiles": [],
         "exercise": "Вложите RepeatedComponent с Leaf(2) в Composite рядом с Leaf(1). Проверьте 5 без новой ветки в Composite."
       },
       "output": "3\n",
       "extensionOutput": "5\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "with_pattern.py",
+        "file": "main.py",
         "role": "Запуск"
       },
       {
@@ -7924,10 +6945,10 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "role": "Запуск"
         },
         {
@@ -8064,13 +7085,13 @@
         {
           "title": "Базовая операция",
           "before": {
-            "path": "examples/composite/python/without_pattern.py",
+            "path": "examples/composite/base/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/composite/python/component.py",
+            "path": "examples/composite/base/with_pattern/component.py",
             "selectors": [
               "Composite.operation"
             ]
@@ -8080,13 +7101,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/composite/python/without_pattern_extended.py",
+            "path": "examples/composite/extended/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/composite/python/component.py",
+            "path": "examples/composite/extended/with_pattern/component.py",
             "selectors": [
               "RepeatedComponent"
             ]
@@ -8150,16 +7171,6 @@
         "Component объединяет лист и составной узел одним вызовом. Каждый узел владеет своей обработкой, поэтому Composite не перечисляет виды детей. Короткие виды узлов удобно держать вместе.",
         "Появляются объекты вместо int/list. Новый вид компонента локален, но новая операция общего контракта затронет все виды. RepeatedComponent здесь также использует механику декоратора."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/composite/python/without_pattern.py",
-          "role": "Прямое решение и его зависимости"
-        },
-        {
-          "path": "examples/composite/python/without_pattern_extended.py",
-          "role": "Прямое решение и его зависимости"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -8167,8 +7178,16 @@
       ],
       "fileAliases": {
         "repeated_component.py": "component.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -8228,65 +7247,23 @@
       "correct": 1,
       "feedback": "Внешняя обёртка обрабатывает результат внутренней: (1 + 1) * 2 = 4, а 1 * 2 + 1 = 3."
     },
-    "testCommand": "uv run pytest examples/decorator/python",
+    "testCommand": "uv run test-course decorator",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/decorator/python/without_pattern.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/decorator/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/decorator/python/with_pattern.py"
-          },
-          {
-            "name": "component.py",
-            "path": "examples/decorator/python/component.py"
-          },
-          {
-            "name": "decorators.py",
-            "path": "examples/decorator/python/decorators.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/decorator/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/decorator/python/without_pattern_extended.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/decorator/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/decorator/python/with_pattern_extended.py"
-          },
-          {
-            "name": "component.py",
-            "path": "examples/decorator/python/component.py"
-          },
-          {
-            "name": "decorators.py",
-            "path": "examples/decorator/python/decorators.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/decorator/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Добавить удвоение и поддержать оба порядка обработок.",
       "apply": "Обработки комбинируются, повторяются и меняют порядок.",
@@ -8295,18 +7272,17 @@
       "afterChange": "Новая обработка добавляется отдельной обёрткой; порядок задаётся вложением.",
       "architecture": {
         "stableFiles": [
-          "component.py",
-          "decorators.py"
+          "component.py"
         ],
         "exercise": "Соберите оба порядка IncrementDecorator и DoubleDecorator над Value(1). Проверьте 4 и 3 и объясните порядок вызовов."
       },
       "output": "2\n",
       "extensionOutput": "4 3\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "with_pattern.py",
+        "file": "main.py",
         "role": "Запуск"
       },
       {
@@ -8315,7 +7291,7 @@
       },
       {
         "file": "decorators.py",
-        "role": "Роль: increment_decorator"
+        "role": "Роль: decorators"
       }
     ],
     "steps": [
@@ -8349,10 +7325,10 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "role": "Запуск"
         },
         {
@@ -8361,7 +7337,7 @@
         },
         {
           "file": "decorators.py",
-          "role": "Роль: increment_decorator"
+          "role": "Роль: decorators"
         }
       ],
       "steps": [
@@ -8493,13 +7469,13 @@
         {
           "title": "Базовая операция",
           "before": {
-            "path": "examples/decorator/python/without_pattern.py",
+            "path": "examples/decorator/base/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/decorator/python/decorators.py",
+            "path": "examples/decorator/base/with_pattern/decorators.py",
             "selectors": [
               "IncrementDecorator.operation"
             ]
@@ -8509,13 +7485,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/decorator/python/without_pattern_extended.py",
+            "path": "examples/decorator/extended/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/decorator/python/decorators.py",
+            "path": "examples/decorator/extended/with_pattern/decorators.py",
             "selectors": [
               "DoubleDecorator.operation"
             ]
@@ -8579,16 +7555,6 @@
         "Каждая обёртка сохраняет Component.operation и добавляет одну обработку. Порядок принадлежит сборке объектов, а не внутреннему выбору декоратора. Короткие обёртки можно держать в одном модуле.",
         "Вложенность добавляет объекты и усложняет трассировку. Конвейер функций тоже подходит; фиксированное выражение короче. Объектный вариант допускает повторение и произвольную глубину обёрток."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/decorator/python/without_pattern.py",
-          "role": "Прямое решение и его зависимости"
-        },
-        {
-          "path": "examples/decorator/python/without_pattern_extended.py",
-          "role": "Прямое решение и его зависимости"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -8596,10 +7562,18 @@
       ],
       "fileAliases": {
         "double_decorator.py": "decorators.py",
-        "operation_order.py": "without_pattern_extended.py",
+        "operation_order.py": "main.py",
         "increment_decorator.py": "decorators.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -8659,81 +7633,23 @@
       "correct": 1,
       "feedback": "Да: фасад определяется единым упрощённым входом к подсистемам, а не обязательным классом или наследованием."
     },
-    "testCommand": "uv run pytest examples/facade/python",
+    "testCommand": "uv run test-course facade",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/facade/python/without_pattern.py"
-          },
-          {
-            "name": "subsystems.py",
-            "path": "examples/facade/python/subsystems.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/facade/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/facade/python/with_pattern.py"
-          },
-          {
-            "name": "clients.py",
-            "path": "examples/facade/python/clients.py"
-          },
-          {
-            "name": "facade.py",
-            "path": "examples/facade/python/facade.py"
-          },
-          {
-            "name": "subsystems.py",
-            "path": "examples/facade/python/subsystems.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/facade/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/facade/python/without_pattern_extended.py"
-          },
-          {
-            "name": "subsystems.py",
-            "path": "examples/facade/python/subsystems.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/facade/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/facade/python/with_pattern_extended.py"
-          },
-          {
-            "name": "clients.py",
-            "path": "examples/facade/python/clients.py"
-          },
-          {
-            "name": "facade.py",
-            "path": "examples/facade/python/facade.py"
-          },
-          {
-            "name": "subsystems.py",
-            "path": "examples/facade/python/subsystems.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/facade/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "После A и B вызвать дополнительную SubsystemC.",
       "apply": "Нескольким клиентам нужна одна последовательность вызовов.",
@@ -8742,19 +7658,17 @@
       "afterChange": "Расширенный фасад добавляет один шаг; clients.py не меняется.",
       "architecture": {
         "stableFiles": [
-          "clients.py",
-          "facade.py",
-          "subsystems.py"
+          "clients.py"
         ],
         "exercise": "Подключите общий шаг C после A → B. Проверьте результаты 3 и 5 у двух клиентов и неизменность клиентов с фасадом."
       },
       "output": "4 6\n",
       "extensionOutput": "3 5\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "with_pattern.py",
+        "file": "main.py",
         "role": "Запуск"
       },
       {
@@ -8801,10 +7715,10 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "role": "Запуск"
         },
         {
@@ -8949,13 +7863,13 @@
         {
           "title": "Базовая операция",
           "before": {
-            "path": "examples/facade/python/without_pattern.py",
+            "path": "examples/facade/base/without_pattern/main.py",
             "selectors": [
               "client_a"
             ]
           },
           "after": {
-            "path": "examples/facade/python/facade.py",
+            "path": "examples/facade/base/with_pattern/facade.py",
             "selectors": [
               "Facade.operation"
             ]
@@ -8965,13 +7879,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/facade/python/without_pattern_extended.py",
+            "path": "examples/facade/extended/without_pattern/main.py",
             "selectors": [
               "client_a"
             ]
           },
           "after": {
-            "path": "examples/facade/python/facade.py",
+            "path": "examples/facade/extended/with_pattern/facade.py",
             "selectors": [
               "ExtendedFacade.operation"
             ]
@@ -9035,20 +7949,6 @@
         "Фасад владеет общей последовательностью, подсистемы — отдельными операциями. Клиенты зависят от одного входа. Короткие подсистемы можно держать вместе, как и варианты фасада.",
         "Последовательность и её тесты всё равно меняются. Подкласс здесь сохраняет базовый сценарий; обычная функция также может быть фасадом, отдельная иерархия необязательна."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/facade/python/without_pattern.py",
-          "role": "Прямое решение и его зависимости"
-        },
-        {
-          "path": "examples/facade/python/subsystems.py",
-          "role": "Прямое решение и его зависимости"
-        },
-        {
-          "path": "examples/facade/python/without_pattern_extended.py",
-          "role": "Прямое решение и его зависимости"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -9057,8 +7957,16 @@
       "fileAliases": {
         "subsystem_c.py": "subsystems.py",
         "extended_facade.py": "facade.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -9118,73 +8026,23 @@
       "correct": 1,
       "feedback": "Разные variant получили бы один Shared и потеряли различие. Ключ должен включать всю разделяемую часть состояния."
     },
-    "testCommand": "uv run pytest examples/flyweight/python",
+    "testCommand": "uv run test-course flyweight",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/flyweight/python/without_pattern.py"
-          },
-          {
-            "name": "state.py",
-            "path": "examples/flyweight/python/state.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/flyweight/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/flyweight/python/with_pattern.py"
-          },
-          {
-            "name": "factory.py",
-            "path": "examples/flyweight/python/factory.py"
-          },
-          {
-            "name": "state.py",
-            "path": "examples/flyweight/python/state.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/flyweight/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/flyweight/python/without_pattern_extended.py"
-          },
-          {
-            "name": "state.py",
-            "path": "examples/flyweight/python/state.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/flyweight/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/flyweight/python/with_pattern_extended.py"
-          },
-          {
-            "name": "factory.py",
-            "path": "examples/flyweight/python/factory.py"
-          },
-          {
-            "name": "state.py",
-            "path": "examples/flyweight/python/state.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/flyweight/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Учитывать дополнительный variant в ключе общего состояния.",
       "apply": "Много контекстов содержат одинаковую тяжёлую неизменяемую часть.",
@@ -9192,18 +8050,16 @@
       "beforeChange": "Каждый контекст создаёт свой Shared.",
       "afterChange": "Фабрика использует полный ключ и переиспользует один Shared.",
       "architecture": {
-        "stableFiles": [
-          "state.py"
-        ],
+        "stableFiles": [],
         "exercise": "Получите Shared дважды с ключом (1, 2), затем с (1, 3). Проверьте общую идентичность только для равных ключей и отдельные state контекстов."
       },
-      "output": "Context(state=0, shared=Shared(value=1, variant=0)) Context(state=2, shared=Shared(value=1, variant=0))\n",
+      "output": "Context(state=0, shared=Shared(value=1)) Context(state=2, shared=Shared(value=1))\n",
       "extensionOutput": "Context(state=0, shared=Shared(value=1, variant=2)) Context(state=2, shared=Shared(value=1, variant=2))\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "with_pattern.py",
+        "file": "main.py",
         "role": "Запуск"
       },
       {
@@ -9212,7 +8068,7 @@
       },
       {
         "file": "state.py",
-        "role": "Роль: shared"
+        "role": "Роль: state"
       }
     ],
     "steps": [
@@ -9246,19 +8102,19 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "role": "Запуск"
         },
         {
           "file": "factory.py",
-          "role": "Роль: pair_factory"
+          "role": "Роль: factory"
         },
         {
           "file": "state.py",
-          "role": "Роль: shared"
+          "role": "Роль: state"
         }
       ],
       "steps": [
@@ -9390,13 +8246,13 @@
         {
           "title": "Базовая операция",
           "before": {
-            "path": "examples/flyweight/python/without_pattern.py",
+            "path": "examples/flyweight/base/without_pattern/main.py",
             "selectors": [
               "create"
             ]
           },
           "after": {
-            "path": "examples/flyweight/python/factory.py",
+            "path": "examples/flyweight/base/with_pattern/factory.py",
             "selectors": [
               "Factory.get"
             ]
@@ -9406,13 +8262,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/flyweight/python/without_pattern_extended.py",
+            "path": "examples/flyweight/extended/without_pattern/main.py",
             "selectors": [
               "create"
             ]
           },
           "after": {
-            "path": "examples/flyweight/python/factory.py",
+            "path": "examples/flyweight/extended/with_pattern/factory.py",
             "selectors": [
               "PairFactory.get"
             ]
@@ -9480,20 +8336,6 @@
         "Shared содержит неизменяемую разделяемую часть, Context — отдельное состояние. Фабрика владеет кешем и равенством ключей. Обе структуры состояния удобно держать вместе, варианты фабрики — рядом.",
         "Кеш удерживает объекты, а экономия зависит от повторов и размера Shared. Память не измеряется. Все поля, влияющие на Shared, должны участвовать в ключе; иначе объединятся разные значения."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/flyweight/python/without_pattern.py",
-          "role": "Прямое решение и его зависимости"
-        },
-        {
-          "path": "examples/flyweight/python/state.py",
-          "role": "Прямое решение и его зависимости"
-        },
-        {
-          "path": "examples/flyweight/python/without_pattern_extended.py",
-          "role": "Прямое решение и его зависимости"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -9502,8 +8344,16 @@
       "fileAliases": {
         "pair_factory.py": "factory.py",
         "shared.py": "state.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -9563,79 +8413,23 @@
       "correct": 1,
       "feedback": "Счётчик увидит только промахи кеша: второй вызов завершится во внешнем CachedProxy, не дойдя до CountingProxy."
     },
-    "testCommand": "uv run pytest examples/proxy/python",
+    "testCommand": "uv run test-course proxy",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/proxy/python/without_pattern.py"
-          },
-          {
-            "name": "subject.py",
-            "path": "examples/proxy/python/subject.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/proxy/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/proxy/python/with_pattern.py"
-          },
-          {
-            "name": "cached_proxy.py",
-            "path": "examples/proxy/python/cached_proxy.py"
-          },
-          {
-            "name": "subject.py",
-            "path": "examples/proxy/python/subject.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/proxy/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/proxy/python/without_pattern_extended.py"
-          },
-          {
-            "name": "subject.py",
-            "path": "examples/proxy/python/subject.py"
-          },
-          {
-            "name": "without_pattern.py",
-            "path": "examples/proxy/python/without_pattern.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": []
+        "directory": "examples/proxy/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/proxy/python/with_pattern_extended.py"
-          },
-          {
-            "name": "cached_proxy.py",
-            "path": "examples/proxy/python/cached_proxy.py"
-          },
-          {
-            "name": "counting_proxy.py",
-            "path": "examples/proxy/python/counting_proxy.py"
-          },
-          {
-            "name": "subject.py",
-            "path": "examples/proxy/python/subject.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/proxy/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Считать все обращения, включая попадания в кеш.",
       "apply": "Посредник должен подставляться вместо исходного объекта.",
@@ -9644,27 +8438,27 @@
       "afterChange": "Отдельный посредник добавляет подсчёт; кеширующий посредник стабилен.",
       "architecture": {
         "stableFiles": [
-          "subject.py",
-          "cached_proxy.py"
+          "cached_proxy.py",
+          "subject.py"
         ],
         "exercise": "Поставьте CountingProxy снаружи CachedProxy. После двух вызовов проверьте calls=2 у счётчика и calls=1 у RealSubject."
       },
       "output": "1 1\n",
       "extensionOutput": "1 1\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "with_pattern.py",
+        "file": "main.py",
         "role": "Запуск"
-      },
-      {
-        "file": "subject.py",
-        "role": "Роль: subject"
       },
       {
         "file": "cached_proxy.py",
         "role": "Роль: cached_proxy"
+      },
+      {
+        "file": "subject.py",
+        "role": "Роль: subject"
       }
     ],
     "steps": [
@@ -9698,15 +8492,11 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "role": "Запуск"
-        },
-        {
-          "file": "subject.py",
-          "role": "Роль: subject"
         },
         {
           "file": "cached_proxy.py",
@@ -9715,6 +8505,10 @@
         {
           "file": "counting_proxy.py",
           "role": "Роль: counting_proxy"
+        },
+        {
+          "file": "subject.py",
+          "role": "Роль: subject"
         }
       ],
       "steps": [
@@ -9846,13 +8640,13 @@
         {
           "title": "Базовая операция",
           "before": {
-            "path": "examples/proxy/python/without_pattern.py",
+            "path": "examples/proxy/base/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/proxy/python/cached_proxy.py",
+            "path": "examples/proxy/base/with_pattern/cached_proxy.py",
             "selectors": [
               "CachedProxy.operation"
             ]
@@ -9862,13 +8656,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/proxy/python/without_pattern_extended.py",
+            "path": "examples/proxy/extended/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/proxy/python/counting_proxy.py",
+            "path": "examples/proxy/extended/with_pattern/counting_proxy.py",
             "selectors": [
               "CountingProxy.operation"
             ]
@@ -9932,28 +8726,27 @@
         "Subject задаёт подстановку вместо исходного объекта. CachedProxy владеет кешем, CountingProxy — счётчиком: их можно соединять без изменения друг друга. Разделение обязанностей не требует отдельного файла на класс.",
         "Нужно правильно собрать цепочку: счётчик снаружи кеша видит попадания. Кеш бессрочный и не сбрасывается. Для одного клиента helper с явным состоянием проще."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/proxy/python/without_pattern.py",
-          "role": "Прямое решение и его зависимости"
-        },
-        {
-          "path": "examples/proxy/python/subject.py",
-          "role": "Прямое решение и его зависимости"
-        },
-        {
-          "path": "examples/proxy/python/without_pattern_extended.py",
-          "role": "Прямое решение и его зависимости"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
         3
       ],
       "fileAliases": {
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
+      },
+      "variantFileAliases": {
+        "beforeExtension": {
+          "without_pattern.py": "cache.py"
+        }
       }
     }
   },
@@ -10013,65 +8806,23 @@
       "correct": 1,
       "feedback": "Клиент использует get(key), а поиск спрятан в реализации Repository. Выбор реализации остаётся в точке сборки."
     },
-    "testCommand": "uv run pytest examples/repository/python",
+    "testCommand": "uv run test-course repository",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/repository/python/without_pattern.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/repository/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/repository/python/with_pattern.py"
-          },
-          {
-            "name": "client.py",
-            "path": "examples/repository/python/client.py"
-          },
-          {
-            "name": "repository.py",
-            "path": "examples/repository/python/repository.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/repository/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/repository/python/without_pattern_extended.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/repository/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/repository/python/with_pattern_extended.py"
-          },
-          {
-            "name": "client.py",
-            "path": "examples/repository/python/client.py"
-          },
-          {
-            "name": "repository.py",
-            "path": "examples/repository/python/repository.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/repository/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Подключить список пар вместо словаря, сохранив операцию клиента.",
       "apply": "Несколько операций должны работать независимо от представления данных.",
@@ -10080,18 +8831,17 @@
       "afterChange": "Добавляется ListRepository; операция клиента остаётся прежней.",
       "architecture": {
         "stableFiles": [
-          "client.py",
-          "repository.py"
+          "client.py"
         ],
         "exercise": "Передайте DictRepository и ListRepository с парой 1 → 2 в одну operation. Проверьте результат 3 без изменения клиента."
       },
       "output": "3\n",
       "extensionOutput": "3\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "with_pattern.py",
+        "file": "main.py",
         "role": "Запуск"
       },
       {
@@ -10134,10 +8884,10 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "role": "Запуск"
         },
         {
@@ -10278,13 +9028,13 @@
         {
           "title": "Базовая операция",
           "before": {
-            "path": "examples/repository/python/without_pattern.py",
+            "path": "examples/repository/base/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/repository/python/client.py",
+            "path": "examples/repository/base/with_pattern/client.py",
             "selectors": [
               "operation"
             ]
@@ -10294,13 +9044,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/repository/python/without_pattern_extended.py",
+            "path": "examples/repository/extended/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/repository/python/repository.py",
+            "path": "examples/repository/extended/with_pattern/repository.py",
             "selectors": [
               "ListRepository.get"
             ]
@@ -10364,16 +9114,6 @@
         "Repository отделяет клиентскую операцию от представления набора данных. Реализация владеет поиском; клиент — использованием значения. Короткие реализации хранилища можно держать вместе.",
         "Добавляется контракт поверх простого доступа. Здесь ключ существует, ключи списка уникальны; ошибки, запись и производительность не моделируются. При единственном словаре прямой доступ проще."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/repository/python/without_pattern.py",
-          "role": "Прямое решение и его зависимости"
-        },
-        {
-          "path": "examples/repository/python/without_pattern_extended.py",
-          "role": "Прямое решение и его зависимости"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -10381,9 +9121,17 @@
       ],
       "fileAliases": {
         "list_repository.py": "repository.py",
-        "storage_choice.py": "without_pattern_extended.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "storage_choice.py": "main.py",
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   },
@@ -10443,73 +9191,23 @@
       "correct": 1,
       "feedback": "Да: используемое поведение приходит снаружи. DI определяется местом выбора зависимости, а не контейнером или количеством классов."
     },
-    "testCommand": "uv run pytest examples/dependency-injection/python",
+    "testCommand": "uv run test-course dependency-injection",
     "fileComparison": {
       "before": {
-        "files": [
-          {
-            "name": "without_pattern.py",
-            "path": "examples/dependency-injection/python/without_pattern.py"
-          },
-          {
-            "name": "provider.py",
-            "path": "examples/dependency-injection/python/provider.py"
-          }
-        ],
-        "entry": "without_pattern.py"
+        "directory": "examples/dependency-injection/base/without_pattern",
+        "entry": "main.py"
       },
       "after": {
-        "files": [
-          {
-            "name": "with_pattern.py",
-            "path": "examples/dependency-injection/python/with_pattern.py"
-          },
-          {
-            "name": "client.py",
-            "path": "examples/dependency-injection/python/client.py"
-          },
-          {
-            "name": "provider.py",
-            "path": "examples/dependency-injection/python/provider.py"
-          }
-        ],
-        "entry": "with_pattern.py"
+        "directory": "examples/dependency-injection/base/with_pattern",
+        "entry": "main.py"
       },
       "beforeExtension": {
-        "files": [
-          {
-            "name": "without_pattern_extended.py",
-            "path": "examples/dependency-injection/python/without_pattern_extended.py"
-          },
-          {
-            "name": "provider.py",
-            "path": "examples/dependency-injection/python/provider.py"
-          }
-        ],
-        "entry": "without_pattern_extended.py",
-        "replaces": [
-          "without_pattern.py"
-        ]
+        "directory": "examples/dependency-injection/extended/without_pattern",
+        "entry": "main.py"
       },
       "afterExtension": {
-        "files": [
-          {
-            "name": "with_pattern_extended.py",
-            "path": "examples/dependency-injection/python/with_pattern_extended.py"
-          },
-          {
-            "name": "client.py",
-            "path": "examples/dependency-injection/python/client.py"
-          },
-          {
-            "name": "provider.py",
-            "path": "examples/dependency-injection/python/provider.py"
-          }
-        ],
-        "entry": "with_pattern_extended.py",
-        "replaces": [
-          "with_pattern.py"
-        ]
+        "directory": "examples/dependency-injection/extended/with_pattern",
+        "entry": "main.py"
       },
       "requirement": "Передать источник, удваивающий значение исходного Provider.",
       "apply": "Источник выбирается извне, в том числе в тесте.",
@@ -10518,18 +9216,17 @@
       "afterChange": "Новый Provider передаётся снаружи; Client не меняется.",
       "architecture": {
         "stableFiles": [
-          "client.py",
-          "provider.py"
+          "client.py"
         ],
         "exercise": "Передайте DoubleProvider(ValueProvider(1)) в прежний Client. Проверьте 3 и объясните, где выбирается зависимость."
       },
       "output": "2\n",
       "extensionOutput": "3\n"
     },
-    "entryFile": "with_pattern.py",
+    "entryFile": "main.py",
     "sourceFiles": [
       {
-        "file": "with_pattern.py",
+        "file": "main.py",
         "role": "Запуск"
       },
       {
@@ -10572,10 +9269,10 @@
       ]
     },
     "extension": {
-      "entryFile": "with_pattern_extended.py",
+      "entryFile": "main.py",
       "sourceFiles": [
         {
-          "file": "with_pattern_extended.py",
+          "file": "main.py",
           "role": "Запуск"
         },
         {
@@ -10716,13 +9413,13 @@
         {
           "title": "Базовая операция",
           "before": {
-            "path": "examples/dependency-injection/python/without_pattern.py",
+            "path": "examples/dependency-injection/base/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/dependency-injection/python/client.py",
+            "path": "examples/dependency-injection/base/with_pattern/client.py",
             "selectors": [
               "Client.operation"
             ]
@@ -10732,13 +9429,13 @@
         {
           "title": "Одно расширение",
           "before": {
-            "path": "examples/dependency-injection/python/without_pattern_extended.py",
+            "path": "examples/dependency-injection/extended/without_pattern/main.py",
             "selectors": [
               "operation"
             ]
           },
           "after": {
-            "path": "examples/dependency-injection/python/provider.py",
+            "path": "examples/dependency-injection/extended/with_pattern/provider.py",
             "selectors": [
               "DoubleProvider.get"
             ]
@@ -10806,20 +9503,6 @@
         "Точка сборки выбирает зависимость, Client только использует её. Provider задаёт минимальный контракт; короткие источники можно держать вместе. Эта граница позволяет подставить источник без изменения клиента.",
         "Нужно явно собирать зависимости. Контейнер, Protocol и классы необязательны: передача функции тоже DI. Если зависимость фиксирована и подмена не нужна, локальное создание может быть проще."
       ],
-      "baselineFiles": [
-        {
-          "path": "examples/dependency-injection/python/without_pattern.py",
-          "role": "Прямое решение и его зависимости"
-        },
-        {
-          "path": "examples/dependency-injection/python/provider.py",
-          "role": "Прямое решение и его зависимости"
-        },
-        {
-          "path": "examples/dependency-injection/python/without_pattern_extended.py",
-          "role": "Прямое решение и его зависимости"
-        }
-      ],
       "legacyVersionIndices": [
         0,
         1,
@@ -10827,9 +9510,17 @@
       ],
       "fileAliases": {
         "double_provider.py": "provider.py",
-        "provider_choice.py": "without_pattern_extended.py",
-        "run_extended.py": "with_pattern_extended.py",
-        "main.py": "with_pattern.py"
+        "provider_choice.py": "main.py",
+        "run_extended.py": "main.py",
+        "main.py": "main.py",
+        "with_pattern.py": "main.py",
+        "without_pattern.py": "main.py",
+        "with_pattern_extended.py": "main.py",
+        "without_pattern_extended.py": "main.py",
+        "plain_originator.py": "originator.py",
+        "extended_originator.py": "originator.py",
+        "plain_extended_originator.py": "originator.py",
+        "plain_nodes.py": "nodes.py"
       }
     }
   }

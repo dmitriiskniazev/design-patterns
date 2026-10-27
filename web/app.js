@@ -141,7 +141,7 @@
   function sourceSelection(guide, selection={}) {
     const index=Number.isInteger(selection.version)&&selection.version>=0&&selection.version<guide.versions.length?selection.version:1;
     const version=guide.versions[index],fallback=version.defaultFile;
-    const name=guide.fileAliases?.[selection.file] || selection.file;
+    const name=guide.variantFileAliases?.[version.key]?.[selection.file] || guide.fileAliases?.[selection.file] || selection.file;
     const ref=version.files.find(file=>file.name===name) || version.files.find(file=>file.name===fallback);
     return {index,version,ref,file:guide.sources.find(file=>file.id===ref.id)};
   }

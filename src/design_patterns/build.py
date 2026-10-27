@@ -150,9 +150,11 @@ def build(root: Path) -> list[dict]:
             continue
         if "fileComparison" in topic:
             build_comparison(root, topic["fileComparison"])
-        for flow in (topic, topic["extension"]):
+        for flow, key in ((topic, "after"), (topic["extension"], "afterExtension")):
+            group = topic["fileComparison"][key]
+            directory = group["directory"]
             default_file = flow["entryFile"]
-            path = f"examples/{topic['id']}/python/{default_file}"
+            path = f"{directory}/{default_file}"
             nodes = flow["overview"]["nodes"]
             owners = {node["id"] for node in nodes}
             if len(owners) != len(nodes) or any(
@@ -162,7 +164,7 @@ def build(root: Path) -> list[dict]:
             for step in flow["steps"]:
                 if step["owner"] not in owners or not step["place"]:
                     raise ValueError(f"Missing fragment context: {topic['id']}")
-                file = f"examples/{topic['id']}/python/{step.get('file', default_file)}"
+                file = f"{directory}/{step.get('file', default_file)}"
                 try:
                     step["code"] = extract((root / file).read_text(), step["selectors"])
                 except (ValueError, StopIteration) as error:
@@ -173,37 +175,17 @@ def build(root: Path) -> list[dict]:
                 step["sourcePath"] = file
                 listing_count += 1
             source = (root / path).read_text()
-            source_files = []
-            # Include local imports, such as enums shared by baseline and final code.
-            included = {item["file"] for item in flow["sourceFiles"]}
-            for item in flow["sourceFiles"]:
-                source_path = root / f"examples/{topic['id']}/python/{item['file']}"
-                for node in ast.walk(ast.parse(source_path.read_text())):
-                    if (
-                        isinstance(node, ast.ImportFrom)
-                        and node.module
-                        and not node.level
-                    ):
-                        dependency = node.module + ".py"
-                        if (
-                            dependency not in included
-                            and (source_path.parent / dependency).is_file()
-                        ):
-                            included.add(dependency)
-                            flow["sourceFiles"].append(
-                                {"file": dependency, "role": "общие типы и зависимости"}
-                            )
-            for item in flow["sourceFiles"]:
-                file_path = f"examples/{topic['id']}/python/{item['file']}"
-                file_source = (root / file_path).read_text()
-                source_files.append(
-                    {
-                        "path": file_path,
-                        "role": item["role"],
-                        "code": file_source,
-                        "html": highlight(file_source, lexer, formatter),
-                    }
-                )
+            source_files = [
+                {
+                    "path": item["path"],
+                    "role": "Запуск"
+                    if item["name"] == default_file
+                    else "Роль: " + Path(item["name"]).stem,
+                    "code": item["code"],
+                    "html": item["html"],
+                }
+                for item in group["files"]
+            ]
             if path not in {item["path"] for item in source_files}:
                 raise ValueError(f"Entry point missing from source files: {path}")
             flow["example"] = {
