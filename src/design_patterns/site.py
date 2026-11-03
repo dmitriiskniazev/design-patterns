@@ -1,13 +1,15 @@
 """Package the course for GitHub Pages, including an atomic offline snapshot."""
 
-import hashlib
 import json
 import shutil
 import struct
 import zlib
 from pathlib import Path
 
+from course_engine import build_offline, copy_assets
+
 from design_patterns.build import build
+from design_patterns.themes import build_themes
 
 
 def icon(size: int) -> bytes:
@@ -44,15 +46,16 @@ def package(root: Path) -> Path:
     if target.exists():
         shutil.rmtree(target)
     target.mkdir(parents=True)
-    for name in (
-        "index.html",
-        "app.js",
-        "app.css",
-        "highlight.css",
-        "offline.js",
-        "manifest.webmanifest",
-    ):
+    for name in ("index.html", "offline.js", "manifest.webmanifest"):
         shutil.copyfile(root / "web" / name, target / name)
+    shutil.copytree(root / "web/src", target / "src")
+    for source in (root / "web/public").glob("*"):
+        if source.is_dir():
+            shutil.copytree(source, target / source.name)
+        else:
+            shutil.copyfile(source, target / source.name)
+    copy_assets(target / "src", target / "fonts")
+    build_themes(root, target)
     (target / "course-data.js").write_text(
         "// Generated from web/lessons.json and executable Python source.\n"
         + "window.COURSE_TOPICS = "
@@ -68,22 +71,7 @@ def package(root: Path) -> Path:
         '<title>Паттерны</title><script>location.replace("../"+'
         'location.search+location.hash)</script><a href="../">Открыть курс</a></html>'
     )
-    files = sorted(
-        path
-        for path in target.rglob("*")
-        if path.is_file() and not path.name.startswith(".")
-    )
-    digest = hashlib.sha256()
-    for path in files:
-        digest.update(path.relative_to(target).as_posix().encode())
-        digest.update(path.read_bytes())
-    template = (root / "web/service-worker.js").read_text()
-    digest.update(template.encode())
-    paths = [path.relative_to(target).as_posix() for path in files]
-    worker = template.replace(
-        '"__VERSION__"', json.dumps(digest.hexdigest()[:20])
-    ).replace('"__FILES__"', json.dumps(paths + ["./", "web/"]))
-    (target / "sw.js").write_text(worker)
+    build_offline(target, "patterns", ("./", "web/"))
     return target
 
 

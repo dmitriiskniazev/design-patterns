@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.15"
 
 [[package]]
@@ -12,11 +12,22 @@ wheels = [
 ]
 
 [[package]]
+name = "course-engine"
+version = "0.1.0"
+source = { git = "https://github.com/dmitriiskniazev/course-engine?rev=9238e04d05dbf295635ede6888f09e4bc0706cc4#9238e04d05dbf295635ede6888f09e4bc0706cc4" }
+dependencies = [
+    { name = "pygments" },
+]
+
+[[package]]
 name = "design-patterns"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "course-engine" },
     { name = "pygments" },
+    { name = "pyyaml" },
+    { name = "tomli-w" },
 ]
 
 [package.dev-dependencies]
@@ -25,7 +36,12 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pygments", specifier = "==2.21.0" }]
+requires-dist = [
+    { name = "course-engine", git = "https://github.com/dmitriiskniazev/course-engine?rev=9238e04d05dbf295635ede6888f09e4bc0706cc4" },
+    { name = "pygments", specifier = "==2.21.0" },
+    { name = "pyyaml", specifier = ">=6.0.3,<7" },
+    { name = "tomli-w", specifier = ">=1.2,<2" },
+]
 
 [package.metadata.requires-dev]
 dev = [{ name = "pytest", specifier = ">=8.4,<10" }]
@@ -80,4 +96,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e4/47/b9efed96c114afcfa3c9d3fe98a76a1d14c74a9e266d397cf6eb64be5e01/pytest-9.1.1.tar.gz", hash = "sha256:1088fbde8f2b49d95a549a195707afa7a76a3ce9bcadc26b6d71f0ffda5fe313", size = 1636369, upload-time = "2026-06-19T10:58:32.857Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/24/25/1de2678b631f5a49215c6c96fff41ba892b0a34df68d6d80292b1b48aa7f/pytest-9.1.1-py3-none-any.whl", hash = "sha256:37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c", size = 386536, upload-time = "2026-06-19T10:58:31.347Z" },
+]
+
+[[package]]
+name = "pyyaml"
+version = "6.0.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/05/8e/961c0007c59b8dd7729d542c61a4d537767a59645b82a0b521206e1e25c2/pyyaml-6.0.3.tar.gz", hash = "sha256:d76623373421df22fb4cf8817020cbb7ef15c725b9d5e45f17e189bfc384190f", size = 130960, upload-time = "2025-09-25T21:33:16.546Z" }
+
+[[package]]
+name = "tomli-w"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/19/75/241269d1da26b624c0d5e110e8149093c759b7a286138f4efd61a60e75fe/tomli_w-1.2.0.tar.gz", hash = "sha256:2dd14fac5a47c27be9cd4c976af5a12d87fb1f0b4512f81d69cce3b35ae25021", size = 7184, upload-time = "2025-01-15T12:07:24.262Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c7/18/c86eb8e0202e32dd3df50d43d7ff9854f8e0603945ff398974c1d91ac1ef/tomli_w-1.2.0-py3-none-any.whl", hash = "sha256:188306098d013b691fcadc011abd66727d3c414c571bb01b1a174ba8c983cf90", size = 6675, upload-time = "2025-01-15T12:07:22.074Z" },
 ]

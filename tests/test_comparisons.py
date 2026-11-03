@@ -27,8 +27,15 @@ def test_comparison_topics() -> None:
     assert set(TOPICS) == ready
 
 
-@pytest.mark.parametrize("topic", TOPICS)
-@pytest.mark.parametrize("group_name", GROUPS)
+@pytest.mark.parametrize(
+    ("topic", "group_name"),
+    [
+        (topic, key)
+        for topic, comparison in TOPICS.items()
+        for key in GROUPS
+        if key in comparison
+    ],
+)
 def test_displayed_comparison_runs_independently(
     topic: str, group_name: str, tmp_path: Path
 ) -> None:
@@ -37,19 +44,29 @@ def test_displayed_comparison_runs_independently(
     group = comparison[group_name]
     for item in group["files"]:
         assert item["code"] == (ROOT / item["path"]).read_text()
-        assert item["html"]
+        assert item["html"] or not item["code"]
 
     files = group["files"]
     assert len({item["name"] for item in files}) == len(files)
     for item in files:
         assert item["code"] == (ROOT / item["path"]).read_text()
-        (tmp_path / item["name"]).write_text(item["code"])
-    assert group["command"] == (
-        f"uv run --no-project --python 3.15 {group['directory']}/{group['entry']}"
-    )
+        target = tmp_path / item["name"]
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(item["code"])
+    if "module" in group:
+        assert f"python -m {group['module']}" in group["command"]
+    else:
+        assert group["command"] == (
+            f"uv run --no-project --python 3.15 {group['directory']}/{group['entry']}"
+        )
 
     result = subprocess.run(
-        [sys.executable, "-E", "-B", group["entry"]],
+        [
+            sys.executable,
+            "-E",
+            "-B",
+            *(["-m", group["module"]] if "module" in group else [group["entry"]]),
+        ],
         cwd=tmp_path,
         check=False,
         capture_output=True,
@@ -61,6 +78,13 @@ def test_displayed_comparison_runs_independently(
     assert result.stdout == comparison[output_key]
     assert result.stderr == ""
     # The learner's tests must also work after copying just this leaf directory.
+    if "module" in group:
+        # The shared example is the copyable unit; its tests compare both clients.
+        for other_key in ("before", "after"):
+            for item in comparison[other_key]["files"]:
+                target = tmp_path / item["name"]
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(item["code"])
     test = ROOT / group["directory"] / "test_example.py"
     (tmp_path / "test_example.py").write_text(test.read_text())
     checked = subprocess.run(

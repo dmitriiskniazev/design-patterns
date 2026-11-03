@@ -9,7 +9,6 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 TOPICS = json.loads((ROOT / "web/lessons.json").read_text())
 ADDITIONS = [
-    ("abstract-factory", "factory.py", "FactoryB"),
     ("adapter", "adaptee.py", "SecondAdaptee"),
     ("adapter", "adapter.py", "SecondAdapter"),
     ("bridge", "implementation.py", "ImplementationB"),
@@ -28,14 +27,34 @@ ADDITIONS = [
     ("observer", "callbacks.py", "double"),
     ("repository", "repository.py", "ListRepository"),
     ("state", "states.py", "C"),
-    ("strategy", "strategy.py", "double"),
     ("template-method", "template.py", "B"),
     ("visitor", "visitor.py", "DoubleVisitor"),
 ]
 
 
-def test_every_topic_has_exactly_four_complete_variants() -> None:
+def test_topics_follow_their_declared_comparison_layout() -> None:
     for topic in TOPICS:
+        if "beforeExtension" not in topic["fileComparison"]:
+            directory = ROOT / topic["fileComparison"]["before"]["directory"]
+            assert not (directory / "base").exists()
+            assert not (directory / "extended").exists()
+            assert (directory / "test_example.py").is_file()
+            for approach in ("baseline", "pattern"):
+                assert (directory / approach / "main.py").is_file()
+                assert not (directory / approach / "formats").exists()
+            assert topic["fileComparison"]["after"]["directory"] == (
+                topic["fileComparison"]["before"]["directory"]
+            )
+            for key, approach in (("before", "baseline"), ("after", "pattern")):
+                group = topic["fileComparison"][key]
+                assert group["module"] == f"{approach}.main"
+                assert group["entry"] == f"{approach}/main.py"
+                assert approach in group["sources"]
+            if topic["id"] == "abstract-factory":
+                assert {path.stem for path in (directory / "formats").glob("*.py")} == {
+                    "__init__", "json", "yaml", "toml",
+                }
+            continue
         directory = ROOT / "examples" / topic["id"]
         assert {p.name for p in directory.iterdir()} == {"base", "extended"}
         expected = set()

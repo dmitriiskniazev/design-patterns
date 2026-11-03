@@ -53,6 +53,34 @@ def extract(source: str, selectors: list[str]) -> str:
                     "".join(lines[node.body[0].lineno - 1 : node.end_lineno])
                 ).rstrip()
             )
+        elif selector.startswith("case:"):
+            _, function_name, case_name = selector.split(":")
+            class_name, separator, method_name = function_name.partition(".")
+            owner = (
+                next(
+                    node for node in tree.body
+                    if isinstance(node, ast.ClassDef) and node.name == class_name
+                )
+                if separator else tree
+            )
+            function = next(
+                n
+                for n in owner.body
+                if isinstance(n, ast.FunctionDef)
+                and n.name == (method_name if separator else function_name)
+            )
+            case = next(
+                case
+                for node in ast.walk(function)
+                if isinstance(node, ast.Match)
+                for case in node.cases
+                if ast.unparse(case.pattern) == case_name
+            )
+            parts.append(
+                textwrap.dedent(
+                    "".join(lines[case.pattern.lineno - 1 : case.body[-1].end_lineno])
+                ).rstrip()
+            )
         elif selector.startswith("fields:"):
             name = selector.split(":", 1)[1]
             node = next(
@@ -151,7 +179,7 @@ def build(root: Path) -> list[dict]:
         if "fileComparison" in topic:
             build_comparison(root, topic["fileComparison"])
         for flow, key in ((topic, "after"), (topic["extension"], "afterExtension")):
-            group = topic["fileComparison"][key]
+            group = topic["fileComparison"].get(key, topic["fileComparison"]["after"])
             directory = group["directory"]
             default_file = flow["entryFile"]
             path = f"{directory}/{default_file}"
@@ -190,7 +218,7 @@ def build(root: Path) -> list[dict]:
                 raise ValueError(f"Entry point missing from source files: {path}")
             flow["example"] = {
                 "path": path,
-                "command": f"uv run --no-project --python 3.15 {path}",
+                "command": group["command"],
                 "code": source,
                 "html": highlight(source, lexer, formatter),
                 "files": source_files,

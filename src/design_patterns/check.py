@@ -26,5 +26,5 @@ def check(root: Path, topic: str | None = None) -> int:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("topic", nargs="?", help="Например, abstract-factory")
+    parser.add_argument("topic", nargs="?", help="Например, abstract_factory")
     raise SystemExit(check(Path.cwd(), parser.parse_args().topic))
