@@ -5,7 +5,6 @@ import json
 import textwrap
 from pathlib import Path
 from urllib.parse import urlparse
-from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
@@ -52,6 +51,34 @@ def extract(source: str, selectors: list[str]) -> str:
             parts.append(
                 textwrap.dedent(
                     "".join(lines[node.body[0].lineno - 1 : node.end_lineno])
+                ).rstrip()
+            )
+        elif selector.startswith("case:"):
+            _, function_name, case_name = selector.split(":")
+            class_name, separator, method_name = function_name.partition(".")
+            owner = (
+                next(
+                    node for node in tree.body
+                    if isinstance(node, ast.ClassDef) and node.name == class_name
+                )
+                if separator else tree
+            )
+            function = next(
+                n
+                for n in owner.body
+                if isinstance(n, ast.FunctionDef)
+                and n.name == (method_name if separator else function_name)
+            )
+            case = next(
+                case
+                for node in ast.walk(function)
+                if isinstance(node, ast.Match)
+                for case in node.cases
+                if ast.unparse(case.pattern) == case_name
+            )
+            parts.append(
+                textwrap.dedent(
+                    "".join(lines[case.pattern.lineno - 1 : case.body[-1].end_lineno])
                 ).rstrip()
             )
         elif selector.startswith("fields:"):
@@ -132,19 +159,11 @@ def extract(source: str, selectors: list[str]) -> str:
     return code
 
 
-def build(root: Path) -> None:
-    topics = json.loads((root / "content/topics.json").read_text())
-    guides = {}
-    for path in sorted((root / "content").glob("guide-*.json")):
-        chapters = json.loads(path.read_text())
-        if guides.keys() & chapters.keys():
-            raise ValueError(f"Duplicate guide chapters: {path.name}")
-        guides.update(chapters)
-    expected = {topic["id"] for topic in topics if topic["ready"]}
-    if set(guides) != expected:
-        raise ValueError(
-            f"Guide coverage mismatch: missing={expected - guides.keys()}, unknown={guides.keys() - expected}"
-        )
+def build(root: Path) -> list[dict]:
+    topics = json.loads((root / "web/lessons.json").read_text())
+    for topic in topics:
+        if topic["ready"] and not isinstance(topic.get("guide"), dict):
+            raise ValueError(f"Missing guide for {topic['id']}")
     identifiers = [topic["id"] for topic in topics]
     if len(identifiers) != len(set(identifiers)):
         raise ValueError("Duplicate topic identifiers")
@@ -159,12 +178,11 @@ def build(root: Path) -> None:
             continue
         if "fileComparison" in topic:
             build_comparison(root, topic["fileComparison"])
-        for flow, mode in (
-            (topic, "base"),
-            (topic["extension"], "extended"),
-        ):
+        for flow, key in ((topic, "after"), (topic["extension"], "afterExtension")):
+            group = topic["fileComparison"].get(key, topic["fileComparison"]["after"])
+            directory = group["directory"]
             default_file = flow["entryFile"]
-            path = f"examples/{topic['id']}/python/{default_file}"
+            path = f"{directory}/{default_file}"
             nodes = flow["overview"]["nodes"]
             owners = {node["id"] for node in nodes}
             if len(owners) != len(nodes) or any(
@@ -174,7 +192,7 @@ def build(root: Path) -> None:
             for step in flow["steps"]:
                 if step["owner"] not in owners or not step["place"]:
                     raise ValueError(f"Missing fragment context: {topic['id']}")
-                file = f"examples/{topic['id']}/python/{step.get('file', default_file)}"
+                file = f"{directory}/{step.get('file', default_file)}"
                 try:
                     step["code"] = extract((root / file).read_text(), step["selectors"])
                 except (ValueError, StopIteration) as error:
@@ -185,69 +203,31 @@ def build(root: Path) -> None:
                 step["sourcePath"] = file
                 listing_count += 1
             source = (root / path).read_text()
-            source_files = []
-            # Include local imports, such as enums shared by baseline and final code.
-            included = {item["file"] for item in flow["sourceFiles"]}
-            for item in flow["sourceFiles"]:
-                source_path = root / f"examples/{topic['id']}/python/{item['file']}"
-                for node in ast.walk(ast.parse(source_path.read_text())):
-                    if (
-                        isinstance(node, ast.ImportFrom)
-                        and node.module
-                        and not node.level
-                    ):
-                        dependency = node.module + ".py"
-                        if (
-                            dependency not in included
-                            and (source_path.parent / dependency).is_file()
-                        ):
-                            included.add(dependency)
-                            flow["sourceFiles"].append(
-                                {"file": dependency, "role": "общие типы и зависимости"}
-                            )
-            archive_path = f"assets/examples/{topic['id']}-{mode}.zip"
-            (root / archive_path).parent.mkdir(parents=True, exist_ok=True)
-            with ZipFile(root / archive_path, "w") as archive:
-                for item in flow["sourceFiles"]:
-                    file_path = f"examples/{topic['id']}/python/{item['file']}"
-                    file_source = (root / file_path).read_text()
-                    source_files.append(
-                        {
-                            "path": file_path,
-                            "role": item["role"],
-                            "code": file_source,
-                            "html": highlight(file_source, lexer, formatter),
-                        }
-                    )
-                    entry = ZipInfo(file_path, date_time=(1980, 1, 1, 0, 0, 0))
-                    entry.compress_type = ZIP_DEFLATED
-                    archive.writestr(entry, file_source)
+            source_files = [
+                {
+                    "path": item["path"],
+                    "role": "Запуск"
+                    if item["name"] == default_file
+                    else "Роль: " + Path(item["name"]).stem,
+                    "code": item["code"],
+                    "html": item["html"],
+                }
+                for item in group["files"]
+            ]
             if path not in {item["path"] for item in source_files}:
-                raise ValueError(f"Entry point missing from bundle: {path}")
+                raise ValueError(f"Entry point missing from source files: {path}")
             flow["example"] = {
                 "path": path,
-                "command": f"uv run --no-project --python 3.15 {path}",
+                "command": group["command"],
                 "code": source,
                 "html": highlight(source, lexer, formatter),
                 "files": source_files,
-                "archivePath": archive_path,
             }
 
-        if topic["id"] in guides:
-            topic["guide"] = guides[topic["id"]]
-            build_guide(root, topic, extract)
-
-    (root / "assets/course-data.js").write_text(
-        "// Generated by design_patterns.build from topics and Python source.\n"
-        + "window.COURSE_TOPICS = "
-        + json.dumps(topics, ensure_ascii=False)
-        + ";\n"
-    )
+        build_guide(root, topic, extract)
 
     print(
         f"Built {listing_count} short Python listings for {sum(t['ready'] for t in topics)} lessons"
     )
 
-
-def main() -> None:
-    build(Path.cwd())
+    return topics

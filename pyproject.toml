@@ -4,11 +4,15 @@ version = "0.1.0"
 description = "Русскоязычный курс паттернов проектирования на Python"
 readme = "README.md"
 requires-python = ">=3.15"
-dependencies = ["pygments==2.21.0"]
+dependencies = [
+    "course-engine",
+    "pygments==2.21.0",
+    "pyyaml>=6.0.3,<7",
+    "tomli-w>=1.2,<2",
+]
 
 [project.scripts]
-build-site = "design_patterns.site:main"
-build-course = "design_patterns.build:main"
+build-course = "design_patterns.site:main"
 test-course = "design_patterns.check:main"
 
 [dependency-groups]
@@ -20,3 +24,6 @@ build-backend = "uv_build"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.uv.sources]
+course-engine = { git = "https://github.com/dmitriiskniazev/course-engine", rev = "9238e04d05dbf295635ede6888f09e4bc0706cc4" }

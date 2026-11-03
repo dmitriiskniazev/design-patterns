@@ -1,0 +1,161 @@
+.reader {
+  min-width: 0;
+  container-type: inline-size;
+  container-name: reader;
+}
+.reader-section {
+  margin-bottom: 2.75rem;
+}
+.reader :is(p, dl) {
+  max-width: var(--prose-width);
+}
+.task-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 0;
+  margin: 0;
+  border-block: 1px solid var(--border);
+}
+.task-facts dt {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+.task-facts dd {
+  margin: 0;
+  font-size: 0.9rem;
+}
+.reader h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+.reader h3 {
+  font-size: 1rem;
+  margin: 1.5rem 0 0.75rem;
+}
+.reader p {
+  margin-bottom: 0.9rem;
+}
+.reader-lead {
+  font-size: 1.05rem;
+}
+.reader-extension {
+  margin: 1.75rem 0;
+}
+.short-comparison {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  border-block: 1px solid var(--border);
+  margin: 1.25rem 0;
+  min-width: 0;
+}
+.short-side {
+  min-width: 0;
+  border: 0;
+  margin: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+.short-side + .short-side {
+  border-left: 1px solid var(--border);
+}
+.short-side pre {
+  padding: 0.75rem;
+}
+.open-code {
+  display: inline-block;
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+}
+.comparison-explanation {
+  font-size: 0.9rem;
+}
+.reader-reference {
+  border: 0;
+  margin: 1rem 0;
+  color: var(--muted);
+}
+.reader-reference summary {
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.reader-reference[open] {
+  color: var(--ink);
+}
+.reader-reference dl {
+  font-size: 0.85rem;
+}
+.reader-reference dt {
+  font-weight: 600;
+  margin-top: 0.75rem;
+}
+.reader-reference dd {
+  margin-left: 0;
+  color: var(--muted);
+}
+.reader-reasons {
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+.reader-source {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.guide-diagram {
+  margin: 1rem 0;
+  overflow: auto;
+  max-width: 800px;
+}
+.guide-diagram svg {
+  display: block;
+  min-width: 620px;
+  width: 100%;
+}
+.guide-diagram figcaption {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+.guide-diagram figcaption small {
+  display: block;
+}
+.guide-node rect {
+  fill: var(--surface-muted);
+  stroke: var(--border);
+}
+.guide-node.shared rect {
+  fill: var(--wash);
+}
+.guide-node-name {
+  font: 600 12px var(--font-code);
+  fill: var(--ink);
+}
+.guide-node-role,
+.guide-edge-label,
+.guide-column-label {
+  font: 10px var(--font-prose);
+  fill: var(--muted);
+}
+.guide-edge {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.25;
+}
+.guide-diagram marker path {
+  fill: var(--muted);
+}
+@container reader (max-width:700px) {
+  .task-facts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+  .short-comparison {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .short-side + .short-side {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
+}

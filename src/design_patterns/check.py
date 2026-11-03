@@ -1,12 +1,18 @@
-"""Проверять инфраструктуру и каждую тему в отдельном процессе."""
+"""Проверять инфраструктуру и каждый самостоятельный вариант отдельным процессом."""
 
+import argparse
 import subprocess
 import sys
 from pathlib import Path
 
 
-def check(root: Path) -> int:
-    directories = [root / "tests", *sorted((root / "examples").glob("*/python"))]
+def check(root: Path, topic: str | None = None) -> int:
+    examples = root / "examples"
+    selected = examples / topic if topic else examples
+    variants = sorted(path.parent for path in selected.rglob("test_example.py"))
+    if not variants:
+        raise ValueError(f"No example variants found: {selected}")
+    directories = ([root / "tests"] if topic is None else []) + variants
     for directory in directories:
         result = subprocess.run(
             [sys.executable, "-m", "pytest", "-q", str(directory)],
@@ -19,4 +25,6 @@ def check(root: Path) -> int:
 
 
 def main() -> None:
-    raise SystemExit(check(Path.cwd()))
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("topic", nargs="?", help="Например, abstract_factory")
+    raise SystemExit(check(Path.cwd(), parser.parse_args().topic))
